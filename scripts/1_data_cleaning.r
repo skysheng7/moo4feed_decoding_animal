@@ -1,8 +1,9 @@
 ################################################################
 # Package setup
+#     - Installation guide from `moo4feed` package site: 
+#     https://www.skysheng.io/moo4feed/index.html
 ################################################################
 
-# Follow installation guide from `moo4feed` package site: https://www.skysheng.io/moo4feed/index.html
 # install packages if you haven't done so
 # install.packages("devtools")
 # devtools::install_github("skysheng7/moo4feed")
@@ -19,10 +20,8 @@ library(moo4feed)
 
 # ---- STEP 1: Set Paths to Data Files ----
 # For your own data:
-# extdata_path <- "/path/to/my/raw/files"
-
-# Or for the demo data:
-extdata_path <- system.file("extdata", package = "moo4feed")
+extdata_path <- "../data/insentec"
+output_path <- "../results"
 
 # If feeders and drinkers are in different folders:
 # extdata_path_f <- "/path/to/feeder/files"
@@ -46,7 +45,7 @@ fileNames.w <- list.files(
 ) |> sort()
 
 # ---- STEP 3: Handle Daylight Saving Time ----
-dst_df <- get_dst_switch_info(years = c(2020, 2021), tz = "America/Chicago")
+dst_df <- get_dst_switch_info(years = c(2020, 2021), tz = "America/Vancouver")
 
 # ---- STEP 4: Match Files by Date ----
 date_compare <- compare_files(fileNames.f, fileNames.w)
@@ -91,7 +90,9 @@ set_global_cols(
 # set_bin_offset2(100)
 
 # ---- STEP 6: Process Feeder Data ----
-# Define column names for feeder files
+# the .DAT files I get from the feeders do not have column headers,
+# so we need to define the column names manually. Note the number of columns 
+# you manually declear here should match the number of values in each row in the .DAT file.
 col_names <- c("transponder", "cow", "bin", "start", "end", "duration", 
               "start_weight", "end_weight", "comment", "intake", "intake2", 
               "X1", "X2", "X3", "X4", "x5")
