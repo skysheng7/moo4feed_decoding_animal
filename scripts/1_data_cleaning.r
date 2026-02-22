@@ -20,8 +20,8 @@ library(moo4feed)
 
 # ---- STEP 1: Set Paths to Data Files ----
 # For your own data:
-extdata_path <- "../data/insentec"
-output_path <- "../results"
+extdata_path <- "data/insentec"
+output_path <- "results"
 
 # If feeders and drinkers are in different folders:
 # extdata_path_f <- "/path/to/feeder/files"
