@@ -186,7 +186,7 @@ qc_results <- qc(
   fix_double_detections = TRUE
 )
 
-# Store warnings
+# save warning messages to a file
 warning <- qc_results$warnings
 
 # ---- STEP 10: Extract Cleaned Data ----
@@ -199,14 +199,12 @@ qc_combined <- qc_results$combined
 feed_with_outliers <- knn_clean_feed(
   qc_feed,
   k = 50,
-  threshold_percentile = 99.3,
+  threshold_percentile = 99.96,
   custom_scaling = list(
-    rate = 10000,
-    intake = 7,
-    duration = 0.03
+    rate = 8,
+    intake = 1,
+    duration = 0.02
   ),
-  intake_col = intake_col2(),       # Intake amount column (default from global vars)
-  duration_col = duration_col2(),   # Visit duration column (default from global vars)
   date_col = "date",                # Date column name
   remove_outliers = FALSE
 )
@@ -238,11 +236,11 @@ print(p2)
 water_with_outliers <- knn_clean_water(
   qc_water,
   k = 50,
-  threshold_percentile = 99,
+  threshold_percentile = 99.9,
   custom_scaling = list(
-    rate = 2000,
-    intake = 7,
-    duration = 0.01
+    rate = 8,
+    intake = 1,
+    duration = 0.02
   ),
   intake_col = intake_col2(),       # Intake amount column (default from global vars)
   duration_col = duration_col2(),   # Visit duration column (default from global vars)
@@ -276,10 +274,8 @@ print(p4)
 cleaned_feed_no_outliers <- knn_clean_feed(
   qc_feed,
   k = 50,
-  threshold_percentile = 99.3,
-  custom_scaling = list(rate = 10000, intake = 7, duration = 0.03),
-  intake_col = intake_col2(),       # Intake amount column (default from global vars)
-  duration_col = duration_col2(),   # Visit duration column (default from global vars)
+  threshold_percentile = 99.96,
+  custom_scaling = list(rate = 8, intake = 1, duration = 0.02),
   date_col = "date",                # Date column name
   remove_outliers = TRUE
 )
@@ -288,10 +284,8 @@ cleaned_feed_no_outliers <- knn_clean_feed(
 cleaned_water_no_outliers <- knn_clean_water(
   qc_water,
   k = 50,
-  threshold_percentile = 99.8,
-  custom_scaling = list(rate = 2000, intake = 1, duration = 0.01),
-  intake_col = intake_col2(),       # Intake amount column (default from global vars)
-  duration_col = duration_col2(),   # Visit duration column (default from global vars)
+  threshold_percentile = 99.9,
+  custom_scaling = list(rate = 8, intake = 1, duration = 0.02),
   date_col = "date",                # Date column name
   remove_outliers = TRUE
 )
@@ -317,3 +311,17 @@ summary_df <- daily_summary$summary
 
 # Get updated warnings
 warning <- daily_summary$warn
+
+
+################################################################
+# Save results
+################################################################
+# Create output directory if it doesn't exist
+if (!dir.exists(paste0(output_path, "/processed_data"))) {
+  dir.create(paste0(output_path, "/processed_data"), recursive = TRUE)
+}
+write.csv(warning, file = paste0(output_path, "/processed_data/warnings.csv"))
+write.csv(summary_df, file = paste0(output_path, "/processed_data/summary_df.csv"))
+save(clean_feed, file = paste0(output_path, "/processed_data/clean_feed.rda"))
+save(clean_water, file = paste0(output_path, "/processed_data/clean_water.rda"))
+save(clean_comb, file = paste0(output_path, "/processed_data/clean_comb.rda"))
