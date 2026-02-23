@@ -21,177 +21,139 @@ library(dplyr)
 
 # Set up your column names and timezone (modify these!)
 set_global_cols(
-  id_col = "cow",           # Your animal ID column
-  start_col = "start",      # Visit start time column  
-  end_col = "end",          # Visit end time column
-  bin_col = "bin",          # Bin/feeder ID column
-  intake_col = "intake",    # Feed intake amount column
-  dur_col = "duration",     # Visit duration column
-  tz = "America/Vancouver"  # Your timezone
+  # Time zone
+  tz = "America/Vancouver",
+  
+  # Column names in your data files
+  id_col = "cow",
+  trans_col = "transponder",
+  start_col = "start",
+  end_col = "end",
+  bin_col = "bin",
+  dur_col = "duration",
+  intake_col = "intake",
+  start_weight_col = "start_weight",
+  end_weight_col = "end_weight",
+  
+  # Bin settings
+  bins_feed = 1:30,
+  bins_wat = 1:5,
+  bin_offset = 100
 )
 
-# ---- STEP 1: Find Optimal Meal Interval ----
-# Method 1: Simple percentile approach
-eps_percentile <- meal_interval(
-  data = your_data, 
-  method = "percentile", 
-  percentile = 0.9,                    # Try: 0.80, 0.93, 0.95, 0.99
-  lower_bound = NULL, 
-  upper_bound = NULL,
-  id_col = id_col2(), 
-  start_col = start_col2(), 
-  end_col = end_col2(),
-  tz = tz2()
-)
+# load data
+output_path <- "results"
+load(paste0(output_path, "/processed_data/clean_feed.rda"))
+your_data <- clean_feed
 
-# Method 2: Gaussian Mixture Model (more sophisticated)
-eps_gmm <- meal_interval(
-  data = your_data, 
-  method = "gmm", 
-  percentile = 0.9,
-  lower_bound = NULL, 
-  upper_bound = NULL,
-  use_log_transform = TRUE,             # Try: FALSE
-  log_multiplier = 20,                  # Try: 10, 30, 50
-  log_offset = 1,                       # Try: 0.5, 2
-  id_col = id_col2(), 
-  start_col = start_col2(), 
-  end_col = end_col2(),
-  tz = tz2()
-)
-
-# Method 3: Conservative approach (uses both methods, takes minimum)
-eps_both <- meal_interval(
-  data = your_data, 
-  method = "both", 
-  percentile = 0.9,
-  lower_bound = NULL, 
-  upper_bound = NULL,
-  id_col = id_col2(), 
-  start_col = start_col2(), 
-  end_col = end_col2(),
-  tz = tz2()
-)
-
-# ---- STEP 2: Visualize Gap Distributions ----
-# Visualize percentile method
-p1 <- viz_eps_percentile(
-  data = your_data, 
-  percentile = 0.9,                    # Try different values!
-  lower_bound = NULL, 
-  upper_bound = NULL,
-  xlim = 15,                           # Adjust for your data range
-  id_col = id_col2(), 
-  start_col = start_col2(), 
-  end_col = end_col2(),
-  tz = tz2()
-)
-
+# ---- STEP 1: Find Optimal Meal Interval & Visualize Gap Distributions ----
 # Visualize GMM method  
-p2 <- viz_eps_gmm(
-  data = your_data, 
-  use_log_transform = TRUE,             # Try: FALSE
-  xlim = 20,                            # Use smaller values for log transform
-  show_components = TRUE,               # Try: FALSE
-  id_col = id_col2(), 
-  start_col = start_col2(), 
-  end_col = end_col2(),
-  tz = tz2()
-)
+p_gmm_log_20 <- viz_eps_gmm(your_data, 
+                            lower_bound = NULL,
+                            upper_bound = NULL,
+                            bins = 100,
+                            colors = grDevices::hcl.colors(4, "Set 3"),
+                            title_prefix = "Distribution of time gap between visits \n& GMM-based meal interval (eps)\n",
+                            show_components = TRUE,
+                            use_log_transform = TRUE,
+                            log_multiplier = 20,
+                            log_offset = 1,
+                            xlim = 10)
+print(p_gmm_log_20)
 
-# ---- STEP 3: Cluster Visits into Meals ----
-# - Step 1 + 2 are optional, it's designed to help you find the optimal interval (eps) 
-#   or find the best automatic method of identifyingoptimal eps for the clustering.
-# - You can skip step 1 + 2 and just use the 2 functions below if you are confident.
+
+# ---- STEP 2: Cluster Visits into Meals ----
+# - Step 1 is optional, it's designed to help you find the optimal interval (eps) 
+# - You can skip step 1 and just use the 2 functions below if you are confident.
 # Option A: Just get meal summaries
-meals <- cluster_meals(
-  data = your_data,
-  eps = NULL,                           # Auto-determine, or set specific value
-  min_pts = 2,                          # Try: 3, 4, 5 for stricter clustering
-  method = "gmm",                       # Try: "percentile", "both"
-  eps_scope = "all_animals",            # Try: "one_animal_all_days", "one_animal_single_day"
-  lower_bound = 5, 
-  upper_bound = 60,
-  id_col = id_col2(),
-  start_col = start_col2(),
-  end_col = end_col2(),
-  bin_col = bin_col2(),
-  intake_col = intake_col2(),
-  dur_col = duration_col2(),
-  tz = tz2()
-)
+meal_summaries <- cluster_meals(data = your_data,
+                            eps = NULL,  # Auto-determine eps using GMM method
+                            min_pts = 2,  # 🎯 Try changing this to 3, 4, or 5!
+                            method = "gmm",
+                            percentile = 0.9,
+                            eps_scope = "all_animals",
+                            lower_bound = NULL,
+                            upper_bound = NULL,
+                            use_log_transform = TRUE,
+                            log_multiplier = 20,
+                            log_offset = 1)
+
+# Look at the results
+head(meal_summaries)
 
 # Option B: Label individual visits with meal info (recommended!)
-labeled_visits <- meal_label_visits(
-  data = your_data,
-  eps = NULL,                           # Auto-determine optimal interval
-  min_pts = 2,                          # Minimum visits to form a meal
-  method = "gmm",                       # Clustering method
-  eps_scope = "all_animals",            # Scope for eps calculation
-  id_col = id_col2(),
-  start_col = start_col2(),
-  end_col = end_col2(),
-  bin_col = bin_col2(),
-  intake_col = intake_col2(),
-  dur_col = duration_col2(),
-  tz = tz2()
-)
+labeled_visits <- meal_label_visits(data = your_data,
+                                   eps = NULL,
+                                   min_pts = 2,
+                                   method = "gmm",
+                                   percentile = 0.9,
+                                   eps_scope = "all_animals",
+                                   lower_bound = NULL,
+                                   upper_bound = NULL,
+                                   use_log_transform = TRUE,
+                                   log_multiplier = 20,
+                                   log_offset = 1)
 
-# ---- STEP 4: Visualize Meal Patterns ----
+# ---- STEP 3: Visualize Meal Patterns ----
 # Create timeline plots showing meals
-meal_plots <- viz_meal_clusters(
-  data = labeled_visits,
-  point_size = 2,                       # Try: 1, 3, 4
-  point_alpha = 0.7,                    # Try: 0.5, 0.8, 1.0
-  color_palette = "Set 3",              # Try: "Dark 2", "Pastel 1", "Set 1"
-  outlier_color = "grey50",             # Try: "red", "black"
-  title_prefix = "Animal",              # Try: "Cow", ""
-  text_size = 12,                       # Try: 10, 14, 16
-  time_breaks = "4 hours",              # Try: "2 hours", "6 hours"
-  id_col = id_col2(),
-  start_col = start_col2(),
-  tz = tz2()
-)
-
-# ---- STEP 5: Extract and Combine Specific Plots ----
-# Get plots for specific animals
-animal_plots <- extract_plots(
-  plot_list = meal_plots, 
-  animals = c("6084", "5120"),          # Your animal IDs
-  dates = NULL                          # All dates, or specify: c("2020-10-31")
-)
-
-# Get plots for specific dates
-date_plots <- extract_plots(
-  plot_list = meal_plots,
-  animals = NULL,                       # All animals
-  dates = "2020-10-31"                  # Your specific date
-)
-
-# Combine multiple days for one animal
-combined_plots <- combine_animal_plots(
-  plot_list = meal_plots, 
-  animal_id = "5124",                   # Your animal ID
-  plots_per_page = 4,                   # Number of plots per page
-  method = "vertical"                   # Try: "grid"
-)
-
-# Combine multiple animals for one date
-date_combined <- combine_date_plots(
-  plot_list = meal_plots,
-  date = "2020-10-31",                  # Your specific date
-  plots_per_page = 3,
-  method = "vertical"
-)
+meal_plots <- viz_meal_clusters(data = labeled_visits,
+                               point_size = 2,
+                               point_alpha = 0.7,
+                               ncol_facet = 1,
+                               date_format = "%Y-%m-%d",
+                               time_breaks = "4 hours",
+                               time_labels = "%H",
+                               color_palette = "Set 3",  # 🎯 Try "Dark 2", "Pastel 1"!
+                               outlier_color = "grey50",
+                               title_prefix = "Cow",  # 🎯 Try "Animal" or ""!
+                               text_size = 10,
+                               title_size = NULL)
 
 # ---- BONUS: Quick Analysis ----
 # Check meal summary statistics
-summary(meals$meal_duration)           # Meal durations in seconds
-summary(meals$visit_count)             # Visits per meal
-summary(meals$total_intake)            # Intake per meal
-meals_summary <- table(meals$cow, meals$date)           # Meals per animal, per day
-meals_summary
+summary(meal_summaries$meal_duration)           # Meal durations in seconds
+summary(meal_summaries$visit_count)             # Visits per meal
+summary(meal_summaries$total_intake)            # Intake per meal
+meal_summaries_summary <- table(meal_summaries$cow, meal_summaries$date)           # Meals per animal, per day
+meal_summaries_summary
 
 # Check labeling success on the first day
-labeled_visits_summary <- table(labeled_visits[[1]]$meal_id == 0)    # TRUE = outliers, FALSE = assigned to meals
-labeled_visits_summary
+labeled_visits_success <- table(labeled_visits[[1]]$meal_id == 0)    # TRUE = outliers, FALSE = assigned to meals
+labeled_visits_success
+
+################################################################
+# Save results
+################################################################
+# Create output directory if it doesn't exist
+if (!dir.exists(paste0(output_path, "/2_meal_clustering"))) {
+  dir.create(paste0(output_path, "/2_meal_clustering"), recursive = TRUE)
+}
+
+# Save GMM visualization plot
+ggsave(paste0(output_path, "/2_meal_clustering/gmm_gap_distribution.pdf"), 
+       p_gmm_log_20, width = 10, height = 6, units = "in")
+
+# Save meal summaries as CSV (single data frame)
+write.csv(meal_summaries, 
+          paste0(output_path, "/2_meal_clustering/meal_summaries.csv"), 
+          row.names = FALSE)
+
+# Save labeled visits as RDA (list of data frames)
+save(labeled_visits, file = paste0(output_path, "/2_meal_clustering/labeled_visits.rda"))
+
+# Get all unique animal IDs from the data
+all_animals <- unique(meal_summaries$cow)
+
+# Export one PDF per animal with 3 plots per page
+for (animal in all_animals) {
+  combined_plots <- combine_animal_plots(
+    plot_list = meal_plots, 
+    animal_id = animal,
+    plots_per_page = 3,
+    method = "vertical"
+  )
+  
+  # Save as PDF
+  output_file <- paste0(output_path, "/2_meal_clustering/", animal, ".pdf")
+  ggsave(output_file, combined_plots, width = 8.5, height = 11, units = "in")
+}
