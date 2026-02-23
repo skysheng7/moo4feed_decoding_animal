@@ -201,8 +201,8 @@ feed_with_outliers <- knn_clean_feed(
   k = 50,
   threshold_percentile = 99.96,
   custom_scaling = list(
-    rate = 8,
-    intake = 1,
+    rate = 500,
+    intake = 30,
     duration = 0.02
   ),
   date_col = "date",                # Date column name
@@ -238,8 +238,8 @@ water_with_outliers <- knn_clean_water(
   k = 50,
   threshold_percentile = 99.9,
   custom_scaling = list(
-    rate = 8,
-    intake = 1,
+    rate = 500,
+    intake = 30,
     duration = 0.02
   ),
   intake_col = intake_col2(),       # Intake amount column (default from global vars)
@@ -275,7 +275,7 @@ cleaned_feed_no_outliers <- knn_clean_feed(
   qc_feed,
   k = 50,
   threshold_percentile = 99.96,
-  custom_scaling = list(rate = 8, intake = 1, duration = 0.02),
+  custom_scaling = list(rate = 500, intake = 30, duration = 0.02),
   date_col = "date",                # Date column name
   remove_outliers = TRUE
 )
@@ -285,7 +285,7 @@ cleaned_water_no_outliers <- knn_clean_water(
   qc_water,
   k = 50,
   threshold_percentile = 99.9,
-  custom_scaling = list(rate = 8, intake = 1, duration = 0.02),
+  custom_scaling = list(rate = 500, intake = 30, duration = 0.02),
   date_col = "date",                # Date column name
   remove_outliers = TRUE
 )
