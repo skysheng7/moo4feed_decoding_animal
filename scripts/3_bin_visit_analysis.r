@@ -21,23 +21,31 @@ library(dplyr)
 
 # Set up your column names and timezone (modify these!)
 set_global_cols(
-  id_col = "cow",           # Your animal ID column
-  start_col = "start",      # Visit start time column  
-  end_col = "end",          # Visit end time column
-  bin_col = "bin",          # Bin/feeder ID column
-  intake_col = "intake",    # Feed intake amount column
-  dur_col = "duration",     # Visit duration column
-  tz = "America/Vancouver"  # Your timezone
+  # Time zone
+  tz = "America/Vancouver",
+  
+  # Column names in your data files
+  id_col = "cow",
+  trans_col = "transponder",
+  start_col = "start",
+  end_col = "end",
+  bin_col = "bin",
+  dur_col = "duration",
+  intake_col = "intake",
+  start_weight_col = "start_weight",
+  end_weight_col = "end_weight",
+  
+  # Bin settings
+  bins_feed = 1:30,
+  bins_wat = 1:5,
+  bin_offset = 100
 )
 
 # ---- STEP 1: Load Your Data ----
-# Load your cleaned data
-data(clean_feed)
-data(clean_water)
-
-# Or use your own cleaned data from previous tutorials:
-# clean_feed <- your_cleaned_feed_data
-# clean_water <- your_cleaned_water_data
+# Load your cleaned data from previous analysis
+output_path <- "results"
+load(paste0(output_path, "/1_data_cleaning/clean_feed.rda"))
+load(paste0(output_path, "/1_data_cleaning/clean_water.rda"))
 
 # ---- STEP 2: Calculate Unique Bin Visits ----
 # Get overall summary across all days
@@ -89,3 +97,31 @@ ggplot(top_50_explorers, aes(x = reorder(cow, avg_total_bins), y = avg_total_bin
     plot.title = element_text(size = 14, face = "bold"),
     plot.subtitle = element_text(size = 11)
   )
+
+################################################################
+# Save results
+################################################################
+# Create output directory if it doesn't exist
+if (!dir.exists(paste0(output_path, "/3_bin_visit_analysis"))) {
+  dir.create(paste0(output_path, "/3_bin_visit_analysis"), recursive = TRUE)
+}
+
+# Save bin visits summary
+write.csv(bin_visits, 
+          paste0(output_path, "/3_bin_visit_analysis/bin_visits.csv"), 
+          row.names = FALSE)
+
+# Save averaged bin visits summary
+write.csv(avg_bin_visits, 
+          paste0(output_path, "/3_bin_visit_analysis/avg_bin_visits.csv"), 
+          row.names = FALSE)
+
+# Save top explorers
+write.csv(top_explorers, 
+          paste0(output_path, "/3_bin_visit_analysis/top_explorers.csv"), 
+          row.names = FALSE)
+
+# Save creatures of habit
+write.csv(creatures_of_habit, 
+          paste0(output_path, "/3_bin_visit_analysis/creatures_of_habit.csv"), 
+          row.names = FALSE)

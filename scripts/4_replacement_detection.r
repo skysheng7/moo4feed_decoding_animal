@@ -21,21 +21,30 @@ library(dplyr)
 
 # Set up your column names and timezone (modify these!)
 set_global_cols(
-  id_col = "cow",           # Your animal ID column
-  start_col = "start",      # Visit start time column  
-  end_col = "end",          # Visit end time column
-  bin_col = "bin",          # Bin/feeder ID column
-  intake_col = "intake",    # Feed intake amount column
-  dur_col = "duration",     # Visit duration column
-  tz = "America/Vancouver"  # Your timezone
+  # Time zone
+  tz = "America/Vancouver",
+  
+  # Column names in your data files
+  id_col = "cow",
+  trans_col = "transponder",
+  start_col = "start",
+  end_col = "end",
+  bin_col = "bin",
+  dur_col = "duration",
+  intake_col = "intake",
+  start_weight_col = "start_weight",
+  end_weight_col = "end_weight",
+  
+  # Bin settings
+  bins_feed = 1:30,
+  bins_wat = 1:5,
+  bin_offset = 100
 )
 
 # ---- STEP 1: Load Your Data ----
-# Load your cleaned data
-data(clean_comb)
-
-# Or use your own cleaned data from previous tutorials:
-# clean_comb <- your_cleaned_comb_data
+# Load your cleaned data from previous analysis
+output_path <- "results"
+load(paste0(output_path, "/1_data_cleaning/clean_comb.rda"))
 
 # ---- STEP 2: Detect Replacement Events ----
 # Process replacement events for all days
@@ -116,3 +125,34 @@ ggplot(top_50_actors, aes(x = reorder(actor_cow, times_replaced_others), y = tim
     axis.text.y = element_text(size = 8),
     plot.title = element_text(size = 14, face = "bold")
   )
+
+################################################################
+# Save results
+################################################################
+# Create output directory if it doesn't exist
+if (!dir.exists(paste0(output_path, "/4_replacement_detection"))) {
+  dir.create(paste0(output_path, "/4_replacement_detection"), recursive = TRUE)
+}
+
+# Save all replacements combined
+write.csv(all_replacements, 
+          paste0(output_path, "/4_replacement_detection/all_replacements.csv"), 
+          row.names = FALSE)
+
+# Save top actors
+write.csv(top_actors, 
+          paste0(output_path, "/4_replacement_detection/top_actors.csv"), 
+          row.names = FALSE)
+
+# Save top reactors
+write.csv(top_reactors, 
+          paste0(output_path, "/4_replacement_detection/top_reactors.csv"), 
+          row.names = FALSE)
+
+# Save hourly replacements
+write.csv(hourly_replacements, 
+          paste0(output_path, "/4_replacement_detection/hourly_replacements.csv"), 
+          row.names = FALSE)
+
+# Save replacements by day as RDA
+save(replacements, file = paste0(output_path, "/4_replacement_detection/replacements.rda"))

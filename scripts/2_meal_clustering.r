@@ -43,7 +43,7 @@ set_global_cols(
 
 # load data
 output_path <- "results"
-load(paste0(output_path, "/processed_data/clean_feed.rda"))
+load(paste0(output_path, "/1_data_cleaning/clean_feed.rda"))
 your_data <- clean_feed
 
 # ---- STEP 1: Find Optimal Meal Interval & Visualize Gap Distributions ----

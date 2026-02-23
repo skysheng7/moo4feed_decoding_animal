@@ -20,23 +20,30 @@ library(dplyr)
 
 # Set up your column names and timezone (modify these!)
 set_global_cols(
-  id_col = "cow",                     # Your animal ID column
-  start_col = "start",                # Visit start time column
-  end_col = "end",                    # Visit end time column
-  bin_col = "bin",                    # Bin/feeder ID column
-  intake_col = "intake",              # Feed intake amount column
-  dur_col = "duration",               # Visit duration column
-  start_weight_col = "start_weight",  # Bin weight at visit start
-  end_weight_col = "end_weight",      # Bin weight at visit end
-  tz = "America/Vancouver"            # Your timezone
+  # Time zone
+  tz = "America/Vancouver",
+  
+  # Column names in your data files
+  id_col = "cow",
+  trans_col = "transponder",
+  start_col = "start",
+  end_col = "end",
+  bin_col = "bin",
+  dur_col = "duration",
+  intake_col = "intake",
+  start_weight_col = "start_weight",
+  end_weight_col = "end_weight",
+  
+  # Bin settings
+  bins_feed = 1:30,
+  bins_wat = 1:5,
+  bin_offset = 100
 )
 
 # ---- STEP 1: Load Your Data ----
-# Use the example data:
-data(clean_feed)
-
-# Or use your own cleaned data from Tutorial 1:
-# clean_feed <- your_cleaned_feed_data
+# Load your cleaned data from previous analysis
+output_path <- "results"
+load(paste0(output_path, "/1_data_cleaning/clean_feed.rda"))
 
 # ---- STEP 2: Detect Feed Additions (Per-Bin) ----
 # This is required for calculating feed availability
@@ -148,3 +155,39 @@ valid_visits |>
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+################################################################
+# Save results
+################################################################
+# Create output directory if it doesn't exist
+if (!dir.exists(paste0(output_path, "/7_feed_availability_analysis"))) {
+  dir.create(paste0(output_path, "/7_feed_availability_analysis"), recursive = TRUE)
+}
+
+# Save feed additions by day as RDA
+save(feed_additions, file = paste0(output_path, "/7_feed_availability_analysis/feed_additions.rda"))
+
+# Save feed events by day as RDA
+save(feed_events, file = paste0(output_path, "/7_feed_availability_analysis/feed_events.rda"))
+
+# Save availability results as RDA
+save(availability, file = paste0(output_path, "/7_feed_availability_analysis/availability.rda"))
+
+# Save combined data as CSV
+write.csv(all_visits, 
+          paste0(output_path, "/7_feed_availability_analysis/all_visits_with_availability.csv"), 
+          row.names = FALSE)
+
+# Save low availability summary
+write.csv(low_availability, 
+          paste0(output_path, "/7_feed_availability_analysis/low_availability_summary.csv"), 
+          row.names = FALSE)
+
+# Save first day summaries as examples
+write.csv(daily_summaries[[1]], 
+          paste0(output_path, "/7_feed_availability_analysis/daily_summary_first_day.csv"), 
+          row.names = FALSE)
+
+write.csv(visits_with_pct[[1]], 
+          paste0(output_path, "/7_feed_availability_analysis/visits_first_day.csv"), 
+          row.names = FALSE)

@@ -21,21 +21,30 @@ library(dplyr)
 
 # Set up your column names and timezone (modify these!)
 set_global_cols(
-  id_col = "cow",           # Your animal ID column
-  start_col = "start",      # Visit start time column
-  end_col = "end",          # Visit end time column
-  bin_col = "bin",          # Bin/feeder ID column
-  intake_col = "intake",    # Feed intake amount column
-  dur_col = "duration",     # Visit duration column
-  tz = "America/Vancouver"  # Your timezone
+  # Time zone
+  tz = "America/Vancouver",
+  
+  # Column names in your data files
+  id_col = "cow",
+  trans_col = "transponder",
+  start_col = "start",
+  end_col = "end",
+  bin_col = "bin",
+  dur_col = "duration",
+  intake_col = "intake",
+  start_weight_col = "start_weight",
+  end_weight_col = "end_weight",
+  
+  # Bin settings
+  bins_feed = 1:30,
+  bins_wat = 1:5,
+  bin_offset = 100
 )
 
 # ---- STEP 1: Load Your Data ----
-# Load your cleaned data
-data(clean_feed)
-
-# Or use your own cleaned data from previous tutorials:
-# clean_feed <- your_cleaned_feed_data
+# Load your cleaned data from previous analysis
+output_path <- "results"
+load(paste0(output_path, "/1_data_cleaning/clean_feed.rda"))
 
 # ---- STEP 2: Create QC Configuration ----
 my_qc_config <- qc_config(
@@ -127,3 +136,29 @@ ggplot(top_empty, aes(x = reorder(cow, number_of_visits_when_no_feed), y = numbe
     plot.title = element_text(size = 14, face = "bold"),
     plot.subtitle = element_text(size = 11)
   )
+
+################################################################
+# Save results
+################################################################
+# Create output directory if it doesn't exist
+if (!dir.exists(paste0(output_path, "/6_non_nutritive_visit_analysis"))) {
+  dir.create(paste0(output_path, "/6_non_nutritive_visit_analysis"), recursive = TRUE)
+}
+
+# Save non-nutritive visits by day as RDA
+save(non_nutritive, file = paste0(output_path, "/6_non_nutritive_visit_analysis/non_nutritive.rda"))
+save(non_nutritive_desc, file = paste0(output_path, "/6_non_nutritive_visit_analysis/non_nutritive_desc.rda"))
+save(non_nutritive_asc, file = paste0(output_path, "/6_non_nutritive_visit_analysis/non_nutritive_asc.rda"))
+
+# Save no-feed visits by day as RDA
+save(no_feed, file = paste0(output_path, "/6_non_nutritive_visit_analysis/no_feed.rda"))
+save(no_feed_desc, file = paste0(output_path, "/6_non_nutritive_visit_analysis/no_feed_desc.rda"))
+
+# Save first day summaries as CSV (examples)
+write.csv(non_nutritive_desc[[1]], 
+          paste0(output_path, "/6_non_nutritive_visit_analysis/non_nutritive_first_day.csv"), 
+          row.names = FALSE)
+
+write.csv(no_feed_desc[[1]], 
+          paste0(output_path, "/6_non_nutritive_visit_analysis/no_feed_first_day.csv"), 
+          row.names = FALSE)

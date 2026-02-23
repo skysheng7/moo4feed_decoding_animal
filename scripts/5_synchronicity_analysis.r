@@ -24,12 +24,15 @@ set_global_cols(
   tz = "America/Vancouver",        # Your timezone
   
   # Column names in your cleaned data
-  id_col = "cow",                  # Animal ID column name
-  start_col = "start",             # Visit start time column
-  end_col = "end",                 # Visit end time column
-  bin_col = "bin",                 # Bin/feeder ID column
-  start_weight_col = "start_weight",  # Start weight column (feed only)
-  end_weight_col = "end_weight",      # End weight column (feed only)
+  id_col = "cow",
+  trans_col = "transponder",
+  start_col = "start",
+  end_col = "end",
+  bin_col = "bin",
+  dur_col = "duration",
+  intake_col = "intake",
+  start_weight_col = "start_weight",
+  end_weight_col = "end_weight",
   
   # Bin settings
   bins_feed = 1:30,                # All feed bin IDs in your barn
@@ -43,16 +46,11 @@ set_global_cols(
 )
 
 # ---- STEP 1: Load Cleaned Data ----
-# Use data from Tutorial 1: Data Cleaning
-# For demo data:
-data(clean_feed)   # For feed-only pair-wise analysis
-data(clean_water)  # For water-only pair-wise analysis
-data(clean_comb)   # Combined feed + water data for neighbor analysis
-
-# For your own data:
-# clean_feed <- your_cleaned_feed_data    # From data cleaning tutorial
-# clean_water <- your_cleaned_water_data  # From data cleaning tutorial
-# clean_comb <- combine_feed_water(clean_feed, clean_water)  # Combine them
+# Load data from previous analysis
+output_path <- "results"
+load(paste0(output_path, "/1_data_cleaning/clean_feed.rda"))
+load(paste0(output_path, "/1_data_cleaning/clean_water.rda"))
+load(paste0(output_path, "/1_data_cleaning/clean_comb.rda"))
 
 # ---- STEP 2: Create Time-Based Activity Matrices ----
 # Process feed data to create time-based matrices (for pair-wise analysis)
@@ -356,3 +354,45 @@ ggplot(neighbor_plot_grid, aes(x = animal1, y = animal2, fill = total_time)) +
     plot.title = element_text(size = 14, face = "bold"),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
   )
+
+################################################################
+# Save results
+################################################################
+# Create output directory if it doesn't exist
+if (!dir.exists(paste0(output_path, "/5_synchronicity_analysis"))) {
+  dir.create(paste0(output_path, "/5_synchronicity_analysis"), recursive = TRUE)
+}
+
+# Save pair analysis results as RDA
+save(pair_feed_results, file = paste0(output_path, "/5_synchronicity_analysis/pair_feed_results.rda"))
+save(pair_water_results, file = paste0(output_path, "/5_synchronicity_analysis/pair_water_results.rda"))
+save(pair_combined_results, file = paste0(output_path, "/5_synchronicity_analysis/pair_combined_results.rda"))
+
+# Save neighbor analysis results as RDA
+save(neighbor_results, file = paste0(output_path, "/5_synchronicity_analysis/neighbor_results.rda"))
+
+# Save data frames as CSV
+write.csv(pair_df, 
+          paste0(output_path, "/5_synchronicity_analysis/pair_df.csv"), 
+          row.names = FALSE)
+
+write.csv(neighbor_df, 
+          paste0(output_path, "/5_synchronicity_analysis/neighbor_df.csv"), 
+          row.names = FALSE)
+
+write.csv(neighbor_compare, 
+          paste0(output_path, "/5_synchronicity_analysis/neighbor_compare.csv"), 
+          row.names = FALSE)
+
+# Save top synchronized pairs
+write.csv(top_pairs, 
+          paste0(output_path, "/5_synchronicity_analysis/top_pairs.csv"), 
+          row.names = FALSE)
+
+write.csv(high_sync_pairs, 
+          paste0(output_path, "/5_synchronicity_analysis/high_sync_pairs.csv"), 
+          row.names = FALSE)
+
+write.csv(high_neighbor_preference, 
+          paste0(output_path, "/5_synchronicity_analysis/high_neighbor_preference.csv"), 
+          row.names = FALSE)

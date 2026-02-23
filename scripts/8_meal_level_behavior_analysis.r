@@ -21,19 +21,31 @@ library(dplyr)
 
 # Set up your column names and timezone (modify these!)
 set_global_cols(
-  id_col = "cow",           # Your animal ID column
-  start_col = "start",      # Visit start time column
-  end_col = "end",          # Visit end time column
-  bin_col = "bin",          # Bin/feeder ID column
-  intake_col = "intake",    # Feed intake amount column
-  dur_col = "duration",     # Visit duration column
-  tz = "America/Vancouver"  # Your timezone
+  # Time zone
+  tz = "America/Vancouver",
+  
+  # Column names in your data files
+  id_col = "cow",
+  trans_col = "transponder",
+  start_col = "start",
+  end_col = "end",
+  bin_col = "bin",
+  dur_col = "duration",
+  intake_col = "intake",
+  start_weight_col = "start_weight",
+  end_weight_col = "end_weight",
+  
+  # Bin settings
+  bins_feed = 1:30,
+  bins_wat = 1:5,
+  bin_offset = 100
 )
 
 # ---- STEP 1: Prepare Meal-Labeled Data ----
-# Load your cleaned data
-data(clean_feed)
-data(clean_comb)
+# Load your cleaned data from previous analysis
+output_path <- "results"
+load(paste0(output_path, "/1_data_cleaning/clean_feed.rda"))
+load(paste0(output_path, "/1_data_cleaning/clean_comb.rda"))
 
 # Label visits with meals (see Tutorial 2 for details)
 labeled_visits <- meal_label_visits(
@@ -246,3 +258,46 @@ ggplot(first_day_roles_sorted, aes(x = reorder(cow, median_pct_actor_reactor),
     plot.title = element_text(size = 14, face = "bold"),
     plot.subtitle = element_text(size = 11)
   )
+
+################################################################
+# Save results
+################################################################
+# Create output directory if it doesn't exist
+if (!dir.exists(paste0(output_path, "/8_meal_level_behavior_analysis"))) {
+  dir.create(paste0(output_path, "/8_meal_level_behavior_analysis"), recursive = TRUE)
+}
+
+# Save meal-level non-nutritive visits by day as RDA
+save(meal_visits, file = paste0(output_path, "/8_meal_level_behavior_analysis/meal_visits.rda"))
+
+# Save meal roles by day as RDA
+save(meal_roles, file = paste0(output_path, "/8_meal_level_behavior_analysis/meal_roles.rda"))
+
+# Save daily role summaries by day as RDA
+save(daily_roles, file = paste0(output_path, "/8_meal_level_behavior_analysis/daily_roles.rda"))
+
+# Save combined summaries as CSV
+write.csv(all_meal_visits, 
+          paste0(output_path, "/8_meal_level_behavior_analysis/all_meal_visits.csv"), 
+          row.names = FALSE)
+
+write.csv(high_exploratory, 
+          paste0(output_path, "/8_meal_level_behavior_analysis/high_exploratory.csv"), 
+          row.names = FALSE)
+
+write.csv(all_daily_roles, 
+          paste0(output_path, "/8_meal_level_behavior_analysis/all_daily_roles.csv"), 
+          row.names = FALSE)
+
+write.csv(dominance_summary, 
+          paste0(output_path, "/8_meal_level_behavior_analysis/dominance_summary.csv"), 
+          row.names = FALSE)
+
+# Save first day examples
+write.csv(meal_visits[[1]], 
+          paste0(output_path, "/8_meal_level_behavior_analysis/meal_visits_first_day.csv"), 
+          row.names = FALSE)
+
+write.csv(daily_roles[[1]], 
+          paste0(output_path, "/8_meal_level_behavior_analysis/daily_roles_first_day.csv"), 
+          row.names = FALSE)
