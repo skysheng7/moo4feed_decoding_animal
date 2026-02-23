@@ -317,11 +317,11 @@ warning <- daily_summary$warn
 # Save results
 ################################################################
 # Create output directory if it doesn't exist
-if (!dir.exists(paste0(output_path, "/processed_data"))) {
-  dir.create(paste0(output_path, "/processed_data"), recursive = TRUE)
+if (!dir.exists(paste0(output_path, "/1_data_cleaning"))) {
+  dir.create(paste0(output_path, "/1_data_cleaning"), recursive = TRUE)
 }
-write.csv(warning, file = paste0(output_path, "/processed_data/warnings.csv"))
-write.csv(summary_df, file = paste0(output_path, "/processed_data/summary_df.csv"))
-save(clean_feed, file = paste0(output_path, "/processed_data/clean_feed.rda"))
-save(clean_water, file = paste0(output_path, "/processed_data/clean_water.rda"))
-save(clean_comb, file = paste0(output_path, "/processed_data/clean_comb.rda"))
+write.csv(warning, file = paste0(output_path, "/1_data_cleaning/warnings.csv"))
+write.csv(summary_df, file = paste0(output_path, "/1_data_cleaning/summary_df.csv"))
+save(clean_feed, file = paste0(output_path, "/1_data_cleaning/clean_feed.rda"))
+save(clean_water, file = paste0(output_path, "/1_data_cleaning/clean_water.rda"))
+save(clean_comb, file = paste0(output_path, "/1_data_cleaning/clean_comb.rda"))
