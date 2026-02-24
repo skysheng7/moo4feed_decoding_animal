@@ -137,7 +137,7 @@ ggsave(paste0(output_path, "/2_meal_clustering/gmm_gap_distribution.png"),
 write.csv(meal_summaries, 
           paste0(output_path, "/2_meal_clustering/meal_summaries.csv"), 
           row.names = FALSE)
-
+          
 # Save labeled visits as RDA (list of data frames)
 save(labeled_visits, file = paste0(output_path, "/2_meal_clustering/labeled_visits.rda"))
 
@@ -145,7 +145,12 @@ save(labeled_visits, file = paste0(output_path, "/2_meal_clustering/labeled_visi
 all_animals <- unique(meal_summaries$cow)
 
 # Export one PDF per animal with 3 plots per page
-for (animal in all_animals) {
+cat("Generating PDFs for", length(all_animals), "animals...\n")
+pb <- txtProgressBar(min = 0, max = length(all_animals), style = 3)
+
+for (i in seq_along(all_animals)) {
+  animal <- all_animals[i]
+  
   combined_plots <- combine_animal_plots(
     plot_list = meal_plots, 
     animal_id = animal,
@@ -156,4 +161,9 @@ for (animal in all_animals) {
   # Save as PDF
   output_file <- paste0(output_path, "/2_meal_clustering/", animal, ".pdf")
   ggsave(output_file, combined_plots, width = 8.5, height = 11, units = "in")
+  
+  setTxtProgressBar(pb, i)
 }
+
+close(pb)
+cat("✓ PDF generation complete!\n")
