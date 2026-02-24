@@ -167,4 +167,4 @@ for (i in seq_along(all_animals)) {
 }
 
 close(pb)
-cat("✓ PDF generation complete!\n")
+cat("PDF generation complete!\n")
