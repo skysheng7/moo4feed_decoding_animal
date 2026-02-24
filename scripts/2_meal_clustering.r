@@ -51,7 +51,7 @@ your_data <- clean_feed
 p_gmm_log_20 <- viz_eps_gmm(your_data, 
                             lower_bound = NULL,
                             upper_bound = NULL,
-                            bins = 100,
+                            bins = 30,  # Reduced from 100 to 30 for faster rendering
                             colors = grDevices::hcl.colors(4, "Set 3"),
                             title_prefix = "Distribution of time gap between visits \n& GMM-based meal interval (eps)\n",
                             show_components = TRUE,
@@ -59,8 +59,8 @@ p_gmm_log_20 <- viz_eps_gmm(your_data,
                             log_multiplier = 20,
                             log_offset = 1,
                             xlim = 10)
-print(p_gmm_log_20)
 
+print(p_gmm_log_20)
 
 # ---- STEP 2: Cluster Visits into Meals ----
 # - Step 1 is optional, it's designed to help you find the optimal interval (eps) 
@@ -130,8 +130,8 @@ if (!dir.exists(paste0(output_path, "/2_meal_clustering"))) {
 }
 
 # Save GMM visualization plot
-ggsave(paste0(output_path, "/2_meal_clustering/gmm_gap_distribution.pdf"), 
-       p_gmm_log_20, width = 10, height = 6, units = "in")
+ggsave(paste0(output_path, "/2_meal_clustering/gmm_gap_distribution.png"), 
+       p_gmm_log_20, width = 10, height = 6, units = "in", dpi = 300)
 
 # Save meal summaries as CSV (single data frame)
 write.csv(meal_summaries, 
