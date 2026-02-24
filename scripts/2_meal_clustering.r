@@ -138,8 +138,9 @@ write.csv(meal_summaries,
           paste0(output_path, "/2_meal_clustering/meal_summaries.csv"), 
           row.names = FALSE)
           
-# Save labeled visits as RDA (list of data frames)
+# Save labeled visits as RDA and meal plots as RDA (list of data frames)
 save(labeled_visits, file = paste0(output_path, "/2_meal_clustering/labeled_visits.rda"))
+save(meal_plots, file = paste0(output_path, "/2_meal_clustering/meal_plots.rda"))
 
 # Get all unique animal IDs from the data
 all_animals <- unique(meal_summaries$cow)
