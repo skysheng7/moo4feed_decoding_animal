@@ -110,18 +110,3 @@ if (!dir.exists(paste0(output_path, "/3_bin_visit_analysis"))) {
 write.csv(bin_visits, 
           paste0(output_path, "/3_bin_visit_analysis/bin_visits.csv"), 
           row.names = FALSE)
-
-# Save averaged bin visits summary
-write.csv(avg_bin_visits, 
-          paste0(output_path, "/3_bin_visit_analysis/avg_bin_visits.csv"), 
-          row.names = FALSE)
-
-# Save top explorers
-write.csv(top_explorers, 
-          paste0(output_path, "/3_bin_visit_analysis/top_explorers.csv"), 
-          row.names = FALSE)
-
-# Save creatures of habit
-write.csv(creatures_of_habit, 
-          paste0(output_path, "/3_bin_visit_analysis/creatures_of_habit.csv"), 
-          row.names = FALSE)
