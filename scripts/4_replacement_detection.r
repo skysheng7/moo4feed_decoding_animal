@@ -139,20 +139,6 @@ write.csv(all_replacements,
           paste0(output_path, "/4_replacement_detection/all_replacements.csv"), 
           row.names = FALSE)
 
-# Save top actors
-write.csv(top_actors, 
-          paste0(output_path, "/4_replacement_detection/top_actors.csv"), 
-          row.names = FALSE)
-
-# Save top reactors
-write.csv(top_reactors, 
-          paste0(output_path, "/4_replacement_detection/top_reactors.csv"), 
-          row.names = FALSE)
-
-# Save hourly replacements
-write.csv(hourly_replacements, 
-          paste0(output_path, "/4_replacement_detection/hourly_replacements.csv"), 
-          row.names = FALSE)
 
 # Save replacements by day as RDA
 save(replacements, file = paste0(output_path, "/4_replacement_detection/replacements.rda"))
