@@ -148,17 +148,7 @@ if (!dir.exists(paste0(output_path, "/6_non_nutritive_visit_analysis"))) {
 # Save non-nutritive visits by day as RDA
 save(non_nutritive, file = paste0(output_path, "/6_non_nutritive_visit_analysis/non_nutritive.rda"))
 save(non_nutritive_desc, file = paste0(output_path, "/6_non_nutritive_visit_analysis/non_nutritive_desc.rda"))
-save(non_nutritive_asc, file = paste0(output_path, "/6_non_nutritive_visit_analysis/non_nutritive_asc.rda"))
 
 # Save no-feed visits by day as RDA
 save(no_feed, file = paste0(output_path, "/6_non_nutritive_visit_analysis/no_feed.rda"))
 save(no_feed_desc, file = paste0(output_path, "/6_non_nutritive_visit_analysis/no_feed_desc.rda"))
-
-# Save first day summaries as CSV (examples)
-write.csv(non_nutritive_desc[[1]], 
-          paste0(output_path, "/6_non_nutritive_visit_analysis/non_nutritive_first_day.csv"), 
-          row.names = FALSE)
-
-write.csv(no_feed_desc[[1]], 
-          paste0(output_path, "/6_non_nutritive_visit_analysis/no_feed_first_day.csv"), 
-          row.names = FALSE)
