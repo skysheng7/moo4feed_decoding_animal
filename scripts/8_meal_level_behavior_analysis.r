@@ -48,16 +48,8 @@ load(paste0(output_path, "/1_data_cleaning/clean_feed.rda"))
 load(paste0(output_path, "/1_data_cleaning/clean_comb.rda"))
 
 # Label visits with meals (see Tutorial 2 for details)
-labeled_visits <- meal_label_visits(
-  data = clean_feed,
-  eps = NULL,                # Auto-determine
-  min_pts = 2,
-  method = "gmm",
-  eps_scope = "all_animals",
-  use_log_transform = TRUE,
-  log_multiplier = 20,
-  log_offset = 1
-)
+load(paste0(output_path, "/2_meal_clustering/labeled_visits.rda"))
+load(paste0(output_path, "/4_replacement_detection/replacements.rda"))
 
 # ---- STEP 2: Analyze Non-Nutritive Visits Within Meals ----
 my_qc_config <- qc_config(calibration_error = 0.5)
@@ -86,13 +78,7 @@ high_exploratory <- all_meal_visits |>
 print(high_exploratory)
 
 # ---- STEP 3: Analyze Actor/Reactor Roles Within Meals ----
-# First, detect replacement events (see Tutorial 4)
-replacements <- record_replacement_days(
-  comb = clean_comb,
-  cfg = qc_config(replacement_threshold = 26)
-)
-
-# Label combined data with meals
+# Label combined data with meals, but including both feed and water data
 labeled_comb <- meal_label_visits(
   data = clean_comb,
   eps = NULL,
