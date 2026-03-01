@@ -173,21 +173,5 @@ save(feed_events, file = paste0(output_path, "/7_feed_availability_analysis/feed
 # Save availability results as RDA
 save(availability, file = paste0(output_path, "/7_feed_availability_analysis/availability.rda"))
 
-# Save combined data as CSV
-write.csv(all_visits, 
-          paste0(output_path, "/7_feed_availability_analysis/all_visits_with_availability.csv"), 
-          row.names = FALSE)
-
-# Save low availability summary
-write.csv(low_availability, 
-          paste0(output_path, "/7_feed_availability_analysis/low_availability_summary.csv"), 
-          row.names = FALSE)
-
-# Save first day summaries as examples
-write.csv(daily_summaries[[1]], 
-          paste0(output_path, "/7_feed_availability_analysis/daily_summary_first_day.csv"), 
-          row.names = FALSE)
-
-write.csv(visits_with_pct[[1]], 
-          paste0(output_path, "/7_feed_availability_analysis/visits_first_day.csv"), 
-          row.names = FALSE)
+# Save combined data as RDA
+save(all_visits, file = paste0(output_path, "/7_feed_availability_analysis/all_visits_with_availability.rda"))
