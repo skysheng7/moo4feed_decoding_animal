@@ -202,51 +202,6 @@ This folder contains pair-wise synchronicity analysis results showing which anim
 
 ### Files:
 
-#### `pair_df.csv`
-Pair-wise feeding synchronicity summary (animals feeding at the same time, any bins).
-
-**Columns:**
-- `animal1`: First animal ID in the pair
-- `animal2`: Second animal ID in the pair
-- `bouts`: Number of distinct feeding bouts where both animals were active simultaneously
-- `total_time`: Total time (seconds) both animals were feeding together
-- `avg_duration`: Average duration per synchronized bout (seconds)
-
-#### `neighbor_df.csv`
-Pair-wise neighbor synchronicity summary (animals feeding/drinking at adjacent bins simultaneously).
-
-**Columns:**
-- `animal1`: First animal ID in the pair
-- `animal2`: Second animal ID in the pair
-- `bouts`: Number of distinct bouts where both animals were at neighboring bins simultaneously
-- `total_time`: Total time (seconds) both animals were at neighboring bins together
-- `avg_duration`: Average duration per neighbor bout (seconds)
-
-#### `neighbor_compare.csv`
-Comparison of total co-occurrence vs. neighbor proximity for each pair.
-
-**Columns:**
-- `animal1`: First animal ID in the pair
-- `animal2`: Second animal ID in the pair
-- `cooccurrence_time`: Total time active together (feeding OR drinking) at any bins (seconds)
-- `neighbor_time`: Time active together at neighboring bins (seconds)
-- `neighbor_ratio`: Ratio of neighbor_time to cooccurrence_time (0 to 1, higher = preference for neighboring bins)
-
-#### `top_pairs.csv`
-Top 10 most synchronized feeding pairs (subset of `pair_df.csv`).
-
-**Columns:** Same as `pair_df.csv`
-
-#### `high_sync_pairs.csv`
-All pairs with high synchronicity (total_time > 100 seconds) (subset of `pair_df.csv`).
-
-**Columns:** Same as `pair_df.csv`
-
-#### `high_neighbor_preference.csv`
-Pairs that prefer neighboring bins (neighbor_ratio > 0.5) (subset of `neighbor_compare.csv`).
-
-**Columns:** Same as `neighbor_compare.csv`
-
 #### `pair_feed_results.rda`
 R data file containing detailed pair-wise feeding synchronicity matrices (list structure, one per day).
 
@@ -263,6 +218,36 @@ R data file containing detailed pair-wise combined feed+water synchronicity matr
 
 #### `neighbor_results.rda`
 R data file containing detailed neighbor proximity synchronicity matrices (same structure as `pair_feed_results.rda`).
+
+#### `pair_df.rda`
+R data file containing pair-wise feeding synchronicity summary as a tidy data frame (animals feeding at the same time, any bins).
+
+**Structure:** Single data frame with columns:
+- `animal1`: First animal ID in the pair
+- `animal2`: Second animal ID in the pair
+- `bouts`: Number of distinct feeding bouts where both animals were active simultaneously
+- `total_time`: Total time (seconds) both animals were feeding together
+- `avg_duration`: Average duration per synchronized bout (seconds)
+
+#### `neighbor_df.rda`
+R data file containing pair-wise neighbor synchronicity summary as a tidy data frame (animals feeding/drinking at adjacent bins simultaneously).
+
+**Structure:** Single data frame with columns:
+- `animal1`: First animal ID in the pair
+- `animal2`: Second animal ID in the pair
+- `bouts`: Number of distinct bouts where both animals were at neighboring bins simultaneously
+- `total_time`: Total time (seconds) both animals were at neighboring bins together
+- `avg_duration`: Average duration per neighbor bout (seconds)
+
+#### `neighbor_compare.rda`
+R data file containing comparison of total co-occurrence vs. neighbor proximity for each pair as a tidy data frame.
+
+**Structure:** Single data frame with columns:
+- `animal1`: First animal ID in the pair
+- `animal2`: Second animal ID in the pair
+- `cooccurrence_time`: Total time active together (feeding OR drinking) at any bins (seconds)
+- `neighbor_time`: Time active together at neighboring bins (seconds)
+- `neighbor_ratio`: Ratio of neighbor_time to cooccurrence_time (0 to 1, higher = preference for neighboring bins)
 
 ---
 

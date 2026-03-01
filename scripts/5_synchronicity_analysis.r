@@ -371,28 +371,7 @@ save(pair_combined_results, file = paste0(output_path, "/5_synchronicity_analysi
 # Save neighbor analysis results as RDA
 save(neighbor_results, file = paste0(output_path, "/5_synchronicity_analysis/neighbor_results.rda"))
 
-# Save data frames as CSV
-write.csv(pair_df, 
-          paste0(output_path, "/5_synchronicity_analysis/pair_df.csv"), 
-          row.names = FALSE)
-
-write.csv(neighbor_df, 
-          paste0(output_path, "/5_synchronicity_analysis/neighbor_df.csv"), 
-          row.names = FALSE)
-
-write.csv(neighbor_compare, 
-          paste0(output_path, "/5_synchronicity_analysis/neighbor_compare.csv"), 
-          row.names = FALSE)
-
-# Save top synchronized pairs
-write.csv(top_pairs, 
-          paste0(output_path, "/5_synchronicity_analysis/top_pairs.csv"), 
-          row.names = FALSE)
-
-write.csv(high_sync_pairs, 
-          paste0(output_path, "/5_synchronicity_analysis/high_sync_pairs.csv"), 
-          row.names = FALSE)
-
-write.csv(high_neighbor_preference, 
-          paste0(output_path, "/5_synchronicity_analysis/high_neighbor_preference.csv"), 
-          row.names = FALSE)
+# Save data frames as RDA
+save(pair_df, file = paste0(output_path, "/5_synchronicity_analysis/pair_df.rda"))
+save(neighbor_df, file = paste0(output_path, "/5_synchronicity_analysis/neighbor_df.rda"))
+save(neighbor_compare, file = paste0(output_path, "/5_synchronicity_analysis/neighbor_compare.rda"))
