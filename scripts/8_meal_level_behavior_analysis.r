@@ -263,24 +263,9 @@ save(meal_roles, file = paste0(output_path, "/8_meal_level_behavior_analysis/mea
 # Save daily role summaries by day as RDA
 save(daily_roles, file = paste0(output_path, "/8_meal_level_behavior_analysis/daily_roles.rda"))
 
-# Save combined summaries as CSV
-write.csv(all_meal_visits, 
-          paste0(output_path, "/8_meal_level_behavior_analysis/all_meal_visits.csv"), 
-          row.names = FALSE)
+# Save combined summaries as RDA
+save(all_meal_visits, file = paste0(output_path, "/8_meal_level_behavior_analysis/all_meal_visits.rda"))
 
-write.csv(all_daily_roles, 
-          paste0(output_path, "/8_meal_level_behavior_analysis/all_daily_roles.csv"), 
-          row.names = FALSE)
+save(all_daily_roles, file = paste0(output_path, "/8_meal_level_behavior_analysis/all_daily_roles.rda"))
 
-write.csv(dominance_summary, 
-          paste0(output_path, "/8_meal_level_behavior_analysis/dominance_summary.csv"), 
-          row.names = FALSE)
-
-# Save first day examples
-write.csv(meal_visits[[1]], 
-          paste0(output_path, "/8_meal_level_behavior_analysis/meal_visits_first_day.csv"), 
-          row.names = FALSE)
-
-write.csv(daily_roles[[1]], 
-          paste0(output_path, "/8_meal_level_behavior_analysis/daily_roles_first_day.csv"), 
-          row.names = FALSE)
+save(dominance_summary, file = paste0(output_path, "/8_meal_level_behavior_analysis/dominance_summary.rda"))
