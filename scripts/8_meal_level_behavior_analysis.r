@@ -84,6 +84,7 @@ labeled_comb <- meal_label_visits(
   eps = NULL,
   min_pts = 2,
   method = "gmm",
+  percentile = 0.9,
   eps_scope = "all_animals",
   lower_bound = NULL,
   upper_bound = NULL,
@@ -265,10 +266,6 @@ save(daily_roles, file = paste0(output_path, "/8_meal_level_behavior_analysis/da
 # Save combined summaries as CSV
 write.csv(all_meal_visits, 
           paste0(output_path, "/8_meal_level_behavior_analysis/all_meal_visits.csv"), 
-          row.names = FALSE)
-
-write.csv(high_exploratory, 
-          paste0(output_path, "/8_meal_level_behavior_analysis/high_exploratory.csv"), 
           row.names = FALSE)
 
 write.csv(all_daily_roles, 
