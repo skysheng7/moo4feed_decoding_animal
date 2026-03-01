@@ -52,154 +52,270 @@ load(paste0(output_path, "/1_data_cleaning/clean_feed.rda"))
 load(paste0(output_path, "/1_data_cleaning/clean_water.rda"))
 load(paste0(output_path, "/1_data_cleaning/clean_comb.rda"))
 
-# ---- STEP 2: Create Time-Based Activity Matrices ----
-# Process feed data to create time-based matrices (for pair-wise analysis)
-feed_matrices <- matrix_process(
-  data_list = clean_feed,          # Your cleaned feed data
-  type = "feed",                   # Data type: "feed" or "drink"
-  resolution = "sec",              # Time resolution: "sec" (detailed) or "min" (faster)
-  id_col = id_col2(),              # Animal ID column (from global vars)
-  start_col = start_col2(),        # Visit start time column (from global vars)
-  end_col = end_col2(),            # Visit end time column (from global vars)
-  bin_col = bin_col2(),            # Bin ID column (from global vars)
-  start_weight_col = start_weight_col2(),  # Start weight column (from global vars)
-  end_weight_col = end_weight_col2(),      # End weight column (from global vars)
-  bins_feed = bins_feed2()         # Valid feed bin IDs (from global vars)
-)
+# ---- STEP 2: Create Time-Based Activity Matrices (one day at a time to save RAM) ----
+# Each data frame in the list is processed individually and saved to disk immediately.
+# This avoids holding all matrices in memory at once.
 
-# Process water data to create time-based matrices (for pair-wise analysis)
-water_matrices <- matrix_process(
-  data_list = clean_water,         # Your cleaned water data
-  type = "drink",                  # Data type for water/drinking
-  resolution = "sec",              # Must match resolution used for feed_matrices
-  id_col = id_col2(),
-  start_col = start_col2(),
-  end_col = end_col2(),
-  bin_col = bin_col2(),
-  bins_wat = bins_wat2()           # Valid water bin IDs (from global vars)
-)
+matrix_out_path <- paste0(output_path, "/5_synchronicity_analysis/matrices")
+if (!dir.exists(matrix_out_path)) dir.create(matrix_out_path, recursive = TRUE)
 
-# IMPORTANT: Process combined feed and water data for neighbor analysis
-# Water bins are often between feed bins, so analyze them together for spatial relationships
-# Use clean_comb dataset (already combined) or create your own with combine_feed_water()
-combined_matrices <- matrix_process(
-  data_list = clean_comb,          # Combined feed and water data
-  type = "feed_and_drink",         # Combined type
-  resolution = "sec",              # Must match resolution used above
-  id_col = id_col2(),
-  start_col = start_col2(),
-  end_col = end_col2(),
-  bin_col = bin_col2(),
-  bins_feed = bins_feed2(),
-  bins_wat = bins_wat2()
-)
-
-# ---- STEP 3: Pair-wise Co-Occurrence Analysis ----
-# Analyze feeding synchronicity (animals feeding at same time, any bins)
-pair_feed_results <- synch_pair_analysis(
-  matrix_data = feed_matrices,     # Output from matrix_process()
-  type = "feed",                   # Data type: "feed" or "drink"
-  resolution = "sec",              # Must match matrix_process() resolution
-  id_col = id_col2()               # Animal ID column (from global vars)
-)
-
-# Results contain three matrices/lists:
-names(pair_feed_results)  # bout, total_time, avg_duration
-
-# Analyze drinking synchronicity (animals drinking at same time, any bins)
-pair_water_results <- synch_pair_analysis(
-  matrix_data = water_matrices,    # Output from matrix_process()
-  type = "drink",                  # Data type for water/drinking
-  resolution = "sec",              # Must match matrix_process() resolution
-  id_col = id_col2()
-)
-
-# IMPORTANT: Analyze combined feed+water synchronicity for comparison with neighbor analysis
-pair_combined_results <- synch_pair_analysis(
-  matrix_data = combined_matrices, # Output from matrix_process() with combined data
-  type = "feed_and_drink",         # Combined type
-  resolution = "sec",              # Must match matrix_process() resolution
-  id_col = id_col2()
-)
-
-# Example: inspect first day matrices from combined pair analysis
-combined_bout_matrix <- pair_combined_results$bout[[1]]
-combined_time_matrix <- pair_combined_results$total_time[[1]]
-
-# Access pair analysis results (matrices or lists of matrices for multi-day)
-# For single day: each element is a matrix
-# For multi-day: each element is a list with one matrix per day
-bout_counts <- pair_feed_results$bout           # Number of distinct bouts together
-total_times <- pair_feed_results$total_time    # Total time together (seconds or minutes)
-avg_durations <- pair_feed_results$avg_duration # Average duration per bout
-
-# Example: Access first day's bout matrix
-if (is.list(pair_feed_results$bout)) {
-  day1_bouts <- pair_feed_results$bout[[1]]    # Multi-day data
-} else {
-  day1_bouts <- pair_feed_results$bout         # Single-day data
+# --- Feed matrices ---
+feed_matrix_files <- character(length(clean_feed))
+for (i in seq_along(clean_feed)) {
+  day_label <- names(clean_feed)[i]
+  if (is.null(day_label) || day_label == "") day_label <- sprintf("day%04d", i)
+  
+  mat_list <- matrix_process(
+    data_list = clean_feed[i],
+    type = "feed",
+    resolution = "sec",
+    id_col = id_col2(),
+    start_col = start_col2(),
+    end_col = end_col2(),
+    bin_col = bin_col2(),
+    start_weight_col = start_weight_col2(),
+    end_weight_col = end_weight_col2(),
+    bins_feed = bins_feed2()
+  )
+  feed_matrix_i <- mat_list[[1]]
+  out_file <- paste0(matrix_out_path, "/feed_matrix_", day_label, ".rda")
+  save(feed_matrix_i, file = out_file)
+  feed_matrix_files[i] <- out_file
+  rm(mat_list, feed_matrix_i); gc()
+  cat(sprintf("Feed matrix saved: %s (%d/%d)\n", day_label, i, length(clean_feed)))
 }
 
-# ---- STEP 4: Spatial Neighbor Proximity Analysis ----
-# Check bin layout
+# --- Water matrices ---
+water_matrix_files <- character(length(clean_water))
+for (i in seq_along(clean_water)) {
+  day_label <- names(clean_water)[i]
+  if (is.null(day_label) || day_label == "") day_label <- sprintf("day%04d", i)
+  
+  mat_list <- matrix_process(
+    data_list = clean_water[i],
+    type = "drink",
+    resolution = "sec",
+    id_col = id_col2(),
+    start_col = start_col2(),
+    end_col = end_col2(),
+    bin_col = bin_col2(),
+    bins_wat = bins_wat2()
+  )
+  water_matrix_i <- mat_list[[1]]
+  out_file <- paste0(matrix_out_path, "/water_matrix_", day_label, ".rda")
+  save(water_matrix_i, file = out_file)
+  water_matrix_files[i] <- out_file
+  rm(mat_list, water_matrix_i); gc()
+  cat(sprintf("Water matrix saved: %s (%d/%d)\n", day_label, i, length(clean_water)))
+}
+
+# --- Combined (feed + water) matrices ---
+combined_matrix_files <- character(length(clean_comb))
+for (i in seq_along(clean_comb)) {
+  day_label <- names(clean_comb)[i]
+  if (is.null(day_label) || day_label == "") day_label <- sprintf("day%04d", i)
+  
+  mat_list <- matrix_process(
+    data_list = clean_comb[i],
+    type = "feed_and_drink",
+    resolution = "sec",
+    id_col = id_col2(),
+    start_col = start_col2(),
+    end_col = end_col2(),
+    bin_col = bin_col2(),
+    bins_feed = bins_feed2(),
+    bins_wat = bins_wat2()
+  )
+  combined_matrix_i <- mat_list[[1]]
+  out_file <- paste0(matrix_out_path, "/combined_matrix_", day_label, ".rda")
+  save(combined_matrix_i, file = out_file)
+  combined_matrix_files[i] <- out_file
+  rm(mat_list, combined_matrix_i); gc()
+  cat(sprintf("Combined matrix saved: %s (%d/%d)\n", day_label, i, length(clean_comb)))
+}
+
+# Free the raw data lists — no longer needed
+rm(clean_feed, clean_water, clean_comb); gc()
+
+# ---- STEP 3: Pair-wise Co-Occurrence Analysis (one day at a time to save RAM) ----
+# Load each saved matrix, run synch_pair_analysis, save the per-day result, then free memory.
+
+pair_out_path <- paste0(output_path, "/5_synchronicity_analysis/pair_results")
+if (!dir.exists(pair_out_path)) dir.create(pair_out_path, recursive = TRUE)
+
+# --- Feed pair analysis ---
+pair_feed_files <- character(length(feed_matrix_files))
+for (i in seq_along(feed_matrix_files)) {
+  day_label <- sub(".*feed_matrix_(.+)\\.rda$", "\\1", feed_matrix_files[i])
+  
+  load(feed_matrix_files[i])  # loads: feed_matrix_i
+  res <- synch_pair_analysis(
+    matrix_data = list(feed_matrix_i),
+    type = "feed",
+    resolution = "sec",
+    id_col = id_col2()
+  )
+  pair_feed_i <- list(
+    bout         = res$bout[[1]],
+    total_time   = res$total_time[[1]],
+    avg_duration = res$avg_duration[[1]]
+  )
+  out_file <- paste0(pair_out_path, "/pair_feed_", day_label, ".rda")
+  save(pair_feed_i, file = out_file)
+  pair_feed_files[i] <- out_file
+  rm(feed_matrix_i, res, pair_feed_i); gc()
+  cat(sprintf("Pair feed result saved: %s (%d/%d)\n", day_label, i, length(feed_matrix_files)))
+}
+
+# --- Water pair analysis ---
+pair_water_files <- character(length(water_matrix_files))
+for (i in seq_along(water_matrix_files)) {
+  day_label <- sub(".*water_matrix_(.+)\\.rda$", "\\1", water_matrix_files[i])
+  
+  load(water_matrix_files[i])  # loads: water_matrix_i
+  res <- synch_pair_analysis(
+    matrix_data = list(water_matrix_i),
+    type = "drink",
+    resolution = "sec",
+    id_col = id_col2()
+  )
+  pair_water_i <- list(
+    bout         = res$bout[[1]],
+    total_time   = res$total_time[[1]],
+    avg_duration = res$avg_duration[[1]]
+  )
+  out_file <- paste0(pair_out_path, "/pair_water_", day_label, ".rda")
+  save(pair_water_i, file = out_file)
+  pair_water_files[i] <- out_file
+  rm(water_matrix_i, res, pair_water_i); gc()
+  cat(sprintf("Pair water result saved: %s (%d/%d)\n", day_label, i, length(water_matrix_files)))
+}
+
+# --- Combined pair analysis ---
+pair_combined_files <- character(length(combined_matrix_files))
+for (i in seq_along(combined_matrix_files)) {
+  day_label <- sub(".*combined_matrix_(.+)\\.rda$", "\\1", combined_matrix_files[i])
+  
+  load(combined_matrix_files[i])  # loads: combined_matrix_i
+  res <- synch_pair_analysis(
+    matrix_data = list(combined_matrix_i),
+    type = "feed_and_drink",
+    resolution = "sec",
+    id_col = id_col2()
+  )
+  pair_combined_i <- list(
+    bout         = res$bout[[1]],
+    total_time   = res$total_time[[1]],
+    avg_duration = res$avg_duration[[1]]
+  )
+  out_file <- paste0(pair_out_path, "/pair_combined_", day_label, ".rda")
+  save(pair_combined_i, file = out_file)
+  pair_combined_files[i] <- out_file
+  rm(combined_matrix_i, res, pair_combined_i); gc()
+  cat(sprintf("Pair combined result saved: %s (%d/%d)\n", day_label, i, length(combined_matrix_files)))
+}
+
+# ---- STEP 4: Spatial Neighbor Proximity Analysis (one day at a time to save RAM) ----
 cat("Current bin layout:\n")
 cat(bin_layout2(), "\n")
 
-# IMPORTANT: Use combined matrices for neighbor analysis!
-# Water bins are often between feed bins, so we analyze them together
-neighbor_results <- synch_neighbor_analysis(
-  matrix_data = combined_matrices, # Output from matrix_process() with combined data
-  bin_layout = bin_layout2(),      # Physical bin arrangement (from global vars)
-  type = "feed_and_drink",         # Combined type
-  resolution = "sec",              # Must match matrix_process() resolution
-  id_col = id_col2()               # Animal ID column (from global vars)
-)
+neighbor_out_path <- paste0(output_path, "/5_synchronicity_analysis/neighbor_results")
+if (!dir.exists(neighbor_out_path)) dir.create(neighbor_out_path, recursive = TRUE)
 
-# Results contain three matrices/lists:
-names(neighbor_results)  # bout, total_time, avg_duration
+neighbor_files <- character(length(combined_matrix_files))
+for (i in seq_along(combined_matrix_files)) {
+  day_label <- sub(".*combined_matrix_(.+)\\.rda$", "\\1", combined_matrix_files[i])
+  
+  load(combined_matrix_files[i])  # loads: combined_matrix_i
+  res <- synch_neighbor_analysis(
+    matrix_data = list(combined_matrix_i),
+    bin_layout = bin_layout2(),
+    type = "feed_and_drink",
+    resolution = "sec",
+    id_col = id_col2()
+  )
+  neighbor_i <- list(
+    bout         = res$bout[[1]],
+    total_time   = res$total_time[[1]],
+    avg_duration = res$avg_duration[[1]]
+  )
+  out_file <- paste0(neighbor_out_path, "/neighbor_", day_label, ".rda")
+  save(neighbor_i, file = out_file)
+  neighbor_files[i] <- out_file
+  rm(combined_matrix_i, res, neighbor_i); gc()
+  cat(sprintf("Neighbor result saved: %s (%d/%d)\n", day_label, i, length(combined_matrix_files)))
+}
 
-# Access neighbor analysis results
-neighbor_bouts <- neighbor_results$bout         # Bouts at neighboring bins
-neighbor_times <- neighbor_results$total_time  # Time at neighboring bins
-neighbor_avg <- neighbor_results$avg_duration  # Average neighbor bout duration
-
-# Compare co-occurrence vs neighbor patterns (example)
-# Extract matrices for the first day
-combined_bout_matrix <- pair_combined_results$bout[[1]]
-combined_time_matrix <- pair_combined_results$total_time[[1]]
-neighbor_bout_matrix <- neighbor_results$bout[[1]]
-neighbor_time_matrix <- neighbor_results$total_time[[1]]
-
-example_animal1 <- rownames(combined_time_matrix)[1]
-example_animal2 <- rownames(combined_time_matrix)[2]
-cat(sprintf("Comparison for animals %s and %s (first day):\n
-Co-occurrence (feeding OR drinking at same time, any bins): %d bouts, %d seconds total, %.1f seconds per bout on average
-Neighbor proximity (feeding OR drinking at adjacent bins): %d bouts, %d seconds total, %.1f seconds per bout on average\n",
+# Example: inspect first day from saved results
+load(pair_combined_files[1])   # loads: pair_combined_i
+load(neighbor_files[1])        # loads: neighbor_i
+example_animal1 <- rownames(pair_combined_i$total_time)[1]
+example_animal2 <- rownames(pair_combined_i$total_time)[2]
+cat(sprintf(
+  "Comparison for animals %s and %s (first day):\nCo-occurrence: %d bouts, %d seconds total, %.1f sec/bout avg\nNeighbor: %d bouts, %d seconds total, %.1f sec/bout avg\n",
   example_animal1, example_animal2,
-  combined_bout_matrix[example_animal1, example_animal2],
-  combined_time_matrix[example_animal1, example_animal2],
-  pair_combined_results$avg_duration[[1]][example_animal1, example_animal2],
-  neighbor_bout_matrix[example_animal1, example_animal2],
-  neighbor_time_matrix[example_animal1, example_animal2],
-  neighbor_results$avg_duration[[1]][example_animal1, example_animal2]
+  pair_combined_i$bout[example_animal1, example_animal2],
+  pair_combined_i$total_time[example_animal1, example_animal2],
+  pair_combined_i$avg_duration[example_animal1, example_animal2],
+  neighbor_i$bout[example_animal1, example_animal2],
+  neighbor_i$total_time[example_animal1, example_animal2],
+  neighbor_i$avg_duration[example_animal1, example_animal2]
 ))
+rm(pair_combined_i, neighbor_i); gc()
 
-# ---- STEP 5: Convert Matrices to Tidy Data Frames ----
-# Convert pair analysis results to data frame for easier analysis
-pair_df <- synch_pairs_to_df(
-  synch_results = pair_feed_results,  # Output from synch_pair_analysis()
-  min_time = 0,                       # Minimum time threshold (0 = include all)
-  sort_by = "total_time",             # Column to sort by: "total_time", "bouts", "avg_duration"
-  decreasing = TRUE                   # TRUE = descending, FALSE = ascending
-)
+# ---- STEP 5: Convert Matrices to Tidy Data Frames (aggregate across all days) ----
+# Load each per-day result, convert to df, accumulate, then free memory.
 
-# Convert neighbor analysis results to data frame
-neighbor_df <- synch_pairs_to_df(
-  synch_results = neighbor_results,  # Output from synch_neighbor_analysis()
-  min_time = 0,                      # Minimum neighbor time threshold
-  sort_by = "total_time",            # Sort by time at neighboring bins
-  decreasing = TRUE
+# Helper: convert a single per-day result list to a data frame of pair rows
+synch_result_to_df <- function(res_i) {
+  bout_mat  <- res_i$bout
+  time_mat  <- res_i$total_time
+  avg_mat   <- res_i$avg_duration
+  animals   <- rownames(bout_mat)
+  pairs     <- which(upper.tri(bout_mat), arr.ind = TRUE)
+  data.frame(
+    animal1      = animals[pairs[, 1]],
+    animal2      = animals[pairs[, 2]],
+    bouts        = bout_mat[pairs],
+    total_time   = time_mat[pairs],
+    avg_duration = avg_mat[pairs],
+    stringsAsFactors = FALSE
+  )
+}
+
+# --- Aggregate feed pair results ---
+pair_df_list <- vector("list", length(pair_feed_files))
+for (i in seq_along(pair_feed_files)) {
+  load(pair_feed_files[i])   # loads: pair_feed_i
+  pair_df_list[[i]] <- synch_result_to_df(pair_feed_i)
+  rm(pair_feed_i); gc()
+}
+pair_df_all <- do.call(rbind, pair_df_list)
+pair_df <- aggregate(
+  cbind(bouts, total_time) ~ animal1 + animal2,
+  data = pair_df_all,
+  FUN = sum
 )
+pair_df$avg_duration <- ifelse(pair_df$bouts > 0, pair_df$total_time / pair_df$bouts, 0)
+pair_df <- pair_df[order(pair_df$total_time, decreasing = TRUE), ]
+rm(pair_df_list, pair_df_all); gc()
+
+# --- Aggregate neighbor results ---
+neighbor_df_list <- vector("list", length(neighbor_files))
+for (i in seq_along(neighbor_files)) {
+  load(neighbor_files[i])   # loads: neighbor_i
+  neighbor_df_list[[i]] <- synch_result_to_df(neighbor_i)
+  rm(neighbor_i); gc()
+}
+neighbor_df_all <- do.call(rbind, neighbor_df_list)
+neighbor_df <- aggregate(
+  cbind(bouts, total_time) ~ animal1 + animal2,
+  data = neighbor_df_all,
+  FUN = sum
+)
+neighbor_df$avg_duration <- ifelse(neighbor_df$bouts > 0, neighbor_df$total_time / neighbor_df$bouts, 0)
+neighbor_df <- neighbor_df[order(neighbor_df$total_time, decreasing = TRUE), ]
+rm(neighbor_df_list, neighbor_df_all); gc()
 
 # ---- STEP 6: Find Most/Least Synchronized Pairs ----
 # Get top 10 most synchronized feeding pairs
@@ -207,27 +323,50 @@ top_pairs <- head(pair_df, 10)
 print(top_pairs)
 
 # Get top 10 least synchronized feeding pairs
-least_pairs <- synch_pairs_to_df(
-  pair_feed_results,
-  min_time = 0,
-  sort_by = "total_time",
-  decreasing = FALSE               # Least synchronized first
-)
+least_pairs <- pair_df[order(pair_df$total_time, decreasing = FALSE), ]
 print(head(least_pairs, 10))
 
 # Filter pairs with high synchronicity (e.g., >100 seconds together)
 high_sync_pairs <- pair_df[pair_df$total_time > 100, ]
 
 # ---- STEP 7: Compare Neighbor Preference to Total Co-Occurrence ----
-# IMPORTANT: Compare combined feed+water co-occurrence with neighbor proximity
-# This ensures we're comparing the same activity types (both feed and water)
-neighbor_compare <- synch_neighbor_compare(
-  pair_results = pair_combined_results, # Combined co-occurrence results
-  neighbor_results = neighbor_results,  # Neighbor results (combined feed+water)
-  min_cooccurrence = 0,                # Minimum co-occurrence time threshold (0 = all pairs)
-  sort_by = "neighbor_ratio",          # Sort by neighbor preference ratio
-  decreasing = TRUE                    # Highest preference first
+# Build neighbor_compare from aggregated combined pair df and neighbor df.
+
+# Aggregate combined pair results across all days
+pair_combined_df_list <- vector("list", length(pair_combined_files))
+for (i in seq_along(pair_combined_files)) {
+  load(pair_combined_files[i])   # loads: pair_combined_i
+  pair_combined_df_list[[i]] <- synch_result_to_df(pair_combined_i)
+  rm(pair_combined_i); gc()
+}
+pair_combined_df_all <- do.call(rbind, pair_combined_df_list)
+pair_combined_df <- aggregate(
+  cbind(bouts, total_time) ~ animal1 + animal2,
+  data = pair_combined_df_all,
+  FUN = sum
 )
+pair_combined_df$avg_duration <- ifelse(
+  pair_combined_df$bouts > 0, pair_combined_df$total_time / pair_combined_df$bouts, 0
+)
+rm(pair_combined_df_list, pair_combined_df_all); gc()
+
+# Merge co-occurrence and neighbor totals
+neighbor_compare <- merge(
+  pair_combined_df[, c("animal1", "animal2", "total_time")],
+  neighbor_df[, c("animal1", "animal2", "total_time")],
+  by = c("animal1", "animal2"),
+  all.x = TRUE,
+  suffixes = c("_cooccurrence", "_neighbor")
+)
+neighbor_compare$total_time_neighbor[is.na(neighbor_compare$total_time_neighbor)] <- 0
+neighbor_compare$neighbor_ratio <- ifelse(
+  neighbor_compare$total_time_cooccurrence > 0,
+  neighbor_compare$total_time_neighbor / neighbor_compare$total_time_cooccurrence,
+  0
+)
+names(neighbor_compare)[names(neighbor_compare) == "total_time_cooccurrence"] <- "cooccurrence_time"
+names(neighbor_compare)[names(neighbor_compare) == "total_time_neighbor"]     <- "neighbor_time"
+neighbor_compare <- neighbor_compare[order(neighbor_compare$neighbor_ratio, decreasing = TRUE), ]
 
 # neighbor_compare contains:
 # - cooccurrence_time: Total time active together (feed OR water) anywhere
@@ -281,7 +420,7 @@ ggplot(plot_grid, aes(x = animal1, y = animal2, fill = total_time)) +
   scale_fill_viridis_c(option = "viridis", name = "Total Time\n(seconds)", direction = -1) +
   labs(
     title = "Pair-wise Synchronicity Heatmap",
-    subtitle = "Total time spent feeding together (clustered by similarity, first day)",
+    subtitle = "Total time spent feeding together across all days (clustered by similarity)",
     x = "Animal ID",
     y = "Animal ID"
   ) +
@@ -292,18 +431,10 @@ ggplot(plot_grid, aes(x = animal1, y = animal2, fill = total_time)) +
   )
 
 # Visualize neighbor feeding time as a heatmap (clustered by similarity)
-# Convert neighbor results to data frame
-neighbor_df_viz <- synch_pairs_to_df(
-  synch_results = neighbor_results,
-  min_time = 0,
-  sort_by = "total_time",
-  decreasing = TRUE
-)
-
 # Create a symmetric dataset for the neighbor heatmap
 neighbor_heatmap_data <- rbind(
-  neighbor_df_viz,
-  neighbor_df_viz |> dplyr::mutate(temp = animal1, animal1 = animal2, animal2 = temp) |> dplyr::select(-temp)
+  neighbor_df,
+  neighbor_df |> dplyr::mutate(temp = animal1, animal1 = animal2, animal2 = temp) |> dplyr::select(-temp)
 )
 
 # Convert to symmetric matrix for clustering
@@ -345,7 +476,7 @@ ggplot(neighbor_plot_grid, aes(x = animal1, y = animal2, fill = total_time)) +
   scale_fill_viridis_c(option = "viridis", name = "Total Time\n(seconds)", direction = -1) +
   labs(
     title = "Neighbor Synchronicity Heatmap",
-    subtitle = "Total time spent feeding or drinking as neighbors (clustered by similarity, first day)",
+    subtitle = "Total time spent feeding or drinking as neighbors across all days (clustered by similarity)",
     x = "Animal ID",
     y = "Animal ID"
   ) +
@@ -358,20 +489,21 @@ ggplot(neighbor_plot_grid, aes(x = animal1, y = animal2, fill = total_time)) +
 ################################################################
 # Save results
 ################################################################
-# Create output directory if it doesn't exist
-if (!dir.exists(paste0(output_path, "/5_synchronicity_analysis"))) {
-  dir.create(paste0(output_path, "/5_synchronicity_analysis"), recursive = TRUE)
-}
+# Per-day matrices and per-day pair/neighbor results are already saved to disk
+# during the iteration loops above (in matrices/, pair_results/, neighbor_results/).
+# Here we save the aggregated summary data frames.
 
-# Save pair analysis results as RDA
-save(pair_feed_results, file = paste0(output_path, "/5_synchronicity_analysis/pair_feed_results.rda"))
-save(pair_water_results, file = paste0(output_path, "/5_synchronicity_analysis/pair_water_results.rda"))
-save(pair_combined_results, file = paste0(output_path, "/5_synchronicity_analysis/pair_combined_results.rda"))
-
-# Save neighbor analysis results as RDA
-save(neighbor_results, file = paste0(output_path, "/5_synchronicity_analysis/neighbor_results.rda"))
-
-# Save data frames as RDA
-save(pair_df, file = paste0(output_path, "/5_synchronicity_analysis/pair_df.rda"))
-save(neighbor_df, file = paste0(output_path, "/5_synchronicity_analysis/neighbor_df.rda"))
+# Save aggregated data frames as RDA
+save(pair_df,          file = paste0(output_path, "/5_synchronicity_analysis/pair_df.rda"))
+save(neighbor_df,      file = paste0(output_path, "/5_synchronicity_analysis/neighbor_df.rda"))
 save(neighbor_compare, file = paste0(output_path, "/5_synchronicity_analysis/neighbor_compare.rda"))
+save(pair_combined_df, file = paste0(output_path, "/5_synchronicity_analysis/pair_combined_df.rda"))
+
+# Save file path vectors so downstream scripts can reload per-day results if needed
+save(feed_matrix_files,    file = paste0(output_path, "/5_synchronicity_analysis/feed_matrix_files.rda"))
+save(water_matrix_files,   file = paste0(output_path, "/5_synchronicity_analysis/water_matrix_files.rda"))
+save(combined_matrix_files,file = paste0(output_path, "/5_synchronicity_analysis/combined_matrix_files.rda"))
+save(pair_feed_files,      file = paste0(output_path, "/5_synchronicity_analysis/pair_feed_files.rda"))
+save(pair_water_files,     file = paste0(output_path, "/5_synchronicity_analysis/pair_water_files.rda"))
+save(pair_combined_files,  file = paste0(output_path, "/5_synchronicity_analysis/pair_combined_files.rda"))
+save(neighbor_files,       file = paste0(output_path, "/5_synchronicity_analysis/neighbor_files.rda"))
