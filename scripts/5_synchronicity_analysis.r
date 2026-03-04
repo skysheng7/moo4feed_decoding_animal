@@ -363,6 +363,11 @@ if (!dir.exists(paste0(output_path, "/5_synchronicity_analysis"))) {
   dir.create(paste0(output_path, "/5_synchronicity_analysis"), recursive = TRUE)
 }
 
+# Save time-based activity matrices (intermediate outputs from matrix_process)
+save(feed_matrices, file = paste0(output_path, "/5_synchronicity_analysis/feed_matrices.rda"))
+save(water_matrices, file = paste0(output_path, "/5_synchronicity_analysis/water_matrices.rda"))
+save(combined_matrices, file = paste0(output_path, "/5_synchronicity_analysis/combined_matrices.rda"))
+
 # Save pair analysis results as RDA
 save(pair_feed_results, file = paste0(output_path, "/5_synchronicity_analysis/pair_feed_results.rda"))
 save(pair_water_results, file = paste0(output_path, "/5_synchronicity_analysis/pair_water_results.rda"))
