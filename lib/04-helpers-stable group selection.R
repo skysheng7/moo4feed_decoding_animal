@@ -122,7 +122,7 @@ select_and_analyze_groups <- function(total_number_of_groups_selected, group_fre
   selected_cows <- max_days_group_selected[max_days_group_selected$group_number %in% selected_groups, "cow"]
   
   all_info_final_selected <- all_info_final[(all_info_final$group_number %in% selected_groups) & (all_info_final$cow %in% selected_cows), ]
-  save(all_info_final_selected, file = here::here("data/results/all_info_final_selected.rdata"))
+  save(all_info_final_selected, file = "results/9_filter_problematic_days/all_info_final_selected.rdata")
   
   total_cow_selected <- length(unique(all_info_final_selected$cow))
   min_days_per_cow <- min(max_days_group_selected[max_days_group_selected$group_number %in% selected_groups, "days_count"])

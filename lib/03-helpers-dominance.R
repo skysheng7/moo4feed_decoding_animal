@@ -53,8 +53,8 @@ elo_rating_calculate <- function(temp_replacement_list) {
   elo_score$cow <- as.integer(elo_score$cow)
   
   # Save the ELO scores
-  save(elo_package_result, file = here("data/results/elo_full_result.rdata"))
-  save(elo_score, file = here("data/results/elo_score_daily.rdata"))
+  save(elo_package_result, file = "results/9_filter_problematic_days/elo_full_result.rdata")
+  save(elo_score, file = "results/9_filter_problematic_days/elo_score_daily.rdata")
   
   return(elo_score)
 }

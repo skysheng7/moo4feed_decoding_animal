@@ -20,6 +20,12 @@ This directory contains raw feeding and drinking data files collected from preci
 
 ## Metadata Files (.rdata)
 
+**Note:** All metadata files (`.rdata` files) in this directory are processed data from the repository: [competition_dominance_analysis](https://github.com/skysheng7/competition_dominance_analysis.git). These files were generated as part of the published research:
+
+- **Title:** Redefining dominance calculation: Increased competition flattens the dominance hierarchy in dairy cows
+- **Paper DOI:** [https://doi.org/10.3168/jds.2023-24587](https://doi.org/10.3168/jds.2023-24587)
+- **Dataset DOI:** [https://doi.org/10.5683/SP3/HT9EHX](https://doi.org/10.5683/SP3/HT9EHX)
+
 ### `regrouping.rdata`
 
 - **Description:** Records of regrouping events when cows were moved between pens
@@ -104,6 +110,18 @@ This directory contains raw feeding and drinking data files collected from preci
   - `entry_exit_status`: Status indicator ("enroll" or "exclude")
 - **Usage:** Used in `scripts/9_filter_problematic_days.r` to filter out entry and exit days for each cow
 
+### `master_feed_replacement_all_with_feeder_occupancy.rdata`
+
+- **Description:** Feed replacement events with feeder occupancy information
+- **Structure:** Data frame containing feed replacement records with columns including:
+  - `date`: Date of replacement event (Date format)
+  - `feeder_occupancy`: Feeder occupancy metric (renamed from `resource_occupancy`)
+  - Additional columns related to feed replacement events (time, bout_interval, etc.)
+- **Usage:** Used in `scripts/9_filter_problematic_days.r` to:
+  - Calculate dominance hierarchy based on replacements
+  - Filter replacements by feeder occupancy (≤0.75 for low-medium occupancy)
+  - Exclude red warning days and specific orange warning days from dominance calculations
+
 ## Directory Structure
 
 ```
@@ -119,7 +137,8 @@ data/
 ├── lameness_database.rdata      # Gait scoring and lameness data
 ├── thi.rdata                    # Temperature-Humidity Index data
 ├── sick_cow_no_lame.rdata       # Sickness records (non-lameness)
-└── enroll_exclude_track.rdata   # Cow enrollment/exclusion tracking
+├── enroll_exclude_track.rdata   # Cow enrollment/exclusion tracking
+└── master_feed_replacement_all_with_feeder_occupancy.rdata  # Feed replacement events with feeder occupancy
 ```
 
 ## Data Processing Pipeline

@@ -6,7 +6,6 @@ library(lubridate)
 library(moo4feed)  # for merge_list_df() function
 library(EloRating)  # for elo.seq() function
 library(tidyr)      # for pivot_longer() function
-library(here)       # for here() function
 
 # Load global variables and helper functions from lib directory
 source("lib/globals.R")
@@ -32,6 +31,7 @@ load("data/lameness_database.rdata")
 load("data/thi.rdata")
 load("data/sick_cow_no_lame.rdata")
 load("data/enroll_exclude_track.rdata")
+load("data/master_feed_replacement_all_with_feeder_occupancy.rdata")
 
 master_feed_replacement_all <- moo4feed::read_data_safely("results/4_replacement_detection/all_replacements.csv", header=TRUE, sep = ",")
 # Convert data types using lubridate
