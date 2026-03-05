@@ -13,6 +13,7 @@ library(tidybayes)   # for posterior_samples()
 library(tidyverse)   # for %>%, gather(), separate(), left_join(), group_by(), mutate(), ungroup()
 library(ggplot2)     # for ggplot(), geom_point(), labs(), theme_classic(), scale_fill_manual()
 library(ggridges)    # for geom_density_ridges()
+library(ggrepel)     # for geom_label_repel()
 library(parallel)    # for detectCores()
 
 ###################################################################################################
@@ -283,3 +284,54 @@ iiv_plots <- list()
 for (rv in response_vars) {
   iiv_plots[[rv]] <- plot_posterior_iiv(models[[rv]], rv)
 }
+
+###################################################################################################
+################################## Repeatability vs Predictability ################################
+###################################################################################################
+# Combine CVi (repeatability) and CVP (predictability) summaries and plot them against each other.
+# High CVi  = high between-individual variation (animals differ a lot on average)
+# High CVP  = high within-individual variation  (animals are unpredictable day-to-day)
+
+rep_summary  <- moo4feed::read_data_safely("results/11_repeatability/repeatability_summary.csv",
+                                           header = TRUE, sep = ",")
+pred_summary <- moo4feed::read_data_safely("results/12_predictability/predictability_summary.csv",
+                                           header = TRUE, sep = ",")
+
+combined_summary <- rep_summary  %>%
+  dplyr::select(variable, CVi_mean) %>%
+  dplyr::inner_join(
+    pred_summary %>% dplyr::select(variable, CVP_mean),
+    by = "variable"
+  ) %>%
+  dplyr::filter(variable != "median_pct_actor_reactor")
+
+scatter_rep_pred <- ggplot(combined_summary,
+                           aes(x = CVi_mean, y = CVP_mean,
+                               colour = variable, label = variable)) +
+  geom_point(size = 3) +
+  ggrepel::geom_label_repel(
+    aes(fill = variable),
+    colour          = "white",
+    fontface        = "bold",
+    size            = 3,
+    label.padding   = unit(0.2, "lines"),
+    box.padding     = unit(0.4, "lines"),
+    point.padding   = unit(0.3, "lines"),
+    direction       = "both",
+    max.overlaps    = Inf,
+    show.legend     = FALSE
+  ) +
+  labs(
+    x      = "CVi mean (Repeatability \u2014 between-individual variation)",
+    y      = "CVP mean (Predictability \u2014 within-individual variation)",
+    colour = "Variable"
+  ) +
+  theme_classic() +
+  theme(legend.position = "none")
+
+ggsave(
+  filename = "results/12_predictability/scatter_repeatability_vs_predictability.png",
+  plot     = scatter_rep_pred,
+  width    = 10,
+  height   = 8
+)
