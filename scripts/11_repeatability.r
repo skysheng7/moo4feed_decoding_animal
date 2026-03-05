@@ -123,6 +123,8 @@ master_data <- data %>%
   left_join(all_meal_visits,    by = c("cow", "date")) %>%
   left_join(all_daily_roles,    by = c("cow", "date"))
 
+save(master_data, file = "results/11_repeatability/master_data.rda")
+
 ###################################################################################################
 ################################## Helper: run one repeatability model ############################
 ###################################################################################################
