@@ -300,27 +300,34 @@ pred_summary <- moo4feed::read_data_safely("results/12_predictability/predictabi
 combined_summary <- rep_summary  %>%
   dplyr::select(variable, CVi_mean) %>%
   dplyr::inner_join(
-    pred_summary %>% dplyr::select(variable, CVP_mean),
+    pred_summary %>% dplyr::select(variable, CVP_mean, rIIV_mean),
     by = "variable"
   ) %>%
   dplyr::filter(variable != "median_pct_actor_reactor")
 
-scatter_rep_pred <- ggplot(combined_summary,
-                           aes(x = CVi_mean, y = CVP_mean,
-                               colour = variable, label = variable)) +
-  geom_point(size = 3) +
+# ---- shared label layer helper -----------------------------------------------
+repred_label_layer <- function() {
   ggrepel::geom_label_repel(
     aes(fill = variable),
     colour          = "white",
     fontface        = "bold",
     size            = 3,
+    alpha           = 0.7,
     label.padding   = unit(0.2, "lines"),
     box.padding     = unit(0.4, "lines"),
     point.padding   = unit(0.3, "lines"),
     direction       = "both",
     max.overlaps    = Inf,
     show.legend     = FALSE
-  ) +
+  )
+}
+
+# ---- Plot 1: CVP_mean (y) vs CVi_mean (x) ------------------------------------
+scatter_CVP_CVi <- ggplot(combined_summary,
+                          aes(x = CVi_mean, y = CVP_mean,
+                              colour = variable, label = variable)) +
+  geom_point(size = 3, alpha = 0.7) +
+  repred_label_layer() +
   labs(
     x      = "CVi mean (Repeatability \u2014 between-individual variation)",
     y      = "CVP mean (Predictability \u2014 within-individual variation)",
@@ -330,8 +337,29 @@ scatter_rep_pred <- ggplot(combined_summary,
   theme(legend.position = "none")
 
 ggsave(
-  filename = "results/12_predictability/scatter_repeatability_vs_predictability.png",
-  plot     = scatter_rep_pred,
+  filename = "results/12_predictability/scatter_CVP_vs_CVi.png",
+  plot     = scatter_CVP_CVi,
+  width    = 10,
+  height   = 8
+)
+
+# ---- Plot 2: rIIV_mean (y) vs CVi_mean (x) -----------------------------------
+scatter_rIIV_CVi <- ggplot(combined_summary,
+                           aes(x = CVi_mean, y = rIIV_mean,
+                               colour = variable, label = variable)) +
+  geom_point(size = 3, alpha = 0.7) +
+  repred_label_layer() +
+  labs(
+    x      = "CVi mean (Repeatability \u2014 between-individual variation)",
+    y      = "rIIV mean (Predictability \u2014 residual intra-individual variance)",
+    colour = "Variable"
+  ) +
+  theme_classic() +
+  theme(legend.position = "none")
+
+ggsave(
+  filename = "results/12_predictability/scatter_rIIV_vs_CVi.png",
+  plot     = scatter_rIIV_CVi,
   width    = 10,
   height   = 8
 )
