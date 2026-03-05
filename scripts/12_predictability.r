@@ -208,14 +208,20 @@ plot_posterior_iiv <- function(m2_brm, response_var,
                                output_dir = "results/12_predictability") {
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
-  ps       <- posterior_samples(m2_brm)
+  ps       <- as_draws_df(m2_brm)
   iiv_cols <- grep("^r_cow__sigma\\[", names(ps), value = TRUE)
 
+  # Pivot to long format; column names look like r_cow__sigma[5042,Intercept]
   posteriorIIV <- ps[, iiv_cols] %>%
-    gather(cow, value) %>%
-    separate(cow,
-             c(NA, NA, NA, "cow", NA),
-             sep = "([\\_\\[\\,])", fill = "right")
+    tidyr::pivot_longer(
+      cols      = everything(),
+      names_to  = "raw_col",
+      values_to = "value"
+    ) %>%
+    dplyr::mutate(
+      cow = sub("^r_cow__sigma\\[(.+),Intercept\\]$", "\\1", raw_col)
+    ) %>%
+    dplyr::select(-raw_col)
 
   # Shift by the population-level sigma intercept to get absolute IIV on the log scale
   posteriorIIV$value <- posteriorIIV$value +
@@ -239,22 +245,26 @@ plot_posterior_iiv <- function(m2_brm, response_var,
   fill_values <- c(focal_colors, "Other individuals" = "gray")
   n_cows      <- dplyr::n_distinct(posteriorIIV$cow)
 
+  # Build a summary for the mean-dot layer (one row per cow, ordered by meanIIV)
+  cow_summary <- posteriorIIV %>%
+    dplyr::distinct(cow, meanIIV, col) %>%
+    dplyr::mutate(cow_ordered = reorder(as.factor(cow), meanIIV))
+
   IIV_plot <- ggplot() +
     ggridges::geom_density_ridges(
       data  = posteriorIIV,
-      aes(x      = value,
-          y      = reorder(as.factor(cow), meanIIV),
-          height = ..density..,
-          fill   = col,
-          scale  = 3),
+      aes(x    = value,
+          y    = reorder(as.factor(cow), meanIIV),
+          fill = col),
+      scale = 3,
       alpha = 0.6
     ) +
     geom_point(
-      data = posteriorIIV[!duplicated(posteriorIIV$cow), ],
-      aes(x = meanIIV, y = as.factor(cow), col = col),
+      data = cow_summary,
+      aes(x = meanIIV, y = cow_ordered, col = col),
       size = 1
     ) +
-    labs(y = "", x = paste0("rIIV — ", response_var), fill = "ID", col = "ID") +
+    labs(y = "", x = paste0("rIIV \u2014 ", response_var), fill = "ID", col = "ID") +
     theme_classic() +
     scale_fill_manual(values  = fill_values) +
     scale_color_manual(values = fill_values)
