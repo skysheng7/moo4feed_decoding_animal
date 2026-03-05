@@ -46,6 +46,8 @@ moo4feed_decoding_animal/
 
 ## Installation
 
+Packages used: `moo4feed`, `EloRating`
+
 ### Prerequisites
 
 1. **R** (version 4.0 or higher)
