@@ -3,3 +3,7 @@
 .vscode/
 results/2_meal_clustering/meal_plots.rda
 scripts/9_filter_problematic_days.r
+CLAUDE.md
+.claude/
+
+results/5_synchronicity_analysis/
