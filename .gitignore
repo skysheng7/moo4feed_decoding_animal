@@ -7,3 +7,6 @@ CLAUDE.md
 .claude/
 
 results/5_synchronicity_analysis/*.rda
+results/10_synchronicity_analysis_breakdown/feed_matrices/*.rda
+results/10_synchronicity_analysis_breakdown/water_matrices/*.rda
+results/10_synchronicity_analysis_breakdown/combined_matrices/*.rda
