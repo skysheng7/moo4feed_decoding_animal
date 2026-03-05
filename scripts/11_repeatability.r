@@ -45,6 +45,85 @@ stopifnot(all(!is.na(data$DIM)))
 stopifnot(all(!is.na(data$group_number)))
 
 ###################################################################################################
+################################## Build master daily summary dataframe ##########################
+###################################################################################################
+
+# ---- meal_summaries.csv: median meal-level stats per cow per day --------------------------------
+meal_summaries <- moo4feed::read_data_safely("results/2_meal_clustering/meal_summaries.csv",
+                                             header = TRUE, sep = ",")
+meal_summaries$date <- ymd(meal_summaries$date, tz = "America/Los_Angeles")
+meal_summaries$cow  <- as.integer(meal_summaries$cow)
+
+meal_daily <- meal_summaries %>%
+  group_by(cow, date) %>%
+  summarise(
+    total_meals              = n(),
+    median_meal_duration     = median(meal_duration,       na.rm = TRUE),
+    median_visit_per_meal    = median(visit_count,         na.rm = TRUE),
+    median_intake_per_meal   = median(total_intake,        na.rm = TRUE),
+    median_unique_bins_per_meal = median(unique_bins_count,   na.rm = TRUE),
+    median_feeding_pct_per_meal = median(feeding_percentage,  na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# ---- bin_visits.csv: unique bins visited per cow per day ----------------------------------------
+bin_visits <- moo4feed::read_data_safely("results/3_bin_visit_analysis/bin_visits.csv",
+                                         header = TRUE, sep = ",")
+bin_visits$date <- ymd(bin_visits$date, tz = "America/Los_Angeles")
+bin_visits$cow  <- as.integer(bin_visits$cow)
+
+# ---- non_nutritive.rda: total non-nutritive visits per cow per day ------------------------------
+load("results/6_non_nutritive_visit_analysis/non_nutritive.rda")
+non_nutritive_daily <- imap(non_nutritive, ~ mutate(.x, date = .y)) %>%
+  bind_rows() %>%
+  mutate(
+    date = lubridate::ymd(date, tz = "America/Los_Angeles"),
+    cow  = as.integer(cow)
+  )
+
+# ---- availability.rda: median feed availability per cow per day ---------------------------------
+load("results/7_feed_availability_analysis/availability.rda")
+avail_daily <- do.call(rbind, availability$daily_summary) %>%
+  mutate(
+    date = ymd(date, tz = "America/Los_Angeles"),
+    cow  = as.integer(cow)
+  ) %>%
+  select(cow, date, median_pct_feed_remaining)
+
+# ---- all_meal_visits.rda: median non-nutritive & empty-bin visits per meal ----------------------
+load("results/8_meal_level_behavior_analysis/all_meal_visits.rda")
+all_meal_visits <- all_meal_visits %>%
+  mutate(
+    date = ymd(date, tz = "America/Los_Angeles"),
+    cow  = as.integer(cow)
+  ) %>%
+  select(-total_meals) %>%
+  select(cow, date,
+         median_non_nutritive_per_meal)
+
+# ---- all_daily_roles.rda: median actor/reactor percentages per cow per day ----------------------
+load("results/8_meal_level_behavior_analysis/all_daily_roles.rda")
+all_daily_roles <- all_daily_roles %>%
+  mutate(
+    date = ymd(date, tz = "America/Los_Angeles"),
+    cow  = as.integer(cow)
+  ) %>%
+  select(-total_meals) %>%
+  select(cow, date,
+         median_pct_actor,
+         median_pct_reactor,
+         median_pct_actor_reactor)
+
+# ---- Assemble master dataframe ------------------------------------------------------------------
+master_data <- data %>%
+  left_join(meal_daily,         by = c("cow", "date")) %>%
+  left_join(bin_visits,         by = c("cow", "date")) %>%
+  left_join(non_nutritive_daily, by = c("cow", "date")) %>%
+  left_join(avail_daily,        by = c("cow", "date")) %>%
+  left_join(all_meal_visits,    by = c("cow", "date")) %>%
+  left_join(all_daily_roles,    by = c("cow", "date"))
+
+###################################################################################################
 ################################## Helper: run one repeatability model ############################
 ###################################################################################################
 run_repeatability <- function(response_var, data, output_dir = "results/11_repeatability") {
@@ -53,7 +132,7 @@ run_repeatability <- function(response_var, data, output_dir = "results/11_repea
 
   formula_str <- paste0(
     response_var,
-    " ~ DIM + I(DIM^2) + parity + THI_mean + (1 | cow) + (1 | group_number)"
+    " ~ DIM + parity + THI_mean + (1 | cow) + (1 | group_number)"
   )
 
   my.cores <- detectCores()
@@ -65,11 +144,10 @@ run_repeatability <- function(response_var, data, output_dir = "results/11_repea
     iter     = 3000,
     thin     = 2,
     chains   = 2,
-    inits    = "random",
+    init     = "random",
     cores    = my.cores,
     seed     = 12345
   )
-  m1_brm <- add_criterion(m1_brm, "waic")
   saveRDS(m1_brm, rds_path)
 
   return(m1_brm)
@@ -109,26 +187,99 @@ partition_variance <- function(m1_brm, response_var, data) {
   )
 }
 
+
 ###################################################################################################
-################################## Run repeatability for summary_df variables #####################
+################################## Run repeatability for all master_data variables ################
 ###################################################################################################
 response_vars <- c(
+  # Basic feeding / watering behaviour
   "feed_intake",
   "feed_duration",
   "feed_visits",
   "water_intake",
   "water_duration",
-  "water_visits"
+  "water_visits",
+
+  # Meal-level summaries
+  "total_meals",
+  "median_meal_duration",
+  "median_visit_per_meal",
+  "median_intake_per_meal",
+  "median_unique_bins_per_meal",
+  "median_feeding_pct_per_meal",
+  # Bin-visit summaries
+  "unique_feed_bins_visited",
+  "unique_water_bins_visited",
+  "total_bins_visited",
+  # Non-nutritive / availability / social behaviour
+  "number_of_non_nutritive_visits",
+  "median_pct_feed_remaining",
+  "median_non_nutritive_per_meal",
+  "median_pct_actor",
+  "median_pct_reactor",
+  "median_pct_actor_reactor"
 )
 
-models      <- list()
-partitions  <- list()
+# Run models in parallel across response variables using a socket cluster (Windows-compatible).
+# Each worker fits one brm model independently; within each model brms still uses all cores
+# for its chains, so cap the per-model core count to avoid over-subscription.
+n_vars        <- length(response_vars)
+total_cores   <- parallel::detectCores()
+# Use one worker per variable but no more than half the available cores so each
+# brm model can still use 2 chains in parallel on the remaining cores.
+n_workers     <- min(n_vars, max(1L, floor(total_cores / 2)))
+brm_cores     <- max(1L, floor(total_cores / n_workers))
 
-for (rv in response_vars) {
-  cat("\nFitting model for:", rv, "\n")
-  models[[rv]]     <- run_repeatability(rv, data)
-  partitions[[rv]] <- partition_variance(models[[rv]], rv, data)
+cat(sprintf(
+  "\nLaunching %d parallel workers; each brm model will use %d core(s).\n",
+  n_workers, brm_cores
+))
+
+cl <- parallel::makeCluster(n_workers)
+parallel::clusterExport(cl, varlist = c("master_data", "brm_cores"), envir = environment())
+parallel::clusterEvalQ(cl, {
+  library(brms)
+  library(coda)
+  library(parallel)
+})
+
+run_repeatability_par <- function(response_var) {
+  output_dir <- "results/11_repeatability"
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  rds_path <- file.path(output_dir, paste0("m1_brm_", response_var, ".rds"))
+
+  formula_str <- paste0(
+    response_var,
+    " ~ DIM + parity + THI_mean + (1 | cow) + (1 | group_number)"
+  )
+
+  m1_brm <- brm(
+    formula  = as.formula(formula_str),
+    data     = master_data,
+    warmup   = 500,
+    iter     = 3000,
+    thin     = 2,
+    chains   = 2,
+    init     = "random",
+    cores    = brm_cores,
+    seed     = 12345
+  )
+  saveRDS(m1_brm, rds_path)
+  m1_brm
 }
+
+models <- parallel::parLapply(cl, response_vars, run_repeatability_par)
+parallel::stopCluster(cl)
+names(models) <- response_vars
+
+partitions <- mapply(
+  partition_variance,
+  m1_brm       = models,
+  response_var = response_vars,
+  MoreArgs     = list(data = master_data),
+  SIMPLIFY     = FALSE
+)
+names(partitions) <- response_vars
 
 ###################################################################################################
 ################################## Summary table #################################################
@@ -222,5 +373,5 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
 
 bt_plots <- list()
 for (rv in response_vars) {
-  bt_plots[[rv]] <- plot_posterior_bt(models[[rv]], rv, data)
+  bt_plots[[rv]] <- plot_posterior_bt(models[[rv]], rv, master_data)
 }
