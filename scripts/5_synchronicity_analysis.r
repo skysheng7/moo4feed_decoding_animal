@@ -186,11 +186,27 @@ Neighbor proximity (feeding OR drinking at adjacent bins): %d bouts, %d seconds 
 
 # ---- STEP 5: Convert Matrices to Tidy Data Frames ----
 # Convert pair analysis results to data frame for easier analysis
-pair_df <- synch_pairs_to_df(
+pair_feed_df <- synch_pairs_to_df(
   synch_results = pair_feed_results,  # Output from synch_pair_analysis()
   min_time = 0,                       # Minimum time threshold (0 = include all)
   sort_by = "total_time",             # Column to sort by: "total_time", "bouts", "avg_duration"
   decreasing = TRUE                   # TRUE = descending, FALSE = ascending
+)
+
+# Convert water pair analysis results to data frame
+pair_water_df <- synch_pairs_to_df(
+  synch_results = pair_water_results,  # Output from synch_pair_analysis() for water
+  min_time = 0,
+  sort_by = "total_time",
+  decreasing = TRUE
+)
+
+# Convert combined feed+water pair analysis results to data frame
+pair_combined_df <- synch_pairs_to_df(
+  synch_results = pair_combined_results,  # Output from synch_pair_analysis() for combined
+  min_time = 0,
+  sort_by = "total_time",
+  decreasing = TRUE
 )
 
 # Convert neighbor analysis results to data frame
@@ -203,7 +219,7 @@ neighbor_df <- synch_pairs_to_df(
 
 # ---- STEP 6: Find Most/Least Synchronized Pairs ----
 # Get top 10 most synchronized feeding pairs
-top_pairs <- head(pair_df, 10)
+top_pairs <- head(pair_feed_df, 10)
 print(top_pairs)
 
 # Get top 10 least synchronized feeding pairs
@@ -216,7 +232,7 @@ least_pairs <- synch_pairs_to_df(
 print(head(least_pairs, 10))
 
 # Filter pairs with high synchronicity (e.g., >100 seconds together)
-high_sync_pairs <- pair_df[pair_df$total_time > 100, ]
+high_sync_pairs <- pair_feed_df[pair_feed_df$total_time > 100, ]
 
 # ---- STEP 7: Compare Neighbor Preference to Total Co-Occurrence ----
 # IMPORTANT: Compare combined feed+water co-occurrence with neighbor proximity
@@ -240,8 +256,8 @@ high_neighbor_preference <- neighbor_compare[neighbor_compare$neighbor_ratio > 0
 # ---- STEP 8: Visualize Results ----
 # Create a symmetric dataset for the heatmap to show all pairs
 heatmap_data <- rbind(
-  pair_df,
-  pair_df |> mutate(temp = animal1, animal1 = animal2, animal2 = temp) |> select(-temp)
+  pair_feed_df,
+  pair_feed_df |> mutate(temp = animal1, animal1 = animal2, animal2 = temp) |> select(-temp)
 )
 
 # Convert to symmetric matrix for clustering
@@ -377,6 +393,8 @@ save(pair_combined_results, file = paste0(output_path, "/5_synchronicity_analysi
 save(neighbor_results, file = paste0(output_path, "/5_synchronicity_analysis/neighbor_results.rda"))
 
 # Save data frames as RDA
-save(pair_df, file = paste0(output_path, "/5_synchronicity_analysis/pair_df.rda"))
+save(pair_feed_df, file = paste0(output_path, "/5_synchronicity_analysis/pair_feed_df.rda"))
+save(pair_water_df, file = paste0(output_path, "/5_synchronicity_analysis/pair_water_df.rda"))
+save(pair_combined_df, file = paste0(output_path, "/5_synchronicity_analysis/pair_combined_df.rda"))
 save(neighbor_df, file = paste0(output_path, "/5_synchronicity_analysis/neighbor_df.rda"))
 save(neighbor_compare, file = paste0(output_path, "/5_synchronicity_analysis/neighbor_compare.rda"))

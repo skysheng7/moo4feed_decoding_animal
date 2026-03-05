@@ -35,7 +35,8 @@ data <- summary_df %>%
 data <- data %>%
   left_join(
     all_info_final_selected %>%
-      select(cow, date, DIM, parity, THI_mean, group_number),
+      select(cow, date, days_in_milk, Parity, milk_production, Elo, THI_mean, group_number) %>%
+      rename(DIM = days_in_milk, parity = Parity),
     by = c("cow", "date")
   )
 
