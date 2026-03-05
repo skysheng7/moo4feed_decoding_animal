@@ -20,7 +20,10 @@ moo4feed_decoding_animal/
 │   ├── 5_synchronicity_analysis.r # Pair-wise feeding synchronicity
 │   ├── 6_non_nutritive_visit_analysis.r # Non-nutritive and empty bin visits
 │   ├── 7_feed_availability_analysis.r # Feed availability calculations
-│   └── 8_meal_level_behavior_analysis.r # Meal-level behavioral metrics
+│   ├── 8_meal_level_behavior_analysis.r # Meal-level behavioral metrics
+│   ├── 9_filter_problematic_days.r # Filter problematic days and select stable groups
+│   ├── 10_synchronicity_analysis_breakdown.r # Export synchronicity matrices by date
+│   └── 11_repeatability.r      # Bayesian repeatability analysis
 ├── results/                    # Output data files and visualizations
 │   ├── 1_data_cleaning/        # Output files from data cleaning
 │   ├── 2_meal_clustering/      # Output files from meal clustering
@@ -29,12 +32,14 @@ moo4feed_decoding_animal/
 │   ├── 5_synchronicity_analysis/ # Output files from synchronicity analysis
 │   ├── 6_non_nutritive_visit_analysis/ # Output files from non-nutritive visit analysis
 │   ├── 7_feed_availability_analysis/ # Output files from feed availability analysis
-│   └── 8_meal_level_behavior_analysis/ # Output files from meal-level behavior analysis
+│   ├── 8_meal_level_behavior_analysis/ # Output files from meal-level behavior analysis
+│   ├── 9_filter_problematic_days/ # Filtered datasets and covariate files
+│   ├── 10_synchronicity_analysis_breakdown/ # Per-date synchronicity matrix files
 │   └── README.md               # Detailed documentation of all results
 ├── data/                       # Raw data files (not included in repository)
-|   └── insentec/               # Subdirectory for Insentec data files
-|       ├── VR*.DAT            # Feeder files
-|       └── VW*.DAT            # Drinker files
+│   ├── insentec/               # Subdirectory for Insentec data files
+│   │   ├── VR*.DAT             # Feeder files
+│   │   └── VW*.DAT             # Drinker files
 │   └── README.md               # Data directory documentation
 ├── renv/                       # R environment management (renv package)
 ├── renv.lock                   # Lock file for reproducible R package versions
@@ -74,7 +79,7 @@ This will install all required packages (including `moo4feed` and its dependenci
 
 ### Running the Analysis
 
-Run the scripts sequentially in order (1 through 8). Each script builds upon outputs from previous steps:
+Run the scripts sequentially in order (1 through 11). Each script builds upon outputs from previous steps:
 
 1. **Data Cleaning** (`1_data_cleaning.r`)
    - Cleans raw visit data
@@ -116,6 +121,23 @@ Run the scripts sequentially in order (1 through 8). Each script builds upon out
    - Calculates actor/reactor role percentages
    - Generates dominance summaries
    - Outputs: Meal-level behavioral summaries and dominance metrics
+
+9. **Filter Problematic Days** (`9_filter_problematic_days.r`)
+   - Integrates lameness, sickness, estrus, regrouping, and data quality information
+   - Applies sequential filtering to retain only clean cow-day records from pregnant cows
+   - Computes Elo dominance scores, DIM/parity, and milk production covariates
+   - Identifies stable groups between regrouping events and selects top groups
+   - Outputs: `all_info_final.rda`, `all_info_final_selected.rdata`, and intermediate covariate files
+
+10. **Synchronicity Analysis Breakdown** (`10_synchronicity_analysis_breakdown.r`)
+    - Splits the multi-day synchronicity matrix lists from script 5 into individual per-date `.rda` files
+    - Exports feed, water, and combined matrices broken down by animal, bin, and feed dimensions
+    - Outputs: Per-date `.rda` files organized into 10 subdirectories under `10_synchronicity_analysis_breakdown/`
+
+11. **Repeatability Analysis** (`11_repeatability.r`)
+    - Fits Bayesian mixed models using `brms` to estimate repeatability of behavioral traits
+    - Partitions variance into within-individual and between-individual components
+    - Outputs: Fitted model object (`m1_brm.rds`) and model summaries
 
 ## Results Documentation
 
