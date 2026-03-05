@@ -323,25 +323,23 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
   # Adjust intercepts to the response scale using the population-level intercept
   posteriorBT$value <- posteriorBT$value + fixef(m1_brm, pars = "Intercept")[1]
 
-  # Identify top and bottom cow by posterior mean; all others labelled "Other individuals"
+  # Compute posterior means; highlight focal cows, all others labelled "Other individuals"
   posteriorBT <- posteriorBT %>%
     dplyr::group_by(cow) %>%
     dplyr::mutate(meanBT = mean(value)) %>%
     dplyr::ungroup()
 
-  cow_means  <- posteriorBT %>% distinct(cow, meanBT)
-  top_cow    <- cow_means$cow[which.max(cow_means$meanBT)]
-  bottom_cow <- cow_means$cow[which.min(cow_means$meanBT)]
+  focal_cows   <- c("5042", "5120", "6022", "7169", "3067")
+  focal_colors <- c("#C77CFF", "#F8766D", "#7CAE00", "#FFCC00", "#00BFC4")
+  names(focal_colors) <- focal_cows
 
-  posteriorBT$col <- ifelse(posteriorBT$cow == top_cow,    paste0("Highest (", top_cow, ")"),
-                     ifelse(posteriorBT$cow == bottom_cow, paste0("Lowest (", bottom_cow, ")"),
-                            "Other individuals"))
-
-  fill_values <- c(
-    setNames("#F8766D", paste0("Highest (", top_cow, ")")),
-    setNames("#00BFC4", paste0("Lowest (", bottom_cow, ")")),
-    "Other individuals" = "gray"
+  posteriorBT$col <- ifelse(
+    posteriorBT$cow %in% focal_cows,
+    posteriorBT$cow,
+    "Other individuals"
   )
+
+  fill_values <- c(focal_colors, "Other individuals" = "gray")
 
   n_cows <- n_distinct(posteriorBT$cow)
 
@@ -362,7 +360,7 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
     scale_color_manual(values = fill_values)
 
   ggsave(
-    filename = file.path(output_dir, paste0("BT_plot_", response_var, ".pdf")),
+    filename = file.path(output_dir, paste0("BT_plot_", response_var, ".png")),
     plot     = BT,
     width    = 8,
     height   = max(4, n_cows * 0.35)
