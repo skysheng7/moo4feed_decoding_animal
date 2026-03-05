@@ -309,7 +309,7 @@ combined_summary <- rep_summary  %>%
 repred_label_layer <- function() {
   ggrepel::geom_label_repel(
     aes(fill = variable),
-    colour          = "white",
+    colour          = "black",
     fontface        = "bold",
     size            = 3,
     alpha           = 0.7,
