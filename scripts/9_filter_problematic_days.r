@@ -102,6 +102,7 @@ regroup_date2 <- merge(date_cow_list, regroup_date)
 regroup_date3 <- merge(date_cow_list, regroup_date2, all = TRUE)
 regroup_date3[is.na(regroup_date3)] <- "N"
 
+
 ###################################################################################################
 ################################## warning days ###################################################
 ###################################################################################################
@@ -146,16 +147,38 @@ all_info <- Reduce(function(x, y) merge(x, y, by = c("date", "cow"), all = TRUE)
 # delete the entry and exit day of each cow
 all_info2 <- merge(all_info, enroll_exclude_track, all.x = TRUE)
 all_info3 <- all_info2[which(is.na(all_info2$entry_exit_status)),]
+removed_days <- all_info2[which(!is.na(all_info2$entry_exit_status)),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info3$entry_exit_status <- NULL
 
 # delete red warning days, and some orange days with data lost
 all_info4 <- merge(all_info3, red_days2, all.x = TRUE)
+# red warning days
+removed_days <- all_info4[which(!is.na(all_info4$Red_warning)),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info5 <- all_info4[is.na(all_info4$Red_warning),]
 all_info5$Red_warning <- NULL
+
+# orange warning days
+removed_days <- all_info5[which(all_info5$date %in% orange_to_delete),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info6 <- all_info5[-which(all_info5$date %in% orange_to_delete),]
 
 # delete regrouping days
-#all_info7 <- all_info6
+removed_days <- all_info6[which(all_info6$regroup == "Y"),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info7 <- all_info6[which(all_info6$regroup == "N"),]
 all_info7$regroup <- NULL
 
@@ -165,6 +188,9 @@ date <- c("2021-02-16", "2021-02-17", "2021-02-18", "2021-04-08", "2021-04-09", 
 special_cow_delete <- data.frame(cow, date)
 special_cow_delete$to_delete <- 1
 special_cow_delete$date <- lubridate::ymd(special_cow_delete$date, tz="America/Los_Angeles")
+length(unique(special_cow_delete$cow))
+length(unique(special_cow_delete$date))
+nrow(special_cow_delete)
 all_info8 <- merge(all_info7, special_cow_delete, all.x = TRUE)
 all_info8 <- all_info8[which(is.na(all_info8$to_delete)),]
 all_info8$to_delete <- NULL
@@ -172,25 +198,50 @@ all_info8$to_delete <- NULL
 # delete cows that got sick
 sick_period$to_delete <- 1
 all_info9 <- merge(all_info8,sick_period, all.x = TRUE )
+removed_days <- all_info9[which(!is.na(all_info9$to_delete)),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info9 <- all_info9[which(is.na(all_info9$to_delete)),]
 all_info9$to_delete <- NULL
 
 # delete cows that are lame, and 7 days before they are lame
+removed_days <- all_info9[which(all_info9$current_lame == "Y"),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info10 <- all_info9[which(all_info9$current_lame != "Y"),]
 all_info10 <- all_info10[-which((all_info10$current_lame == "N") & (all_info10$days_bf_lame >= -7) & (all_info10$days_bf_lame < 0)),]
 columns_to_remove <- c("GS", "GS_updated", "GS_updated_fill", "current_lame", "ever_lame", "days_bf_lame")
 all_info10 <- all_info10[, !(names(all_info10) %in% columns_to_remove)]
 
 # delete days when there are cows in heat
+removed_days <- all_info10[which(all_info10$today_has_cow_in_heat == "Y"),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info11 <- all_info10[which(all_info10$today_has_cow_in_heat == "N"),]
 all_info11$today_has_cow_in_heat <- NULL
 all_info11$cows_in_heat <- NULL
 
 # delete cows that are bred, fresh, no bred, ok/open, only keep those that are pregnant
+removed_days <- all_info11[which(all_info11$updated_repro_status != "PREG"),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info12 <- all_info11[which(all_info11$updated_repro_status == "PREG"),]
 all_info12$updated_repro_status <- NULL
 
-# delete the days when there are more than 1000 replacements per day, indicating herd level anomalies
+# delete the days when there are more than 900 replacements per day, indicating herd level anomalies
+removed_days <- all_info12[which(all_info12$replacement_num >= 900),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info_final <- all_info12[which(all_info12$replacement_num < 900),]
 save(all_info_final, file = "results/9_filter_problematic_days/all_info_final.rda")
 

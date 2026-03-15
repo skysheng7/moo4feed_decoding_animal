@@ -119,23 +119,10 @@ plot_histogram_for_group <- function(data, group_number, max_days, max_frequency
 select_and_analyze_groups <- function(total_number_of_groups_selected, group_frequency, max_days_group_selected, all_info_final) {
   group_frequency_selected <- group_frequency[(1:total_number_of_groups_selected), ]
   selected_groups <- group_frequency_selected$group_number
-  selected_cows <- max_days_group_selected[max_days_group_selected$group_number %in% selected_groups, "cow"]
+  cow_group_mapping <- max_days_group_selected[max_days_group_selected$group_number %in% selected_groups, c("cow", "group_number")]
   
-  all_info_final_selected <- all_info_final[(all_info_final$group_number %in% selected_groups) & (all_info_final$cow %in% selected_cows), ]
+  all_info_final_selected <- merge(all_info_final, cow_group_mapping, by = c("cow", "group_number"))
   save(all_info_final_selected, file = "results/9_filter_problematic_days/all_info_final_selected.rdata")
-  
-  total_cow_selected <- length(unique(all_info_final_selected$cow))
-  min_days_per_cow <- min(max_days_group_selected[max_days_group_selected$group_number %in% selected_groups, "days_count"])
-  max_days_per_cow <- max(max_days_group_selected[max_days_group_selected$group_number %in% selected_groups, "days_count"])
-  min_cows_per_group <- min(group_frequency_selected$cow_num)
-  max_cows_per_group <- max(group_frequency_selected$cow_num)
-  
-  summary_text <- paste(
-    total_number_of_groups_selected, "groups selected, with a total of",
-    total_cow_selected, "cows. Each group has", min_cows_per_group, "to", max_cows_per_group,
-    "cows. Each cow has", min_days_per_cow, "to", max_days_per_cow, "days of records available."
-  )
-  print(summary_text)
   
   return(all_info_final_selected)
 }
