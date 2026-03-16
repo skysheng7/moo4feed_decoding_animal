@@ -245,6 +245,30 @@ print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, r
 all_info_final <- all_info12[which(all_info12$replacement_num < 900),]
 save(all_info_final, file = "results/9_filter_problematic_days/all_info_final.rda")
 
+# Compare daily replacement distribution before vs after the >=900 filter
+repl_before <- unique(all_info12[, c("date", "replacement_num")])
+repl_after  <- unique(all_info_final[, c("date", "replacement_num")])
+repl_before$filter <- "Before (all_info12)"
+repl_after$filter  <- "After (< 900)"
+repl_compare <- rbind(repl_before, repl_after)
+
+cat("=== Daily replacement summary: before filtering ===\n")
+print(summary(repl_before$replacement_num))
+cat("=== Daily replacement summary: after filtering ===\n")
+print(summary(repl_after$replacement_num))
+
+p_repl <- ggplot(repl_compare, aes(x = date, y = replacement_num, color = filter)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  geom_line(alpha = 0.4) +
+  geom_hline(yintercept = 900, linetype = "dashed", color = "red") +
+  scale_color_manual(values = c("Before (all_info12)" = "steelblue", "After (< 900)" = "forestgreen")) +
+  labs(title = "Daily Replacement Count: Before vs After >= 900 Filter",
+       x = "Date", y = "Replacement Count", color = NULL) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 12, face = "bold"), legend.position = "top")
+ggsave(file.path(output_dir, "replacement_before_vs_after_filter.png"), p_repl,
+       width = 12, height = 5, dpi = 300)
+
 ###################################################################################################
 ####################### identify stable groups based on regrouping data ###########################
 ###################################################################################################
