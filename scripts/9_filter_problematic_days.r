@@ -246,6 +246,7 @@ removed_days_unique <- length(unique(removed_days$date))
 removed_cows_unique <- length(unique(removed_days$cow))
 print(sprintf("Removed %d cow-days from %d cows on %d days (cows with < 10 data points)", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info_final <- all_info12[which(all_info12$cow %in% cows_to_keep),]
+all_info_final$month <- month(all_info_final$date)
 save(all_info_final, file = "results/9_filter_problematic_days/all_info_final.rda")
 
 
@@ -342,5 +343,6 @@ removed_cows_unique <- length(unique(removed_days$cow))
 print(sprintf("Removed %d cow-days from %d cows on %d days (cows with < 10 data points)", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info_final_with_heat <- all_info10[which(all_info10$cow %in% cows_to_keep),]
 
+all_info_final_with_heat$month <- month(all_info_final_with_heat$date)
 save(all_info_final_with_heat, file = "results/9_filter_problematic_days/all_info_final_with_heat_repro_status.rda")
 

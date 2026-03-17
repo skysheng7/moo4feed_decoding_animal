@@ -15,7 +15,7 @@ library(moo4feed)    # for read_data_safely()
 ################################## Load and prepare data ##########################################
 ###################################################################################################
 # Load the filtered cow-date combinations (only clean days from selected stable groups)
-load("results/9_filter_problematic_days/all_info_final_selected.rdata")
+load("results/9_filter_problematic_days/all_info_final.rda")
 
 # Read daily summary variables
 summary_df <- moo4feed::read_data_safely("results/1_data_cleaning/summary_df.csv",
@@ -23,18 +23,18 @@ summary_df <- moo4feed::read_data_safely("results/1_data_cleaning/summary_df.csv
 
 # Ensure date types match for joining
 summary_df$date <- ymd(summary_df$date, tz = "America/Los_Angeles")
-all_info_final_selected$date <- ymd(all_info_final_selected$date, tz = "America/Los_Angeles")
-all_info_final_selected$cow  <- as.integer(all_info_final_selected$cow)
+all_info_final$date <- ymd(all_info_final$date, tz = "America/Los_Angeles")
+all_info_final$cow  <- as.integer(all_info_final$cow)
 summary_df$cow               <- as.integer(summary_df$cow)
 
-# Filter summary_df to only the cow-date combinations present in all_info_final_selected
+# Filter summary_df to only the cow-date combinations present in all_info_final
 data <- summary_df %>%
-  semi_join(all_info_final_selected, by = c("cow", "date"))
+  semi_join(all_info_final, by = c("cow", "date"))
 
 # Merge in covariates needed for the model (DIM, parity, THI_mean, group_number)
 data <- data %>%
   left_join(
-    all_info_final_selected %>%
+    all_info_final %>%
       select(cow, date, days_in_milk, Parity, milk_production, Elo, THI_mean, group_number) %>%
       rename(DIM = days_in_milk, parity = Parity),
     by = c("cow", "date")
@@ -129,7 +129,7 @@ save(master_data, file = "results/11_repeatability/master_data.rda")
 ################################## Helper: run one repeatability model ############################
 ###################################################################################################
 run_repeatability <- function(response_var, data, output_dir = "results/11_repeatability") {
-  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.create(output_dir, showWarnings = TRUE, recursive = TRUE)
   rds_path <- file.path(output_dir, paste0("m1_brm_", response_var, ".rds"))
 
   formula_str <- paste0(
