@@ -39,6 +39,9 @@ data <- data %>%
     by = c("cow", "date")
   )
 
+# Derive month as numeric for seasonal fixed effect
+data$month <- lubridate::month(data$date)
+
 # Confirm no missing covariate rows
 stopifnot(all(!is.na(data$DIM)))
 
@@ -187,11 +190,17 @@ response_vars <- c(
   "median_pct_actor_reactor"
 )
 
-# Run models in parallel across response variables
-n_vars      <- length(response_vars)
+# ---- Configuration: set which variable(s) to run ------------------------------------------------
+# To debug one variable at a time, set run_vars to a single variable, e.g.:
+#   run_vars <- "feed_intake"
+# To run all variables, set:
+#   run_vars <- response_vars
+run_vars <- response_vars
+
+# Parallel setup: each brm gets 2 cores for its chains, remaining cores run models in parallel
 total_cores <- parallel::detectCores()
-n_workers   <- min(n_vars, max(1L, floor(total_cores / 2)))
-brm_cores   <- max(1L, floor(total_cores / n_workers))
+brm_cores   <- 2L
+n_workers   <- max(1L, floor(total_cores / brm_cores))
 
 cat(sprintf(
   "\nLaunching %d parallel workers; each brm model will use %d core(s).\n",
@@ -216,34 +225,75 @@ run_repeatability_par <- function(response_var) {
     " ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow)"
   )
 
-  m1_brm <- brm(
-    formula = as.formula(formula_str),
-    data    = master_data,
-    warmup  = 500,
-    iter    = 3000,
-    thin    = 2,
-    chains  = 2,
-    init    = "random",
-    cores   = brm_cores,
-    seed    = 12345
+  # Capture all warnings during model fitting
+  warnings_list <- list()
+  m1_brm <- withCallingHandlers(
+    brm(
+      formula = as.formula(formula_str),
+      data    = master_data,
+      warmup  = 1000,
+      iter    = 4000,
+      thin    = 2,
+      chains  = 4,
+      init    = "random",
+      cores   = brm_cores,
+      seed    = 12345,
+      control = list(adapt_delta = 0.95, max_treedepth = 12)
+    ),
+    warning = function(w) {
+      warnings_list[[length(warnings_list) + 1]] <<- conditionMessage(w)
+      invokeRestart("muffleWarning")
+    }
   )
-  m1_brm <- add_criterion(m1_brm, "waic")
+
+  waic_warnings <- list()
+  m1_brm <- withCallingHandlers(
+    add_criterion(m1_brm, "waic"),
+    warning = function(w) {
+      waic_warnings[[length(waic_warnings) + 1]] <<- conditionMessage(w)
+      invokeRestart("muffleWarning")
+    }
+  )
+
   saveRDS(m1_brm, rds_path)
-  m1_brm
+
+  list(
+    model    = m1_brm,
+    warnings = c(warnings_list, waic_warnings)
+  )
 }
 
-models <- parallel::parLapply(cl, response_vars, run_repeatability_par)
+results_list <- parallel::parLapply(cl, run_vars, run_repeatability_par)
 parallel::stopCluster(cl)
-names(models) <- response_vars
+names(results_list) <- run_vars
+
+# Print all captured warnings per variable
+cat("\n\n========== WARNINGS SUMMARY ==========\n")
+any_warnings <- FALSE
+for (rv in run_vars) {
+  w <- results_list[[rv]]$warnings
+  # Filter out package version warnings (not actionable)
+  w <- w[!grepl("was built under R version", w)]
+  if (length(w) > 0) {
+    any_warnings <- TRUE
+    cat("\n---", rv, "---\n")
+    for (msg in w) cat("  WARNING:", msg, "\n")
+  }
+}
+if (!any_warnings) cat("No warnings (excluding package version notices).\n")
+cat("======================================\n\n")
+
+# Extract models
+models <- lapply(results_list, `[[`, "model")
 
 partitions <- mapply(
   partition_variance,
   m1_brm       = models,
-  response_var = response_vars,
+  response_var = run_vars,
   MoreArgs     = list(data = master_data),
   SIMPLIFY     = FALSE
 )
-names(partitions) <- response_vars
+names(partitions) <- run_vars
 
 ###################################################################################################
 ################################## Summary table #################################################
@@ -311,7 +361,7 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
     ggridges::geom_density_ridges(data = posteriorBT,
                                   aes(x      = value,
                                       y      = reorder(as.factor(cow), meanBT),
-                                      height = ..density..,
+                                      height = after_stat(density),
                                       fill   = col,
                                       scale  = 3),
                                   alpha = 0.6) +
@@ -334,6 +384,6 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
 }
 
 bt_plots <- list()
-for (rv in response_vars) {
+for (rv in run_vars) {
   bt_plots[[rv]] <- plot_posterior_bt(models[[rv]], rv, master_data)
 }
