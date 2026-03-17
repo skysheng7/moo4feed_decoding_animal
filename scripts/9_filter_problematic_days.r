@@ -139,6 +139,7 @@ thi$date <- lubridate::ymd(thi$date, tz="America/Los_Angeles")
 thi_used <- merge(date_cow_list, thi[, c("date", "THI_mean")], all.x = TRUE)
 ###################################################################################################
 #################################### merge data ###################################################
+########################### Remove pregnant cows and estrus cows ##################################
 ###################################################################################################
 all_info <- Reduce(function(x, y) merge(x, y, by = c("date", "cow"), all = TRUE), 
                       list(date_cow_list, lameness_processed, DIM_parity, milk_production, in_heat_processed, regroup_date3, repl_per_day_merged, elo_score, thi_used))
@@ -235,76 +236,94 @@ removed_cows_unique <-length(unique(removed_days$cow))
 print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info12 <- all_info11[which(all_info11$updated_repro_status == "PREG"),]
 all_info12$updated_repro_status <- NULL
+all_info_final <- all_info12
+save(all_info_final, file = "results/9_filter_problematic_days/all_info_final.rda")
 
-# delete the days when there are more than 900 replacements per day, indicating herd level anomalies
-removed_days <- all_info12[which(all_info12$replacement_num >= 900),]
+
+
+###################################################################################################
+#################################### merge data ###################################################
+########################### Keep pregnant cows and estrus cows ####################################
+###################################################################################################
+all_info <- Reduce(function(x, y) merge(x, y, by = c("date", "cow"), all = TRUE), 
+                      list(date_cow_list, lameness_processed, DIM_parity, milk_production, in_heat_processed, regroup_date3, repl_per_day_merged, elo_score, thi_used))
+
+
+# delete the entry and exit day of each cow
+all_info2 <- merge(all_info, enroll_exclude_track, all.x = TRUE)
+all_info3 <- all_info2[which(is.na(all_info2$entry_exit_status)),]
+removed_days <- all_info2[which(!is.na(all_info2$entry_exit_status)),]
 removed_cow_days <-nrow(removed_days)
 removed_days_unique <-length(unique(removed_days$date))
 removed_cows_unique <-length(unique(removed_days$cow))
 print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
-all_info_final <- all_info12[which(all_info12$replacement_num < 900),]
-save(all_info_final, file = "results/9_filter_problematic_days/all_info_final.rda")
+all_info3$entry_exit_status <- NULL
 
-# Compare daily replacement distribution before vs after the >=900 filter
-repl_before <- unique(all_info12[, c("date", "replacement_num")])
-repl_after  <- unique(all_info_final[, c("date", "replacement_num")])
-repl_before$filter <- "Before (all_info12)"
-repl_after$filter  <- "After (< 900)"
-repl_compare <- rbind(repl_before, repl_after)
+# delete red warning days, and some orange days with data lost
+all_info4 <- merge(all_info3, red_days2, all.x = TRUE)
+# red warning days
+removed_days <- all_info4[which(!is.na(all_info4$Red_warning)),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
+all_info5 <- all_info4[is.na(all_info4$Red_warning),]
+all_info5$Red_warning <- NULL
 
-cat("=== Daily replacement summary: before filtering ===\n")
-print(summary(repl_before$replacement_num))
-cat("=== Daily replacement summary: after filtering ===\n")
-print(summary(repl_after$replacement_num))
+# orange warning days
+removed_days <- all_info5[which(all_info5$date %in% orange_to_delete),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
+all_info6 <- all_info5[-which(all_info5$date %in% orange_to_delete),]
 
-p_repl <- ggplot(repl_compare, aes(x = date, y = replacement_num, color = filter)) +
-  geom_point(alpha = 0.6, size = 1.5) +
-  geom_line(alpha = 0.4) +
-  geom_hline(yintercept = 900, linetype = "dashed", color = "red") +
-  scale_color_manual(values = c("Before (all_info12)" = "steelblue", "After (< 900)" = "forestgreen")) +
-  labs(title = "Daily Replacement Count: Before vs After >= 900 Filter",
-       x = "Date", y = "Replacement Count", color = NULL) +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 12, face = "bold"), legend.position = "top")
-ggsave(file.path(output_dir, "replacement_before_vs_after_filter.png"), p_repl,
-       width = 12, height = 5, dpi = 300)
+# delete regrouping days
+removed_days <- all_info6[which(all_info6$regroup == "Y"),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
+all_info7 <- all_info6[which(all_info6$regroup == "N"),]
+all_info7$regroup <- NULL
 
-###################################################################################################
-####################### identify stable groups based on regrouping data ###########################
-###################################################################################################
-# record the start and end date of each stable group between regrouping events
-stable_groups <- create_stable_groups(regroup_date)
-save(stable_groups, file = "results/9_filter_problematic_days/stable_groups.rda")
+# delete records of some cows have special issues on certain days
+cow <- c(5120,5120, 5120, 7064, 7064, 5096, 5096, 4038, 4038, rep(7146, 9), 6130, 6130, 5041, 5041, 6028, 3150)
+date <- c("2021-02-16", "2021-02-17", "2021-02-18", "2021-04-08", "2021-04-09", "2021-04-10", "2021-04-11", "2020-08-11", "2020-08-17", "2020-09-2",  "2020-09-3", "2020-09-4", "2020-09-5", "2020-09-6", "2020-09-7", "2020-09-8", "2020-09-9", "2020-09-10", "2020-11-02","2020-11-03", "2020-09-5", "2020-09-10", "2020-11-09", "2020-12-18")
+special_cow_delete <- data.frame(cow, date)
+special_cow_delete$to_delete <- 1
+special_cow_delete$date <- lubridate::ymd(special_cow_delete$date, tz="America/Los_Angeles")
+length(unique(special_cow_delete$cow))
+length(unique(special_cow_delete$date))
+nrow(special_cow_delete)
+all_info8 <- merge(all_info7, special_cow_delete, all.x = TRUE)
+all_info8 <- all_info8[which(is.na(all_info8$to_delete)),]
+all_info8$to_delete <- NULL
 
-# create a unique grou_number for each stable group, and label it at all_info_final
-all_info_final <- add_group_number(all_info_final, stable_groups)
-save(all_info_final, file = "results/9_filter_problematic_days/all_info_final.rda")
+# delete cows that got sick
+sick_period$to_delete <- 1
+all_info9 <- merge(all_info8,sick_period, all.x = TRUE )
+removed_days <- all_info9[which(!is.na(all_info9$to_delete)),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
+all_info9 <- all_info9[which(is.na(all_info9$to_delete)),]
+all_info9$to_delete <- NULL
 
-# calculate the total number of days each cow has record for in each stable group
-days_per_group <- calculate_days_per_group(all_info_final, stable_groups)
-save(days_per_group, file = "results/9_filter_problematic_days/days_per_group.rda")
-# determine in which stable group, each cow has the most number of records
-max_days_group <- determine_max_days_group(days_per_group, stable_groups)
-save(max_days_group, file = "results/9_filter_problematic_days/max_days_group.rda")
-max_days_group_selected <- max_days_group[which(max_days_group$days_count >= 13), ]
-# determine for which stable group, they have the most number of cows with the most number of days of records available
-group_frequency <- summarize_group_frequency(max_days_group_selected, stable_groups)
-save(group_frequency, file = "results/9_filter_problematic_days/group_frequency.rda")
+# delete cows that are lame, and 7 days before they are lame
+removed_days <- all_info9[which(all_info9$current_lame == "Y"),]
+removed_cow_days <-nrow(removed_days)
+removed_days_unique <-length(unique(removed_days$date))
+removed_cows_unique <-length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
+all_info10 <- all_info9[which(all_info9$current_lame != "Y"),]
+all_info10 <- all_info10[-which((all_info10$current_lame == "N") & (all_info10$days_bf_lame >= -7) & (all_info10$days_bf_lame < 0)),]
+columns_to_remove <- c("GS", "GS_updated", "GS_updated_fill", "current_lame", "ever_lame", "days_bf_lame")
+all_info10 <- all_info10[, !(names(all_info10) %in% columns_to_remove)]
 
-# visualize the top stable groups, within each of the top stable groups, how many days of record does each cow has
-group_frequency <- group_frequency[order(group_frequency$cow_num, decreasing = TRUE),]
-for (i in 1:nrow(group_frequency)) {
-  cur_group <- group_frequency$group_number[i]
-  plot_histogram_for_group(max_days_group_selected, group_number = cur_group, max_days = max(max_days_group_selected$days_count), max_frequency=max(group_frequency$cow_num))
-}
+# keep the days when there are cows in heat
+all_info_final_with_heat <- all_info10
 
-# assess cows that have >=13 days of records in different groups
-days_per_group_processed <- days_per_group[which(days_per_group$days_count >= 13), ]
-cow_count <- table(days_per_group_processed$cow)
-cows_with_multiple_rows <- names(cow_count[cow_count > 1])
-cows_in_multiple_groups <- days_per_group_processed[days_per_group_processed$cow %in% cows_with_multiple_rows, ]
-###################################################################################################
-################################# selected cows in selected groups ################################
-###################################################################################################
-total_number_of_groups_selected <- 3
-all_info_final_selected <- select_and_analyze_groups(total_number_of_groups_selected, group_frequency, max_days_group_selected, all_info_final)
+save(all_info_final_with_heat, file = "results/9_filter_problematic_days/all_info_final_with_heat_repro_status.rda")
+
