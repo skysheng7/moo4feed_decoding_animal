@@ -134,7 +134,7 @@ run_repeatability <- function(response_var, data, output_dir = "results/11_repea
 
   formula_str <- paste0(
     response_var,
-    " ~ DIM + parity + THI_mean + (1 | cow) + (1 | group_number)"
+    " ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow)"
   )
 
   my.cores <- detectCores()
@@ -150,6 +150,7 @@ run_repeatability <- function(response_var, data, output_dir = "results/11_repea
     cores    = my.cores,
     seed     = 12345
   )
+  m1_brm <- add_criterion(m1_brm, "waic")
   saveRDS(m1_brm, rds_path)
 
   return(m1_brm)
@@ -252,7 +253,7 @@ run_repeatability_par <- function(response_var) {
 
   formula_str <- paste0(
     response_var,
-    " ~ DIM + parity + THI_mean + (1 | cow) + (1 | group_number)"
+    " ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow)"
   )
 
   m1_brm <- brm(
@@ -266,6 +267,7 @@ run_repeatability_par <- function(response_var) {
     cores    = brm_cores,
     seed     = 12345
   )
+  m1_brm <- add_criterion(m1_brm, "waic")
   saveRDS(m1_brm, rds_path)
   m1_brm
 }
