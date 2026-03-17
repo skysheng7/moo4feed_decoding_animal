@@ -236,7 +236,16 @@ removed_cows_unique <-length(unique(removed_days$cow))
 print(sprintf("Removed %d cow-days from %d cows on %d days", removed_cow_days, removed_cows_unique, removed_days_unique))
 all_info12 <- all_info11[which(all_info11$updated_repro_status == "PREG"),]
 all_info12$updated_repro_status <- NULL
-all_info_final <- all_info12
+
+# delete cows with fewer than 10 data points
+cow_counts <- table(all_info12$cow)
+cows_to_keep <- names(cow_counts[cow_counts >= 10])
+removed_days <- all_info12[which(!(all_info12$cow %in% cows_to_keep)),]
+removed_cow_days <- nrow(removed_days)
+removed_days_unique <- length(unique(removed_days$date))
+removed_cows_unique <- length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days (cows with < 10 data points)", removed_cow_days, removed_cows_unique, removed_days_unique))
+all_info_final <- all_info12[which(all_info12$cow %in% cows_to_keep),]
 save(all_info_final, file = "results/9_filter_problematic_days/all_info_final.rda")
 
 
@@ -323,7 +332,15 @@ columns_to_remove <- c("GS", "GS_updated", "GS_updated_fill", "current_lame", "e
 all_info10 <- all_info10[, !(names(all_info10) %in% columns_to_remove)]
 
 # keep the days when there are cows in heat
-all_info_final_with_heat <- all_info10
+# delete cows with fewer than 10 data points
+cow_counts <- table(all_info10$cow)
+cows_to_keep <- names(cow_counts[cow_counts >= 10])
+removed_days <- all_info10[which(!(all_info10$cow %in% cows_to_keep)),]
+removed_cow_days <- nrow(removed_days)
+removed_days_unique <- length(unique(removed_days$date))
+removed_cows_unique <- length(unique(removed_days$cow))
+print(sprintf("Removed %d cow-days from %d cows on %d days (cows with < 10 data points)", removed_cow_days, removed_cows_unique, removed_days_unique))
+all_info_final_with_heat <- all_info10[which(all_info10$cow %in% cows_to_keep),]
 
 save(all_info_final_with_heat, file = "results/9_filter_problematic_days/all_info_final_with_heat_repro_status.rda")
 
