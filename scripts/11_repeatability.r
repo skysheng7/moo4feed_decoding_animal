@@ -199,7 +199,7 @@ run_vars <- response_vars
 
 # Parallel setup: each brm gets 2 cores for its chains, remaining cores run models in parallel
 total_cores <- parallel::detectCores()
-brm_cores   <- 2L
+brm_cores   <- 4L
 n_workers   <- max(1L, floor(total_cores / brm_cores))
 
 cat(sprintf(
@@ -232,13 +232,13 @@ run_repeatability_par <- function(response_var) {
       formula = as.formula(formula_str),
       data    = master_data,
       warmup  = 1000,
-      iter    = 4000,
-      thin    = 2,
+      iter    = 6000,
+      thin    = 1,
       chains  = 4,
       init    = "random",
       cores   = brm_cores,
       seed    = 12345,
-      control = list(adapt_delta = 0.95, max_treedepth = 12)
+      control = list(adapt_delta = 0.99, max_treedepth = 15)
     ),
     warning = function(w) {
       warnings_list[[length(warnings_list) + 1]] <<- conditionMessage(w)
@@ -246,11 +246,11 @@ run_repeatability_par <- function(response_var) {
     }
   )
 
-  waic_warnings <- list()
+  loo_warnings <- list()
   m1_brm <- withCallingHandlers(
-    add_criterion(m1_brm, "waic"),
+    add_criterion(m1_brm, "loo"),
     warning = function(w) {
-      waic_warnings[[length(waic_warnings) + 1]] <<- conditionMessage(w)
+      loo_warnings[[length(loo_warnings) + 1]] <<- conditionMessage(w)
       invokeRestart("muffleWarning")
     }
   )
@@ -259,7 +259,7 @@ run_repeatability_par <- function(response_var) {
 
   list(
     model    = m1_brm,
-    warnings = c(warnings_list, waic_warnings)
+    warnings = c(warnings_list, loo_warnings)
   )
 }
 

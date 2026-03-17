@@ -9,7 +9,6 @@
 # External packages
 library(brms)        # for brm(), fixef(), as_draws_df()
 library(coda)        # for as.mcmc(), HPDinterval()
-library(tidybayes)   # for posterior_samples()
 library(tidyverse)   # for %>%, gather(), separate(), left_join(), group_by(), mutate(), ungroup()
 library(ggplot2)     # for ggplot(), geom_point(), labs(), theme_classic(), scale_fill_manual()
 library(ggridges)    # for geom_density_ridges()
@@ -20,42 +19,6 @@ library(parallel)    # for detectCores()
 ################################## Load master data ###############################################
 ###################################################################################################
 load("results/11_repeatability/master_data.rda")
-
-###################################################################################################
-################################## Helper: fit one DHGLM ##########################################
-###################################################################################################
-# The mean sub-model mirrors the repeatability formula.
-# The sigma sub-model adds (1 | cow) to let each cow have its own residual SD.
-run_predictability <- function(response_var,
-                               data,
-                               output_dir = "results/12_predictability",
-                               n_cores    = parallel::detectCores()) {
-  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
-  rds_path <- file.path(output_dir, paste0("m2_brm_", response_var, ".rds"))
-
-  double_model <- bf(
-    as.formula(paste0(
-      response_var,
-      " ~ DIM + parity + THI_mean + (1 | cow) + (1 | group_number)"
-    )),
-    sigma ~ (1 | cow)
-  )
-
-  m2_brm <- brm(
-    formula = double_model,
-    data    = data,
-    warmup  = 500,
-    iter    = 3000,
-    thin    = 2,
-    chains  = 2,
-    init    = "random",
-    cores   = n_cores,
-    seed    = 12345
-  )
-  saveRDS(m2_brm, rds_path)
-
-  return(m2_brm)
-}
 
 ###################################################################################################
 ################################## Helper: extract IIV summaries ##################################
@@ -121,11 +84,21 @@ response_vars <- c(
 ###################################################################################################
 ################################## Run DHGLM models ###############################################
 ###################################################################################################
-# Run models in parallel across response variables using a socket cluster (Windows-compatible).
-n_vars      <- length(response_vars)
+# ---- Configuration: set which variable(s) to run ------------------------------------------------
+# To debug one variable at a time, set run_vars to a single variable, e.g.:
+#   run_vars <- "feed_intake"
+# To run all variables, set:
+#   run_vars <- response_vars
+# To debug one variable at a time, set run_vars to a single variable, e.g.:
+#   run_vars <- "feed_intake"
+# To run all variables, set:
+#   run_vars <- response_vars
+run_vars <- response_vars
+
+# Parallel setup: each brm gets 2 cores for its chains, remaining cores run models in parallel
 total_cores <- parallel::detectCores()
-n_workers   <- min(n_vars, max(1L, floor(total_cores / 2)))
-brm_cores   <- max(1L, floor(total_cores / n_workers))
+brm_cores   <- 4L
+n_workers   <- max(1L, floor(total_cores / brm_cores))
 
 cat(sprintf(
   "\nLaunching %d parallel workers; each brm model will use %d core(s).\n",
@@ -136,6 +109,7 @@ cl <- parallel::makeCluster(n_workers)
 parallel::clusterExport(cl, varlist = c("master_data", "brm_cores"), envir = environment())
 parallel::clusterEvalQ(cl, {
   library(brms)
+  library(coda)
   library(parallel)
 })
 
@@ -144,32 +118,67 @@ run_predictability_par <- function(response_var) {
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   rds_path <- file.path(output_dir, paste0("m2_brm_", response_var, ".rds"))
 
+  # Mean sub-model mirrors the repeatability formula (script 11)
+  # Sigma sub-model adds (1 | cow) to let each cow have its own residual SD
   double_model <- brms::bf(
     as.formula(paste0(
       response_var,
-      " ~ DIM + parity + THI_mean + (1 | cow) + (1 | group_number)"
+      " ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow)"
     )),
     sigma ~ (1 | cow)
   )
 
-  m2_brm <- brms::brm(
-    formula = double_model,
-    data    = master_data,
-    warmup  = 500,
-    iter    = 3000,
-    thin    = 2,
-    chains  = 2,
-    init    = "random",
-    cores   = brm_cores,
-    seed    = 12345
+  # Capture all warnings during model fitting
+  warnings_list <- list()
+  m2_brm <- withCallingHandlers(
+    brms::brm(
+      formula = double_model,
+      data    = master_data,
+      warmup  = 1000,
+      iter    = 6000,
+      thin    = 1,
+      chains  = 4,
+      init    = "random",
+      cores   = brm_cores,
+      seed    = 12345,
+      control = list(adapt_delta = 0.99, max_treedepth = 15)
+    ),
+    warning = function(w) {
+      warnings_list[[length(warnings_list) + 1]] <<- conditionMessage(w)
+      invokeRestart("muffleWarning")
+    }
   )
+
   saveRDS(m2_brm, rds_path)
-  m2_brm
+
+  list(
+    model    = m2_brm,
+    warnings = warnings_list
+  )
 }
 
-models <- parallel::parLapply(cl, response_vars, run_predictability_par)
+results_list <- parallel::parLapply(cl, run_vars, run_predictability_par)
 parallel::stopCluster(cl)
-names(models) <- response_vars
+names(results_list) <- run_vars
+
+# Print all captured warnings per variable
+cat("\n\n========== WARNINGS SUMMARY ==========\n")
+any_warnings <- FALSE
+for (rv in run_vars) {
+  w <- results_list[[rv]]$warnings
+  # Filter out package version warnings (not actionable)
+  w <- w[!grepl("was built under R version", w)]
+  if (length(w) > 0) {
+    any_warnings <- TRUE
+    cat("\n---", rv, "---\n")
+    for (msg in w) cat("  WARNING:", msg, "\n")
+  }
+}
+if (!any_warnings) cat("No warnings (excluding package version notices).\n")
+cat("======================================\n\n")
+
+# Extract models
+models <- lapply(results_list, `[[`, "model")
 
 ###################################################################################################
 ################################## Extract IIV for all variables ##################################
@@ -177,10 +186,10 @@ names(models) <- response_vars
 iiv_results <- mapply(
   extract_iiv,
   m2_brm       = models,
-  response_var = response_vars,
+  response_var = run_vars,
   SIMPLIFY     = FALSE
 )
-names(iiv_results) <- response_vars
+names(iiv_results) <- run_vars
 
 ###################################################################################################
 ################################## Summary table #################################################
@@ -281,7 +290,7 @@ plot_posterior_iiv <- function(m2_brm, response_var,
 }
 
 iiv_plots <- list()
-for (rv in response_vars) {
+for (rv in names(models)) {
   iiv_plots[[rv]] <- plot_posterior_iiv(models[[rv]], rv)
 }
 
