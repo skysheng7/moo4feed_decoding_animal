@@ -207,8 +207,11 @@ cat(sprintf(
   n_workers, brm_cores
 ))
 
+# Variables that need more iterations to resolve Bulk ESS warnings
+high_iter_vars <- c("feed_visits", "water_duration", "water_visits")
+
 cl <- parallel::makeCluster(n_workers)
-parallel::clusterExport(cl, varlist = c("master_data", "brm_cores"), envir = environment())
+parallel::clusterExport(cl, varlist = c("master_data", "brm_cores", "high_iter_vars"), envir = environment())
 parallel::clusterEvalQ(cl, {
   library(brms)
   library(coda)
@@ -225,6 +228,9 @@ run_repeatability_par <- function(response_var) {
     " ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow)"
   )
 
+  # Use more iterations for variables with ESS issues
+  n_iter <- if (response_var %in% high_iter_vars) 10000L else 6000L
+
   # Capture all warnings during model fitting
   warnings_list <- list()
   m1_brm <- withCallingHandlers(
@@ -232,8 +238,7 @@ run_repeatability_par <- function(response_var) {
       formula = as.formula(formula_str),
       data    = master_data,
       warmup  = 1000,
-      iter    = 6000,
-      thin    = 1,
+      iter    = n_iter,
       chains  = 4,
       init    = "random",
       cores   = brm_cores,
