@@ -89,10 +89,6 @@ response_vars <- c(
 #   run_vars <- "feed_intake"
 # To run all variables, set:
 #   run_vars <- response_vars
-# To debug one variable at a time, set run_vars to a single variable, e.g.:
-#   run_vars <- "feed_intake"
-# To run all variables, set:
-#   run_vars <- response_vars
 run_vars <- response_vars
 
 # Parallel setup: each brm gets 2 cores for its chains, remaining cores run models in parallel
@@ -105,8 +101,11 @@ cat(sprintf(
   n_workers, brm_cores
 ))
 
+# Variables that need more iterations to resolve Bulk ESS warnings
+high_iter_vars <- c("feed_visits", "water_duration", "water_visits")
+
 cl <- parallel::makeCluster(n_workers)
-parallel::clusterExport(cl, varlist = c("master_data", "brm_cores"), envir = environment())
+parallel::clusterExport(cl, varlist = c("master_data", "brm_cores", "high_iter_vars"), envir = environment())
 parallel::clusterEvalQ(cl, {
   library(brms)
   library(coda)
@@ -128,6 +127,9 @@ run_predictability_par <- function(response_var) {
     sigma ~ (1 | cow)
   )
 
+  # Use more iterations for variables with ESS issues
+  n_iter <- if (response_var %in% high_iter_vars) 10000L else 6000L
+
   # Capture all warnings during model fitting
   warnings_list <- list()
   m2_brm <- withCallingHandlers(
@@ -135,7 +137,7 @@ run_predictability_par <- function(response_var) {
       formula = double_model,
       data    = master_data,
       warmup  = 1000,
-      iter    = 6000,
+      iter    = n_iter,
       thin    = 1,
       chains  = 4,
       init    = "random",
