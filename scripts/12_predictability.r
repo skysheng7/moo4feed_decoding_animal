@@ -77,8 +77,7 @@ response_vars <- c(
   "median_pct_feed_remaining",
   "median_non_nutritive_per_meal",
   "median_pct_actor",
-  "median_pct_reactor",
-  "median_pct_actor_reactor"
+  "median_pct_reactor"
 )
 
 ###################################################################################################
@@ -91,30 +90,30 @@ response_vars <- c(
 #   run_vars <- response_vars
 run_vars <- response_vars
 
-# Parallel setup: each brm gets 2 cores for its chains, remaining cores run models in parallel
-total_cores <- parallel::detectCores()
-brm_cores   <- 4L
-n_workers   <- max(1L, floor(total_cores / brm_cores))
-
-cat(sprintf(
-  "\nLaunching %d parallel workers; each brm model will use %d core(s).\n",
-  n_workers, brm_cores
-))
+output_dir <- "results/12_predictability"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Variables that need more iterations to resolve Bulk ESS warnings
 high_iter_vars <- c("feed_visits", "water_duration", "water_visits")
 
-cl <- parallel::makeCluster(n_workers)
-parallel::clusterExport(cl, varlist = c("master_data", "brm_cores", "high_iter_vars"), envir = environment())
-parallel::clusterEvalQ(cl, {
-  library(brms)
-  library(coda)
-  library(parallel)
-})
+# Identify which variables need refitting vs loading from existing .rds
+refit_vars <- character(0)
+load_vars  <- setdiff(run_vars, refit_vars)
 
-run_predictability_par <- function(response_var) {
-  output_dir <- "results/12_predictability"
-  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+# ---- Load existing models from .rds --------------------------------------------------------------
+cat("\nLoading existing models from .rds files...\n")
+models <- list()
+for (rv in load_vars) {
+  rds_path <- file.path(output_dir, paste0("m2_brm_", rv, ".rds"))
+  cat("  Loading:", rv, "\n")
+  models[[rv]] <- readRDS(rds_path)
+}
+cat(sprintf("Loaded %d models.\n", length(models)))
+
+# ---- Refit models that need re-running -----------------------------------------------------------
+brm_cores <- 4L
+
+run_predictability <- function(response_var) {
   rds_path <- file.path(output_dir, paste0("m2_brm_", response_var, ".rds"))
 
   # Mean sub-model mirrors the repeatability formula (script 11)
@@ -153,34 +152,26 @@ run_predictability_par <- function(response_var) {
 
   saveRDS(m2_brm, rds_path)
 
-  list(
-    model    = m2_brm,
-    warnings = warnings_list
-  )
+  list(model = m2_brm, warnings = warnings_list)
 }
 
-results_list <- parallel::parLapply(cl, run_vars, run_predictability_par)
-parallel::stopCluster(cl)
-names(results_list) <- run_vars
+cat("\nRefitting models for:", paste(refit_vars, collapse = ", "), "\n")
+for (rv in refit_vars) {
+  result <- run_predictability(rv)
+  models[[rv]] <- result$model
 
-# Print all captured warnings per variable
-cat("\n\n========== WARNINGS SUMMARY ==========\n")
-any_warnings <- FALSE
-for (rv in run_vars) {
-  w <- results_list[[rv]]$warnings
-  # Filter out package version warnings (not actionable)
+  w <- result$warnings
   w <- w[!grepl("was built under R version", w)]
   if (length(w) > 0) {
-    any_warnings <- TRUE
-    cat("\n---", rv, "---\n")
+    cat("\n--- Warnings for", rv, "---\n")
     for (msg in w) cat("  WARNING:", msg, "\n")
+  } else {
+    cat("  No warnings for", rv, "(excluding package version notices).\n")
   }
 }
-if (!any_warnings) cat("No warnings (excluding package version notices).\n")
-cat("======================================\n\n")
 
-# Extract models
-models <- lapply(results_list, `[[`, "model")
+# Ensure models are in the same order as run_vars
+models <- models[run_vars]
 
 ###################################################################################################
 ################################## Extract IIV for all variables ##################################
@@ -314,7 +305,7 @@ combined_summary <- rep_summary  %>%
     pred_summary %>% dplyr::select(variable, CVP_mean, rIIV_mean),
     by = "variable"
   ) %>%
-  dplyr::filter(variable != "median_pct_actor_reactor")
+  dplyr::filter(TRUE)
 
 # ---- shared label layer helper -----------------------------------------------
 repred_label_layer <- function() {
