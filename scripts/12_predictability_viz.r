@@ -1,9 +1,11 @@
 ###################################################################################################
-######################### 11b. Repeatability Visualisation ########################################
+######################### 12b. Predictability Visualisation ########################################
 ###################################################################################################
-# Ellipse scatter plot of repeatability (R) vs coefficient of individual variation (CVi).
-# Each variable is drawn as an ellipse whose horizontal extent spans the 95% credible interval
-# for R and whose vertical extent spans the 95% credible interval for CVi.
+# Ellipse scatter plot of relative intra-individual variability (rIIV) vs
+# coefficient of predictability (CVP).
+# Each variable is drawn as an ellipse whose horizontal extent spans the 95%
+# credible interval for rIIV and whose vertical extent spans the 95% credible
+# interval for CVP.
 
 library(ggplot2)
 library(ggforce)
@@ -13,38 +15,38 @@ library(dplyr)
 ###################################################################################################
 ################################## Load summary data ##############################################
 ###################################################################################################
-rep_summary <- read.csv("results/11_repeatability/repeatability_summary.csv",
-                        header = TRUE, stringsAsFactors = FALSE)
+pred_summary <- read.csv("results/12_predictability/predictability_summary.csv",
+                         header = TRUE, stringsAsFactors = FALSE)
 
 ###################################################################################################
 ################################## Compute ellipse geometry #######################################
 ###################################################################################################
-rep_summary <- rep_summary %>%
+pred_summary <- pred_summary %>%
   mutate(
-    a = (R_cow_upper - R_cow_lower) / 2,
-    b = (CVi_upper   - CVi_lower)   / 2,
+    a     = (rIIV_upper - rIIV_lower) / 2,
+    b     = (CVP_upper  - CVP_lower)  / 2,
     label = gsub("_", " ", variable)
   )
 
 ###################################################################################################
 ################################## Build colour palette ###########################################
 ###################################################################################################
-n_vars <- nrow(rep_summary)
+n_vars <- nrow(pred_summary)
 colour_pal <- scales::hue_pal()(n_vars)
-names(colour_pal) <- rep_summary$variable
+names(colour_pal) <- pred_summary$variable
 
 ###################################################################################################
 ################################## Plot ############################################################
 ###################################################################################################
-p <- ggplot(rep_summary, aes(x0 = R_cow_mean, y0 = CVi_mean,
-                             a = a, b = b, angle = 0,
-                             fill = variable, colour = variable)) +
+p <- ggplot(pred_summary, aes(x0 = rIIV_mean, y0 = CVP_mean,
+                              a = a, b = b, angle = 0,
+                              fill = variable, colour = variable)) +
   geom_ellipse(alpha = 0.7, linewidth = 0.4) +
-  geom_point(aes(x = R_cow_mean, y = CVi_mean, colour = variable),
+  geom_point(aes(x = rIIV_mean, y = CVP_mean, colour = variable),
              size = 1.5, show.legend = FALSE,
              inherit.aes = FALSE) +
   ggrepel::geom_label_repel(
-    aes(x = R_cow_mean, y = CVi_mean, label = label, fill = variable),
+    aes(x = rIIV_mean, y = CVP_mean, label = label, fill = variable),
     colour             = "black",
     fontface           = "bold",
     size               = 4,
@@ -65,8 +67,8 @@ p <- ggplot(rep_summary, aes(x0 = R_cow_mean, y0 = CVi_mean,
   scale_fill_manual(values   = colour_pal) +
   scale_colour_manual(values = colour_pal) +
   labs(
-    x = "Repeatability (R) \n proportion of variance due to individual differences",
-    y = "Coefficient of variation (CVi) \n relative magnitude of individual differences"
+    x = "Relative intra-individual variability (rIIV)",
+    y = "Coefficient of predictability (CVP)"
   ) +
   theme_classic(base_size = 16) +
   theme(
@@ -76,10 +78,10 @@ p <- ggplot(rep_summary, aes(x0 = R_cow_mean, y0 = CVi_mean,
   )
 
 ggsave(
-  filename = "results/11_repeatability/repeatability_ellipse_scatter.png",
+  filename = "results/12_predictability/predictability_ellipse_scatter.png",
   plot     = p,
   width    = 10,
   height   = 8
 )
 
-cat("Saved: results/11_repeatability/repeatability_ellipse_scatter.png\n")
+cat("Saved: results/12_predictability/predictability_ellipse_scatter.png\n")
