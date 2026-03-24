@@ -22,7 +22,8 @@ rep_summary <- read.csv("results/11_repeatability/repeatability_summary.csv",
 rep_summary <- rep_summary %>%
   mutate(
     a = (R_cow_upper - R_cow_lower) / 2,
-    b = (CVi_upper   - CVi_lower)   / 2
+    b = (CVi_upper   - CVi_lower)   / 2,
+    label = gsub("_", " ", variable)
   )
 
 ###################################################################################################
@@ -43,11 +44,11 @@ p <- ggplot(rep_summary, aes(x0 = R_cow_mean, y0 = CVi_mean,
              size = 1.5, show.legend = FALSE,
              inherit.aes = FALSE) +
   ggrepel::geom_label_repel(
-    aes(x = R_cow_mean, y = CVi_mean, label = variable, fill = variable),
+    aes(x = R_cow_mean, y = CVi_mean, label = label, fill = variable),
     colour          = "black",
     fontface        = "bold",
-    size            = 3,
-    alpha           = 0.7,
+    size            = 4,
+    alpha           = 0.5,
     label.padding   = unit(0.2, "lines"),
     box.padding     = unit(0.4, "lines"),
     point.padding   = unit(0.3, "lines"),
@@ -59,11 +60,15 @@ p <- ggplot(rep_summary, aes(x0 = R_cow_mean, y0 = CVi_mean,
   scale_fill_manual(values   = colour_pal) +
   scale_colour_manual(values = colour_pal) +
   labs(
-    x = "Repeatability (R) \u2014 proportion of variance due to individual differences",
-    y = "Coefficient of variation (CVi) \u2014 relative magnitude of individual differences"
+    x = "Repeatability (R) \n proportion of variance due to individual differences",
+    y = "Coefficient of variation (CVi) \n relative magnitude of individual differences"
   ) +
-  theme_classic() +
-  theme(legend.position = "none")
+  theme_classic(base_size = 16) +
+  theme(
+    legend.position  = "none",
+    axis.title       = element_text(size = 18),
+    axis.text        = element_text(size = 14)
+  )
 
 ggsave(
   filename = "results/11_repeatability/repeatability_ellipse_scatter.png",
