@@ -8,6 +8,7 @@ library(tidyverse)   # for %>%, gather(), separate(), left_join(), group_by(), m
 library(ggplot2)     # for ggplot(), geom_point(), labs(), theme_classic(), scale_fill_manual()
 library(parallel)    # for detectCores()
 library(lubridate)   # for ymd()
+library(bayesplot)   # for pp_check(), mcmc_plot(), nuts_params()
 library(moo4feed)    # for read_data_safely()
 
 ###################################################################################################
@@ -392,3 +393,151 @@ bt_plots <- list()
 for (rv in run_vars) {
   bt_plots[[rv]] <- plot_posterior_bt(models[[rv]], rv, master_data)
 }
+
+###################################################################################################
+############################### Model diagnostics #################################################
+###################################################################################################
+output_dir   <- "results/11_repeatability"
+diag_dir     <- file.path(output_dir, "diagnostics")
+dir.create(diag_dir, showWarnings = TRUE, recursive = TRUE)
+
+diag_summary <- data.frame(
+  variable           = character(),
+  expected_ESS       = numeric(),
+  min_Bulk_ESS       = numeric(),
+  Bulk_ESS_pct       = numeric(),
+  min_Tail_ESS       = numeric(),
+  Tail_ESS_pct       = numeric(),
+  max_Rhat           = numeric(),
+  n_divergent        = integer(),
+  pareto_k_above_07  = integer(),
+  flag               = character(),
+  stringsAsFactors   = FALSE
+)
+
+for (rv in response_vars) {
+  print(rv)
+  rds_path <- file.path(output_dir, paste0("m1_brm_", rv, ".rds"))
+  if (!file.exists(rds_path)) {
+    message("Skipping ", rv, " (file not found: ", rds_path, ")")
+    next
+  }
+
+  cat("\n", strrep("=", 60), "\n")
+  cat("Diagnosing:", rv, "\n")
+  cat(strrep("=", 60), "\n\n")
+
+  m <- readRDS(rds_path)
+
+  # ---------- 1. Summary: Rhat + ESS -----------------------------------------
+  s <- summary(m)
+  print(s)
+
+  # Collect Rhat and ESS from both fixed and random effects
+  fe <- s$fixed
+  re <- do.call(rbind, s$random)
+  spec <- s$spec_pars
+  all_params <- rbind(fe, re, spec)
+
+  max_rhat     <- max(all_params[, "Rhat"],     na.rm = TRUE)
+  min_bulk_ess <- min(all_params[, "Bulk_ESS"], na.rm = TRUE)
+  min_tail_ess <- min(all_params[, "Tail_ESS"], na.rm = TRUE)
+
+  # Expected sample size = (iter - warmup) / thin * chains
+  n_iter   <- m$fit@sim$iter
+  n_warmup <- m$fit@sim$warmup
+  n_thin   <- m$fit@sim$thin
+  n_chains <- m$fit@sim$chains
+  expected_ess <- ((n_iter - n_warmup) / n_thin) * n_chains
+
+  cat("  Expected ESS:   ", expected_ess,
+      sprintf(" (iter=%d, warmup=%d, thin=%d, chains=%d)\n",
+              n_iter, n_warmup, n_thin, n_chains))
+  cat("  Max Rhat:       ", round(max_rhat, 4), "\n")
+  cat("  Min Bulk ESS:   ", min_bulk_ess,
+      sprintf(" (%.1f%% of expected)\n", 100 * min_bulk_ess / expected_ess))
+  cat("  Min Tail ESS:   ", min_tail_ess,
+      sprintf(" (%.1f%% of expected)\n", 100 * min_tail_ess / expected_ess))
+
+  # ---------- 2. Divergent transitions ----------------------------------------
+  np         <- nuts_params(m)
+  n_div      <- sum(np$Value[np$Parameter == "divergent__"])
+  cat("  Divergent transitions: ", n_div, "\n")
+
+  # ---------- 3. Posterior predictive checks ----------------------------------
+  pp_dens <- pp_check(m, ndraws = 100) + ggplot2::ggtitle(paste("pp_check:", rv))
+  ggsave(file.path(diag_dir, paste0("pp_check_", rv, ".png")),
+         pp_dens, width = 7, height = 4)
+
+  pp_mean <- pp_check(m, type = "stat", stat = "mean") +
+    ggplot2::ggtitle(paste("pp_check mean:", rv))
+  ggsave(file.path(diag_dir, paste0("pp_check_mean_", rv, ".png")),
+         pp_mean, width = 7, height = 4)
+
+  pp_sd <- pp_check(m, type = "stat", stat = "sd") +
+    ggplot2::ggtitle(paste("pp_check sd:", rv))
+  ggsave(file.path(diag_dir, paste0("pp_check_sd_", rv, ".png")),
+         pp_sd, width = 7, height = 4)
+
+  # ---------- 4. LOO diagnostics (Pareto k) -----------------------------------
+  loo_m     <- loo(m)
+  n_high_k  <- sum(loo_m$diagnostics$pareto_k > 0.7)
+  cat("  LOO Pareto k > 0.7: ", n_high_k, "obs\n")
+  print(loo_m)
+
+  # ---------- 5. Trace plots (only when issues detected) ----------------------
+  has_issues <- (max_rhat > 1.01) || (min_bulk_ess < 1000) ||
+                (min_tail_ess < 1000) || (n_div > 0)
+
+  if (has_issues) {
+    cat("  >> Issues detected — saving trace plots\n")
+    trace_plt <- mcmc_plot(m, type = "trace") +
+      ggplot2::ggtitle(paste("Trace:", rv))
+    ggsave(file.path(diag_dir, paste0("trace_", rv, ".png")),
+           trace_plt, width = 10, height = min(49, max(4, 1.5 * length(variables(m)))))
+  }
+
+  # ---------- 6. Variance partitioning ----------------------------------------
+  partition_variance(m, rv, master_data)
+
+  # ---------- Collect into summary table --------------------------------------
+  flags <- character()
+  if (max_rhat > 1.01)     flags <- c(flags, "high_Rhat")
+  if (min_bulk_ess < 1000)  flags <- c(flags, "low_Bulk_ESS")
+  if (min_tail_ess < 1000)  flags <- c(flags, "low_Tail_ESS")
+  if (n_div > 0)            flags <- c(flags, "divergences")
+  if (n_high_k > 0)         flags <- c(flags, paste0("pareto_k(", n_high_k, ")"))
+
+  diag_summary <- rbind(diag_summary, data.frame(
+    variable           = rv,
+    expected_ESS       = expected_ess,
+    min_Bulk_ESS       = min_bulk_ess,
+    Bulk_ESS_pct       = round(100 * min_bulk_ess / expected_ess, 1),
+    min_Tail_ESS       = min_tail_ess,
+    Tail_ESS_pct       = round(100 * min_tail_ess / expected_ess, 1),
+    max_Rhat           = round(max_rhat, 4),
+    n_divergent        = n_div,
+    pareto_k_above_07  = n_high_k,
+    flag               = if (length(flags) == 0) "OK" else paste(flags, collapse = "; "),
+    stringsAsFactors   = FALSE
+  ))
+}
+
+# ---------- Print and save overall diagnostics summary ------------------------
+cat("\n\n", strrep("=", 70), "\n")
+cat("DIAGNOSTICS SUMMARY\n")
+cat(strrep("=", 70), "\n\n")
+print(diag_summary, right = FALSE)
+
+flagged <- diag_summary[diag_summary$flag != "OK", ]
+if (nrow(flagged) > 0) {
+  cat("\nModels requiring attention:\n")
+  print(flagged, right = FALSE)
+} else {
+  cat("\nAll models passed convergence and fit checks.\n")
+}
+
+write.csv(diag_summary,
+          file.path(output_dir, "diagnostics_summary.csv"),
+          row.names = FALSE)
+
