@@ -60,6 +60,7 @@ names(partitions) <- response_vars
 results_table <- do.call(rbind, lapply(partitions, function(p) {
   data.frame(
     variable    = p$response,
+    family      = p$family,
     R_cow_mean  = round(mean(p$R_cow), 4),
     R_cow_lower = round(HPDinterval(as.mcmc(p$R_cow), 0.95)[1], 4),
     R_cow_upper = round(HPDinterval(as.mcmc(p$R_cow), 0.95)[2], 4),
@@ -82,8 +83,12 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
                               out_dir = "results/11_repeatability") {
   dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
-  ps <- as_draws_df(m1_brm)
+  fam <- family(m1_brm)$family
+  ps  <- as_draws_df(m1_brm)
+
+  # For hurdle models, select only the mu-part cow random effects (exclude hu)
   cow_cols <- grep("^r_cow\\[", names(ps), value = TRUE)
+  cow_cols <- cow_cols[!grepl("__hu", cow_cols)]
 
   posteriorBT <- ps[, cow_cols] %>%
     as.data.frame() %>%
@@ -112,6 +117,13 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
   fill_values <- c(focal_colors, "Other individuals" = "gray")
   n_cows <- n_distinct(posteriorBT$cow)
 
+  # Label axis to indicate log scale for lognormal/hurdle_lognormal models
+  x_lab <- if (fam %in% c("lognormal", "hurdle_lognormal")) {
+    paste0(response_var, " (log scale)")
+  } else {
+    response_var
+  }
+
   BT <- ggplot() +
     ggridges::geom_density_ridges(data = posteriorBT,
                                   aes(x      = value,
@@ -123,7 +135,7 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
     geom_point(data = posteriorBT[!duplicated(posteriorBT$cow), ],
                aes(x = meanBT, y = as.factor(cow), col = col),
                size = 1) +
-    labs(y = "", x = response_var, fill = "ID", col = "ID") +
+    labs(y = "", x = x_lab, fill = "ID", col = "ID") +
     theme_classic() +
     scale_fill_manual(values  = fill_values) +
     scale_color_manual(values = fill_values)
@@ -151,6 +163,7 @@ dir.create(diag_dir, showWarnings = FALSE, recursive = TRUE)
 
 diag_summary <- data.frame(
   variable           = character(),
+  family             = character(),
   expected_ESS       = numeric(),
   min_Bulk_ESS       = numeric(),
   Bulk_ESS_pct       = numeric(),
@@ -248,6 +261,7 @@ for (rv in response_vars) {
 
   diag_summary <- rbind(diag_summary, data.frame(
     variable           = rv,
+    family             = family(m)$family,
     expected_ESS       = expected_ess,
     min_Bulk_ESS       = min_bulk_ess,
     Bulk_ESS_pct       = round(100 * min_bulk_ess / expected_ess, 1),

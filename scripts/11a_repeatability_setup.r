@@ -122,8 +122,14 @@ save(master_data, file = "results/11_repeatability/master_data.rda")
 #   var.cow  = between-individual variance
 #   var.res  = residual (within-individual) variance
 # Repeatability R = var.cow / (var.cow + var.res)
+#
+# For lognormal / hurdle_lognormal families the decomposition is on the log
+# (latent) scale — sd_cow__Intercept and sigma are already log-scale.
+# CVi is computed on the matching scale so that R and CVi are internally
+# consistent.
 partition_variance <- function(m1_brm, response_var, data) {
-  ps <- as_draws_df(m1_brm)
+  ps  <- as_draws_df(m1_brm)
+  fam <- family(m1_brm)$family
 
   var.cow   <- ps$"sd_cow__Intercept"^2
   var.res   <- ps$"sigma"^2
@@ -132,9 +138,17 @@ partition_variance <- function(m1_brm, response_var, data) {
   R_cow <- var.cow / var.total
   R_res <- var.res / var.total
 
-  CVi <- sqrt(var.cow) / mean(data[[response_var]], na.rm = TRUE)
+  # CVi: coefficient of individual variation
+  # For lognormal / hurdle_lognormal the latent scale is log, so use
+  # mean(log(y>0)) as the denominator to keep CVi on the same scale as R.
+  if (fam %in% c("lognormal", "hurdle_lognormal")) {
+    y_pos <- data[[response_var]][data[[response_var]] > 0 & !is.na(data[[response_var]])]
+    CVi   <- sqrt(var.cow) / mean(log(y_pos))
+  } else {
+    CVi <- sqrt(var.cow) / mean(data[[response_var]], na.rm = TRUE)
+  }
 
-  cat("\n===", response_var, "===\n")
+  cat("\n===", response_var, "(family:", fam, ") ===\n")
   cat("Repeatability (R_cow):   ", round(mean(R_cow), 4),
       "  95% HPD:", round(HPDinterval(as.mcmc(R_cow), 0.95), 4), "\n")
   cat("R_residual:              ", round(mean(R_res), 4), "\n")
@@ -143,6 +157,7 @@ partition_variance <- function(m1_brm, response_var, data) {
 
   list(
     response = response_var,
+    family   = fam,
     R_cow    = R_cow,
     R_res    = R_res,
     CVi      = CVi

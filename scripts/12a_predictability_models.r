@@ -31,7 +31,7 @@ warnings_feed_intake <- list()
 m2_brm_feed_intake <- withCallingHandlers(
   brm(
     formula = bf(
-      feed_intake ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      feed_intake ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -58,7 +58,7 @@ warnings_feed_duration <- list()
 m2_brm_feed_duration <- withCallingHandlers(
   brm(
     formula = bf(
-      feed_duration ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      feed_duration ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -86,7 +86,7 @@ warnings_feed_visits <- list()
 m2_brm_feed_visits <- withCallingHandlers(
   brm(
     formula = bf(
-      feed_visits ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      feed_visits ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -113,7 +113,7 @@ warnings_water_intake <- list()
 m2_brm_water_intake <- withCallingHandlers(
   brm(
     formula = bf(
-      water_intake ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      water_intake ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -141,7 +141,7 @@ warnings_water_duration <- list()
 m2_brm_water_duration <- withCallingHandlers(
   brm(
     formula = bf(
-      water_duration ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      water_duration ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -169,7 +169,7 @@ warnings_water_visits <- list()
 m2_brm_water_visits <- withCallingHandlers(
   brm(
     formula = bf(
-      water_visits ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      water_visits ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -196,7 +196,7 @@ warnings_total_meals <- list()
 m2_brm_total_meals <- withCallingHandlers(
   brm(
     formula = bf(
-      total_meals ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      total_meals ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -223,7 +223,7 @@ warnings_median_meal_duration <- list()
 m2_brm_median_meal_duration <- withCallingHandlers(
   brm(
     formula = bf(
-      median_meal_duration ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      median_meal_duration ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -250,7 +250,7 @@ warnings_median_visit_per_meal <- list()
 m2_brm_median_visit_per_meal <- withCallingHandlers(
   brm(
     formula = bf(
-      median_visit_per_meal ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      median_visit_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -277,7 +277,7 @@ warnings_median_intake_per_meal <- list()
 m2_brm_median_intake_per_meal <- withCallingHandlers(
   brm(
     formula = bf(
-      median_intake_per_meal ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      median_intake_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -304,7 +304,7 @@ warnings_median_unique_bins_per_meal <- list()
 m2_brm_median_unique_bins_per_meal <- withCallingHandlers(
   brm(
     formula = bf(
-      median_unique_bins_per_meal ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      median_unique_bins_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -331,7 +331,7 @@ warnings_median_feeding_pct_per_meal <- list()
 m2_brm_median_feeding_pct_per_meal <- withCallingHandlers(
   brm(
     formula = bf(
-      median_feeding_pct_per_meal ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      median_feeding_pct_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -358,7 +358,7 @@ warnings_unique_feed_bins_visited <- list()
 m2_brm_unique_feed_bins_visited <- withCallingHandlers(
   brm(
     formula = bf(
-      unique_feed_bins_visited ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      unique_feed_bins_visited ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -385,7 +385,7 @@ warnings_unique_water_bins_visited <- list()
 m2_brm_unique_water_bins_visited <- withCallingHandlers(
   brm(
     formula = bf(
-      unique_water_bins_visited ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      unique_water_bins_visited ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -412,7 +412,7 @@ warnings_total_bins_visited <- list()
 m2_brm_total_bins_visited <- withCallingHandlers(
   brm(
     formula = bf(
-      total_bins_visited ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      total_bins_visited ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -439,7 +439,7 @@ warnings_number_of_non_nutritive_visits <- list()
 m2_brm_number_of_non_nutritive_visits <- withCallingHandlers(
   brm(
     formula = bf(
-      number_of_non_nutritive_visits ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      number_of_non_nutritive_visits ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -466,7 +466,7 @@ warnings_median_pct_feed_remaining <- list()
 m2_brm_median_pct_feed_remaining <- withCallingHandlers(
   brm(
     formula = bf(
-      median_pct_feed_remaining ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      median_pct_feed_remaining ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -493,7 +493,7 @@ warnings_median_non_nutritive_per_meal <- list()
 m2_brm_median_non_nutritive_per_meal <- withCallingHandlers(
   brm(
     formula = bf(
-      median_non_nutritive_per_meal ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      median_non_nutritive_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -520,7 +520,7 @@ warnings_median_pct_actor <- list()
 m2_brm_median_pct_actor <- withCallingHandlers(
   brm(
     formula = bf(
-      median_pct_actor ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      median_pct_actor ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
@@ -547,7 +547,7 @@ warnings_median_pct_reactor <- list()
 m2_brm_median_pct_reactor <- withCallingHandlers(
   brm(
     formula = bf(
-      median_pct_reactor ~ DIM + parity + THI_mean + month + I(month^2) + (1 | cow),
+      median_pct_reactor ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
