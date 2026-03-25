@@ -49,11 +49,12 @@ p <- ggplot(rep_summary, aes(x0 = R_cow_mean, y0 = CVi_mean,
     fontface           = "bold",
     size               = 4,
     alpha              = 0.5,
-    label.padding      = unit(0.2, "lines"),
-    box.padding        = unit(0.8, "lines"),
-    point.padding      = unit(0.5, "lines"),
-    force              = 20,
-    force_pull         = 0.5,
+    label.padding      = unit(0.15, "lines"),
+    box.padding        = unit(0.5, "lines"),
+    point.padding      = unit(0.3, "lines"),
+    force              = 50,
+    force_pull         = 0.3,
+    max.iter           = 20000,
     direction          = "both",
     min.segment.length = 0,
     segment.size       = 0.3,
@@ -61,7 +62,8 @@ p <- ggplot(rep_summary, aes(x0 = R_cow_mean, y0 = CVi_mean,
     show.legend        = FALSE,
     inherit.aes        = FALSE
   ) +
-  scale_x_continuous(expand = expansion(mult = c(0.25, 0.25))) +
+  scale_x_continuous(limits = c(0, 0.75), expand = expansion(mult = c(0.02, 0.05))) +
+  scale_y_continuous(limits = c(0, 0.75), expand = expansion(mult = c(0.02, 0.05))) +
   scale_fill_manual(values   = colour_pal) +
   scale_colour_manual(values = colour_pal) +
   labs(
