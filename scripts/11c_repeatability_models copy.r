@@ -35,25 +35,45 @@ cat("Fitting models in parallel with", n_parallel, "workers\n")
 # max_treedepth = 15.
 
 model_specs <- list(
-  # skew=1.25, 0% zeros, low Bulk ESS with Gaussian — lognormal
-  m1_brm_feed_visits = list(
-    var = "feed_visits", family = lognormal(), iter = 12000
-  ),
-  # skew=0.18, near-normal but low Bulk ESS — Gaussian, increase iterations
-  m1_brm_water_intake = list(
-    var = "water_intake", family = gaussian(), iter = 10000
-  ),
   # skew=1.65, 0% zeros, low Bulk ESS + pareto_k with Gaussian — lognormal
   m1_brm_water_duration = list(
-    var = "water_duration", family = lognormal(), iter = 10000
+    var = "water_duration", family = lognormal(), iter = 15000
   ),
   # skew=1.87, 0% zeros, low Bulk ESS with Gaussian, pp_check clear misfit — lognormal
   m1_brm_number_of_non_nutritive_visits = list(
-    var = "number_of_non_nutritive_visits", family = lognormal(), iter = 10000
+    var = "number_of_non_nutritive_visits", family = lognormal(), iter = 15000
   ),
-  # skew=2.13, 0.56% zeros, high Rhat + low Bulk ESS with Gaussian — hurdle_lognormal
-  m1_brm_median_non_nutritive_per_meal = list(
-    var = "median_non_nutritive_per_meal", family = hurdle_lognormal(), iter = 10000
+  # skew=-0.61, bounded 0-100%, diagnostics OK except 1 pareto_k — Gaussian
+  m1_brm_median_feeding_pct_per_meal = list(
+    var = "median_feeding_pct_per_meal", family = gaussian(), iter = 6000
+  ),
+  # diagnostics OK — Gaussian
+  m1_brm_water_visits = list(
+    var = "water_visits", family = gaussian(), iter = 10000
+  ),
+  # skew=0.52, diagnostics OK — Gaussian
+  m1_brm_total_meals = list(
+    var = "total_meals", family = gaussian(), iter = 6000
+  ),
+  # skew=1.50, 0% zeros, pp_check shows Gaussian predicts negatives — Gaussian
+  m1_brm_median_visit_per_meal = list(
+    var = "median_visit_per_meal", family = gaussian(), iter = 6000
+  ),
+  # skew=-0.48, diagnostics OK — Gaussian
+  m1_brm_unique_feed_bins_visited = list(
+    var = "unique_feed_bins_visited", family = gaussian(), iter = 6000
+  ),
+  # skew=-0.36, diagnostics OK — Gaussian
+  m1_brm_unique_water_bins_visited = list(
+    var = "unique_water_bins_visited", family = gaussian(), iter = 6000
+  ),
+  # skew=-0.49, diagnostics OK — Gaussian
+  m1_brm_total_bins_visited = list(
+    var = "total_bins_visited", family = gaussian(), iter = 6000
+  ),
+  # skew=-0.36, diagnostics OK — Gaussian
+  m1_brm_median_pct_feed_remaining = list(
+    var = "median_pct_feed_remaining", family = gaussian(), iter = 6000
   )
 )
 
@@ -100,14 +120,6 @@ plan(sequential)
 cat("All models finished at", format(Sys.time()), "\n")
 
 ###################################################################################################
-################################## loo comparison for median_non_nutritive_per_meal ################
-###################################################################################################
-loo_compare(
-  results$m1_brm_median_non_nutritive_per_meal$model,
-  results$m2_brm_median_non_nutritive_per_meal$model
-)
-
-###################################################################################################
 ################################## Collect warnings ###############################################
 ###################################################################################################
 all_warnings <- lapply(results, function(r) r$warnings)
@@ -130,8 +142,11 @@ cat("======================================\n\n")
 ################################## Assemble models list for downstream use ########################
 ###################################################################################################
 response_vars <- c(
-  "feed_visits", "water_intake", "water_duration",
-  "number_of_non_nutritive_visits", "median_non_nutritive_per_meal"
+  "water_duration", "number_of_non_nutritive_visits",
+  "median_feeding_pct_per_meal", "water_visits", "total_meals",
+  "median_visit_per_meal", "unique_feed_bins_visited",
+  "unique_water_bins_visited", "total_bins_visited",
+  "median_pct_feed_remaining"
 )
 
 models <- setNames(
