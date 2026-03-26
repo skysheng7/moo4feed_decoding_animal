@@ -84,10 +84,10 @@ model_specs <- list(
        formula_var = "median_intake_per_meal",
        family = "lognormal", iter = 6000),
 
-  # skew=0.86, diagnostics OK → negbinomial
+  # skew=0.86, diagnostics OK → lognormal
   list(name = "median_unique_bins_per_meal",
        formula_var = "median_unique_bins_per_meal",
-       family = "negbinomial", iter = 6000),
+       family = "lognormal", iter = 6000),
 
   # beta (rescaled to 0-1 in 11a)
   list(name = "median_feeding_pct_per_meal",
