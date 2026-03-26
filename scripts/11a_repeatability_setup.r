@@ -131,37 +131,78 @@ save(master_data, file = "results/11_repeatability/master_data.rda")
 ###################################################################################################
 ################################## Variance partitioning helper ###################################
 ###################################################################################################
-# Model has only (1 | cow) as random effect, so variance is partitioned into:
-#   var.cow  = between-individual variance
-#   var.res  = residual (within-individual) variance
+# Repeatability and CVi for Bayesian GLMMs with (1 | cow) as the sole
+# random effect.  Variance is partitioned into:
+#   var.cow  = between-individual (random intercept) variance
+#   var.res  = residual (within-individual + distribution-specific) variance
 # Repeatability R = var.cow / (var.cow + var.res)
 #
-# Family-specific residual variance:
-#   gaussian / lognormal / hurdle_lognormal — sigma^2 (latent log scale for the
-#     latter two)
-#   negbinomial (log link) — log(1 + 1/lambda + 1/shape), Nakagawa et al. 2017
-#   beta / zero_one_inflated_beta (logit link) — pi^2/3 (logistic distribution
-#     variance), Nakagawa et al. 2017
+# Family-specific residual variance (Nakagawa et al. 2017, Table 2):
+#   gaussian / lognormal / hurdle_lognormal — sigma^2
+#   negbinomial (log link)                  — log(1 + 1/lambda + 1/shape)
+#   beta / zero_one_inflated_beta (logit)   — pi^2 / 3
 #
-# CVi is computed on the matching latent scale so that R and CVi are internally
-# consistent.
-partition_variance <- function(m1_brm, response_var, data) {
+# CVi (coefficient of individual variation) — all on the original data scale:
+#   gaussian (identity link):
+#       CVi = sigma_cow / mu_bar                           (closed-form)
+#   lognormal / hurdle_lognormal / negbinomial (log link):
+#       CVi = sqrt(exp(var.cow) - 1)                       (closed-form)
+#   beta / zero_one_inflated_beta (logit link):
+#       No closed-form for logistic-normal moments; CVi is obtained by
+#       simulation (de Villemereuil et al. 2016, Appendix A).
+#
+# For families with non-linear link functions (logit, log for negbinomial
+# residual variance), quantities on the data scale depend on the location
+# of the linear predictor.  We therefore evaluate at the population-average
+# linear predictor (fixed effects averaged over the observed covariate
+# distribution) rather than at the intercept alone, following the approach
+# implemented in QGglmm (de Villemereuil 2018).
+#
+# References
+# ----------
+# de Villemereuil, P., Schielzeth, H., Nakagawa, S. & Morrissey, M. B.
+#   (2016). General methods for evolutionary quantitative genetic inference
+#   from generalised mixed models.  Genetics 204: 1281-1294.
+#   https://doi.org/10.1534/genetics.115.186536
+#
+# de Villemereuil, P. (2018). QGglmm: Estimate Quantitative Genetics
+#   Parameters from Generalised Linear Mixed Models.  R package.
+#   https://CRAN.R-project.org/package=QGglmm
+#
+# Nakagawa, S., Johnson, P. C. D. & Schielzeth, H. (2017). The coefficient
+#   of determination R^2 and intra-class correlation coefficient from
+#   generalized linear mixed-effects models revisited and expanded.
+#   J. R. Soc. Interface 14: 20170213.
+#   https://doi.org/10.1098/rsif.2017.0213
+#
+# Nakagawa, S. & Schielzeth, H. (2010). Repeatability for Gaussian and
+#   non-Gaussian data: a practical guide for biologists.  Biological Reviews
+#   85: 935-956.
+#   https://doi.org/10.1111/j.1469-185X.2010.00141.x
+partition_variance <- function(m1_brm, response_var, data, n_sim = 10000) {
   ps  <- as_draws_df(m1_brm)
   fam <- family(m1_brm)$family
 
-  # Actual response column in the data (may differ from display name, e.g. _prop)
   data_var <- as.character(m1_brm$formula$formula[[2]])
 
   var.cow <- ps$"sd_cow__Intercept"^2
+
+  # Population-average fixed-effect linear predictor per posterior draw.
+  # By linearity of eta, rowMeans(X %*% t(beta)) == beta %*% colMeans(X),
+  # so evaluating at the column-means of the design matrix is equivalent to
+  # averaging the per-observation linear predictors over the observed
+  # covariate distribution, without creating a large n_draws x n_obs matrix.
+  fe      <- fixef(m1_brm, summary = FALSE)   # n_draws x n_fixef
+  X       <- standata(m1_brm)$X               # n_obs   x n_fixef
+  eta_bar <- as.vector(fe %*% colMeans(X))    # n_draws
 
   if (fam %in% c("gaussian", "lognormal", "hurdle_lognormal")) {
     var.res   <- ps$"sigma"^2
     var.total <- var.cow + var.res
 
   } else if (fam == "negbinomial") {
-    intercept <- ps$"b_Intercept"
-    shape     <- ps$"shape"
-    lambda    <- exp(intercept + 0.5 * var.cow)
+    shape   <- ps$"shape"
+    lambda  <- exp(eta_bar + 0.5 * var.cow)
     var.res   <- log(1 + 1 / lambda + 1 / shape)
     var.total <- var.cow + var.res
 
@@ -176,17 +217,32 @@ partition_variance <- function(m1_brm, response_var, data) {
   R_cow <- var.cow / var.total
   R_res <- var.res / var.total
 
-  # CVi: coefficient of individual variation on the model's latent scale
-  if (fam %in% c("lognormal", "hurdle_lognormal", "negbinomial")) {
-    y_pos <- data[[data_var]][data[[data_var]] > 0 & !is.na(data[[data_var]])]
-    CVi   <- sqrt(var.cow) / mean(log(y_pos))
+  # --- CVi on the original data scale ---
+  if (fam == "gaussian") {
+    # Identity link: sigma_cow / E[Y].  Using eta_bar propagates uncertainty
+    # in the population mean into the CVi posterior.
+    CVi <- sqrt(var.cow) / eta_bar
+
+  } else if (fam %in% c("lognormal", "hurdle_lognormal", "negbinomial")) {
+    # Log link: closed-form; the location on the log scale cancels because
+    # exp() is multiplicative — CVi depends only on the random-effect variance.
+    CVi <- sqrt(exp(var.cow) - 1)
+
   } else if (fam %in% c("beta", "zero_one_inflated_beta")) {
-    y_valid <- data[[data_var]][!is.na(data[[data_var]]) &
-                                 data[[data_var]] > 0 &
-                                 data[[data_var]] < 1]
-    CVi <- sqrt(var.cow) / abs(mean(qlogis(y_valid)))
-  } else {
-    CVi <- sqrt(var.cow) / mean(data[[data_var]], na.rm = TRUE)
+    # Logit link: no closed-form for logistic-normal moments.
+    # Simulate n_sim latent individual values per posterior draw and
+    # transform through plogis() to the (0,1) scale, then compute
+    # CVi = SD(mu_j) / mean(mu_j)  (de Villemereuil et al. 2016).
+    #
+    # A single shared vector of standard-normal draws (common random numbers)
+    # is reused across all posterior samples to reduce Monte Carlo noise.
+    sd_cow <- ps$"sd_cow__Intercept"
+    set.seed(42)
+    u <- rnorm(n_sim)
+    CVi <- vapply(seq_along(eta_bar), function(s) {
+      mu_j <- plogis(eta_bar[s] + sd_cow[s] * u)
+      sd(mu_j) / mean(mu_j)
+    }, numeric(1))
   }
 
   cat("\n===", response_var, "(family:", fam, ") ===\n")
