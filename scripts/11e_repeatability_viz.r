@@ -73,7 +73,9 @@ p <- ggplot(rep_summary, aes(x0 = R_cow_mean, y0 = CVi_mean,
   scale_fill_manual(values   = colour_pal) +
   scale_colour_manual(values = colour_pal) +
   scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17,
-                                "hurdle_lognormal" = 15)) +
+                                "hurdle_lognormal" = 15, "negbinomial" = 18,
+                                "beta" = 8,
+                                "zero_one_inflated_beta" = 13)) +
   labs(
     x     = "Repeatability (R) \n proportion of variance due to individual differences",
     y     = "Coefficient of variation (CVi) \n relative magnitude of individual differences",

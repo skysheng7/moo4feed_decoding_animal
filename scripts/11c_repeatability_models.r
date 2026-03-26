@@ -12,9 +12,12 @@
 # partition_variance() is called per variable, then the results table is saved.
 #
 # FAMILY CHOICES (based on 11b distribution analysis + diagnostics):
-#   Gaussian           – roughly symmetric, no floor/ceiling issues
-#   lognormal()        – strictly positive, right-skewed (skew > ~1)
-#   hurdle_lognormal() – positive + substantial zero-inflation
+#   Gaussian                    – roughly symmetric, no floor/ceiling issues
+#   lognormal()                 – strictly positive, right-skewed (skew > ~1)
+#   hurdle_lognormal()          – positive + substantial zero-inflation
+#   negbinomial()               – overdispersed counts (water_visits, total_meals, bin counts)
+#   Beta()                      – proportions in (0,1)  (feeding %, feed remaining %)
+#   zero_one_inflated_beta()    – proportions in [0,1] with point mass at 0 (actor %, reactor %)
 
 output_dir <- "results/11_repeatability"
 load("results/11_repeatability/master_data.rda")
@@ -153,12 +156,13 @@ saveRDS(m1_brm_water_duration, file.path(output_dir, "m1_brm_water_duration.rds"
 ###################################################################################################
 ################################## water_visits ###################################################
 ###################################################################################################
+# Counts → negative binomial
 warnings_water_visits <- list()
 m1_brm_water_visits <- withCallingHandlers(
   brm(
     formula = water_visits ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = negbinomial(),
     warmup  = 1000,
     iter    = 10000,
     chains  = 4,
@@ -178,13 +182,13 @@ saveRDS(m1_brm_water_visits, file.path(output_dir, "m1_brm_water_visits.rds"))
 ###################################################################################################
 ################################## total_meals ####################################################
 ###################################################################################################
-# skew=0.52, diagnostics OK — Gaussian
+# Counts → negative binomial
 warnings_total_meals <- list()
 m1_brm_total_meals <- withCallingHandlers(
   brm(
     formula = total_meals ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = negbinomial(),
     warmup  = 1000,
     iter    = 6000,
     chains  = 4,
@@ -210,7 +214,7 @@ m1_brm_median_meal_duration <- withCallingHandlers(
   brm(
     formula = median_meal_duration ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = lognormal(),
     warmup  = 1000,
     iter    = 6000,
     chains  = 4,
@@ -236,7 +240,7 @@ m1_brm_median_visit_per_meal <- withCallingHandlers(
   brm(
     formula = median_visit_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = lognormal(),
     warmup  = 1000,
     iter    = 6000,
     chains  = 4,
@@ -262,7 +266,7 @@ m1_brm_median_intake_per_meal <- withCallingHandlers(
   brm(
     formula = median_intake_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = lognormal(),
     warmup  = 1000,
     iter    = 6000,
     chains  = 4,
@@ -288,7 +292,7 @@ m1_brm_median_unique_bins_per_meal <- withCallingHandlers(
   brm(
     formula = median_unique_bins_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = negbinomial(),
     warmup  = 1000,
     iter    = 6000,
     chains  = 4,
@@ -308,13 +312,13 @@ saveRDS(m1_brm_median_unique_bins_per_meal, file.path(output_dir, "m1_brm_median
 ###################################################################################################
 ################################## median_feeding_pct_per_meal ####################################
 ###################################################################################################
-# skew=-0.61, bounded 0-100%, diagnostics OK except 1 pareto_k — Gaussian
+# beta (rescaled to 0-1 in 11a)
 warnings_median_feeding_pct_per_meal <- list()
 m1_brm_median_feeding_pct_per_meal <- withCallingHandlers(
   brm(
-    formula = median_feeding_pct_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
+    formula = median_feeding_pct_per_meal_prop ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = Beta(),
     warmup  = 1000,
     iter    = 6000,
     chains  = 4,
@@ -334,13 +338,13 @@ saveRDS(m1_brm_median_feeding_pct_per_meal, file.path(output_dir, "m1_brm_median
 ###################################################################################################
 ################################## unique_feed_bins_visited #######################################
 ###################################################################################################
-# skew=-0.48, diagnostics OK — Gaussian
+# Counts → negative binomial
 warnings_unique_feed_bins_visited <- list()
 m1_brm_unique_feed_bins_visited <- withCallingHandlers(
   brm(
     formula = unique_feed_bins_visited ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = negbinomial(),
     warmup  = 1000,
     iter    = 6000,
     chains  = 4,
@@ -360,13 +364,13 @@ saveRDS(m1_brm_unique_feed_bins_visited, file.path(output_dir, "m1_brm_unique_fe
 ###################################################################################################
 ################################## unique_water_bins_visited ######################################
 ###################################################################################################
-# skew=-0.36, diagnostics OK — Gaussian
+# Counts → negative binomial
 warnings_unique_water_bins_visited <- list()
 m1_brm_unique_water_bins_visited <- withCallingHandlers(
   brm(
     formula = unique_water_bins_visited ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = negbinomial(),
     warmup  = 1000,
     iter    = 6000,
     chains  = 4,
@@ -386,13 +390,13 @@ saveRDS(m1_brm_unique_water_bins_visited, file.path(output_dir, "m1_brm_unique_w
 ###################################################################################################
 ################################## total_bins_visited #############################################
 ###################################################################################################
-# skew=-0.49, diagnostics OK — Gaussian
+# Counts → negative binomial
 warnings_total_bins_visited <- list()
 m1_brm_total_bins_visited <- withCallingHandlers(
   brm(
     formula = total_bins_visited ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = negbinomial(),
     warmup  = 1000,
     iter    = 6000,
     chains  = 4,
@@ -438,13 +442,13 @@ saveRDS(m1_brm_number_of_non_nutritive_visits, file.path(output_dir, "m1_brm_num
 ###################################################################################################
 ################################## median_pct_feed_remaining ######################################
 ###################################################################################################
-# skew=-0.36, diagnostics OK — Gaussian
+# Percentage → Beta (rescaled to 0-1 in 11a)
 warnings_median_pct_feed_remaining <- list()
 m1_brm_median_pct_feed_remaining <- withCallingHandlers(
   brm(
-    formula = median_pct_feed_remaining ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
+    formula = median_pct_feed_remaining_prop ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = Beta(),
     warmup  = 1000,
     iter    = 6000,
     chains  = 4,
@@ -492,13 +496,13 @@ saveRDS(m1_brm_median_non_nutritive_per_meal, file.path(output_dir, "m1_brm_medi
 ###################################################################################################
 ################################## median_pct_actor ###############################################
 ###################################################################################################
-# skew=0.87, 23.84% zeros — bimodal with zero spike, pp_check terrible — hurdle_lognormal
+# Actor % — 25.8% zeros, skew=0.67 → zero_one_inflated_beta (rescaled to 0-1 in 11a)
 warnings_median_pct_actor <- list()
 m1_brm_median_pct_actor <- withCallingHandlers(
   brm(
-    formula = median_pct_actor ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
+    formula = median_pct_actor_prop ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = zero_one_inflated_beta(),
     warmup  = 1000,
     iter    = 10000,
     chains  = 4,
@@ -518,13 +522,13 @@ saveRDS(m1_brm_median_pct_actor, file.path(output_dir, "m1_brm_median_pct_actor.
 ###################################################################################################
 ################################## median_pct_reactor #############################################
 ###################################################################################################
-# skew=0.79, 18.31% zeros — bimodal with zero spike, pp_check terrible — hurdle_lognormal
+# Reactor % — 18.3% zeros, skew=0.79 → zero_one_inflated_beta (rescaled to 0-1 in 11a)
 warnings_median_pct_reactor <- list()
 m1_brm_median_pct_reactor <- withCallingHandlers(
   brm(
-    formula = median_pct_reactor ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
+    formula = median_pct_reactor_prop ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
     data    = master_data,
-    family  = gaussian(),
+    family  = zero_one_inflated_beta(),
     warmup  = 1000,
     iter    = 10000,
     chains  = 4,

@@ -112,6 +112,19 @@ master_data <- data %>%
   left_join(all_meal_visits,     by = c("cow", "date")) %>%
   left_join(all_daily_roles,     by = c("cow", "date"))
 
+###################################################################################################
+################################## Rescale percentage variables for Beta / ZOIB models ############
+###################################################################################################
+# Beta requires (0, 1); clamp away from exact 0/1 with small epsilon.
+# ZOIB allows [0, 1] so just divide by 100.
+eps <- 1e-6
+master_data$median_feeding_pct_per_meal_prop <- pmin(pmax(
+  master_data$median_feeding_pct_per_meal / 100, eps), 1 - eps)
+master_data$median_pct_feed_remaining_prop <- pmin(pmax(
+  master_data$median_pct_feed_remaining / 100, eps), 1 - eps)
+master_data$median_pct_actor_prop   <- master_data$median_pct_actor / 100
+master_data$median_pct_reactor_prop <- master_data$median_pct_reactor / 100
+
 dir.create("results/11_repeatability", showWarnings = FALSE, recursive = TRUE)
 save(master_data, file = "results/11_repeatability/master_data.rda")
 
@@ -123,29 +136,57 @@ save(master_data, file = "results/11_repeatability/master_data.rda")
 #   var.res  = residual (within-individual) variance
 # Repeatability R = var.cow / (var.cow + var.res)
 #
-# For lognormal / hurdle_lognormal families the decomposition is on the log
-# (latent) scale — sd_cow__Intercept and sigma are already log-scale.
-# CVi is computed on the matching scale so that R and CVi are internally
+# Family-specific residual variance:
+#   gaussian / lognormal / hurdle_lognormal — sigma^2 (latent log scale for the
+#     latter two)
+#   negbinomial (log link) — log(1 + 1/lambda + 1/shape), Nakagawa et al. 2017
+#   beta / zero_one_inflated_beta (logit link) — pi^2/3 (logistic distribution
+#     variance), Nakagawa et al. 2017
+#
+# CVi is computed on the matching latent scale so that R and CVi are internally
 # consistent.
 partition_variance <- function(m1_brm, response_var, data) {
   ps  <- as_draws_df(m1_brm)
   fam <- family(m1_brm)$family
 
-  var.cow   <- ps$"sd_cow__Intercept"^2
-  var.res   <- ps$"sigma"^2
-  var.total <- var.cow + var.res
+  # Actual response column in the data (may differ from display name, e.g. _prop)
+  data_var <- as.character(m1_brm$formula$formula[[2]])
+
+  var.cow <- ps$"sd_cow__Intercept"^2
+
+  if (fam %in% c("gaussian", "lognormal", "hurdle_lognormal")) {
+    var.res   <- ps$"sigma"^2
+    var.total <- var.cow + var.res
+
+  } else if (fam == "negbinomial") {
+    intercept <- ps$"b_Intercept"
+    shape     <- ps$"shape"
+    lambda    <- exp(intercept + 0.5 * var.cow)
+    var.res   <- log(1 + 1 / lambda + 1 / shape)
+    var.total <- var.cow + var.res
+
+  } else if (fam %in% c("beta", "zero_one_inflated_beta")) {
+    var.res   <- pi^2 / 3
+    var.total <- var.cow + var.res
+
+  } else {
+    stop("Unsupported family: ", fam)
+  }
 
   R_cow <- var.cow / var.total
   R_res <- var.res / var.total
 
-  # CVi: coefficient of individual variation
-  # For lognormal / hurdle_lognormal the latent scale is log, so use
-  # mean(log(y>0)) as the denominator to keep CVi on the same scale as R.
-  if (fam %in% c("lognormal", "hurdle_lognormal")) {
-    y_pos <- data[[response_var]][data[[response_var]] > 0 & !is.na(data[[response_var]])]
+  # CVi: coefficient of individual variation on the model's latent scale
+  if (fam %in% c("lognormal", "hurdle_lognormal", "negbinomial")) {
+    y_pos <- data[[data_var]][data[[data_var]] > 0 & !is.na(data[[data_var]])]
     CVi   <- sqrt(var.cow) / mean(log(y_pos))
+  } else if (fam %in% c("beta", "zero_one_inflated_beta")) {
+    y_valid <- data[[data_var]][!is.na(data[[data_var]]) &
+                                 data[[data_var]] > 0 &
+                                 data[[data_var]] < 1]
+    CVi <- sqrt(var.cow) / abs(mean(qlogis(y_valid)))
   } else {
-    CVi <- sqrt(var.cow) / mean(data[[response_var]], na.rm = TRUE)
+    CVi <- sqrt(var.cow) / mean(data[[data_var]], na.rm = TRUE)
   }
 
   cat("\n===", response_var, "(family:", fam, ") ===\n")

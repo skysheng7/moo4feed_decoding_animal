@@ -86,9 +86,9 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
   fam <- family(m1_brm)$family
   ps  <- as_draws_df(m1_brm)
 
-  # For hurdle models, select only the mu-part cow random effects (exclude hu)
+  # Select only the mu-part cow random effects (exclude hu, zoi, coi parts)
   cow_cols <- grep("^r_cow\\[", names(ps), value = TRUE)
-  cow_cols <- cow_cols[!grepl("__hu", cow_cols)]
+  cow_cols <- cow_cols[!grepl("__(hu|zoi|coi)", cow_cols)]
 
   posteriorBT <- ps[, cow_cols] %>%
     as.data.frame() %>%
@@ -117,9 +117,10 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
   fill_values <- c(focal_colors, "Other individuals" = "gray")
   n_cows <- n_distinct(posteriorBT$cow)
 
-  # Label axis to indicate log scale for lognormal/hurdle_lognormal models
-  x_lab <- if (fam %in% c("lognormal", "hurdle_lognormal")) {
+  x_lab <- if (fam %in% c("lognormal", "hurdle_lognormal", "negbinomial")) {
     paste0(response_var, " (log scale)")
+  } else if (fam %in% c("beta", "zero_one_inflated_beta")) {
+    paste0(response_var, " (logit scale)")
   } else {
     response_var
   }
