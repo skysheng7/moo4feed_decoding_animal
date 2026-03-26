@@ -83,7 +83,7 @@ m1_brm_feed_visits <- withCallingHandlers(
     data    = master_data,
     family  = lognormal(),
     warmup  = 1000,
-    iter    = 10000,
+    iter    = 12000,
     chains  = 4,
     init    = "random",
     cores   = 4,
@@ -488,24 +488,6 @@ m1_brm_median_non_nutritive_per_meal <- withCallingHandlers(
 )
 m1_brm_median_non_nutritive_per_meal <- add_criterion(m1_brm_median_non_nutritive_per_meal, "loo")
 saveRDS(m1_brm_median_non_nutritive_per_meal, file.path(output_dir, "m1_brm_median_non_nutritive_per_meal.rds"))
-
-# Also fit:
-m2_brm_median_non_nutritive_per_meal <- brm(
-  formula = median_non_nutritive_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
-  data    = master_data,
-  family  = hurdle_gamma(),
-  warmup  = 1000,
-  iter    = 10000,
-  chains  = 4,
-  init    = "random",
-  cores   = 4,
-  seed    = 12345,
-  control = list(adapt_delta = 0.99, max_treedepth = 15)
-)
-m2_brm_median_non_nutritive_per_meal <- add_criterion(m2_brm_median_non_nutritive_per_meal, "loo")
-saveRDS(m2_brm_median_non_nutritive_per_meal, file.path(output_dir, "m2_brm_median_non_nutritive_per_meal.rds"))
-# Compare
-loo_compare(m1_brm_median_non_nutritive_per_meal, m2_brm_median_non_nutritive_per_meal)
 
 ###################################################################################################
 ################################## median_pct_actor ###############################################

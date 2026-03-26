@@ -47,7 +47,8 @@ if (!exists("models")) {
 # rIIV  = variance of the sigma random effect (on the log scale)
 # CVP   = coefficient of variation of predictability = sqrt(exp(sd^2) - 1)
 extract_iiv <- function(m2_brm, response_var) {
-  ps <- as_draws_df(m2_brm)
+  ps  <- as_draws_df(m2_brm)
+  fam <- family(m2_brm)$family
 
   sd_sigma <- ps$"sd_cow__sigma_Intercept"
 
@@ -55,7 +56,7 @@ extract_iiv <- function(m2_brm, response_var) {
   log_norm <- exp(sd_sigma^2)
   CVP      <- sqrt(log_norm - 1)
 
-  cat("\n===", response_var, "===\n")
+  cat("\n===", response_var, "(family:", fam, ") ===\n")
   cat("rIIV (mean):  ", round(mean(var_res), 4),
       "  95% HPD:", round(HPDinterval(as.mcmc(var_res), 0.95), 4), "\n")
   cat("CVP  (mean):  ", round(mean(CVP), 4),
@@ -63,6 +64,7 @@ extract_iiv <- function(m2_brm, response_var) {
 
   list(
     response = response_var,
+    family   = fam,
     var_res  = var_res,
     CVP      = CVP
   )
@@ -85,6 +87,7 @@ names(iiv_results) <- response_vars
 results_table <- do.call(rbind, lapply(iiv_results, function(p) {
   data.frame(
     variable       = p$response,
+    family         = p$family,
     rIIV_mean      = round(mean(p$var_res), 4),
     rIIV_lower     = round(HPDinterval(as.mcmc(p$var_res), 0.95)[1], 4),
     rIIV_upper     = round(HPDinterval(as.mcmc(p$var_res), 0.95)[2], 4),
@@ -106,6 +109,7 @@ plot_posterior_iiv <- function(m2_brm, response_var,
                                out_dir = "results/12_predictability") {
   dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
+  fam      <- family(m2_brm)$family
   ps       <- as_draws_df(m2_brm)
   iiv_cols <- grep("^r_cow__sigma\\[", names(ps), value = TRUE)
 
@@ -159,7 +163,12 @@ plot_posterior_iiv <- function(m2_brm, response_var,
       aes(x = meanIIV, y = cow_ordered, col = col),
       size = 1
     ) +
-    labs(y = "", x = paste0("rIIV \u2014 ", response_var), fill = "ID", col = "ID") +
+    labs(y = "",
+         x = if (fam %in% c("lognormal", "hurdle_lognormal"))
+               paste0("rIIV \u2014 ", response_var, " (log scale)")
+             else
+               paste0("rIIV \u2014 ", response_var),
+         fill = "ID", col = "ID") +
     theme_classic() +
     scale_fill_manual(values  = fill_values) +
     scale_color_manual(values = fill_values)
@@ -187,6 +196,7 @@ dir.create(diag_dir, showWarnings = FALSE, recursive = TRUE)
 
 diag_summary <- data.frame(
   variable           = character(),
+  family             = character(),
   expected_ESS       = numeric(),
   min_Bulk_ESS       = numeric(),
   Bulk_ESS_pct       = numeric(),
@@ -285,6 +295,7 @@ for (rv in response_vars) {
 
   diag_summary <- rbind(diag_summary, data.frame(
     variable           = rv,
+    family             = family(m)$family,
     expected_ESS       = expected_ess,
     min_Bulk_ESS       = min_bulk_ess,
     Bulk_ESS_pct       = round(100 * min_bulk_ess / expected_ess, 1),

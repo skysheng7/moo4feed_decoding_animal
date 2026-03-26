@@ -10,6 +10,11 @@
 # Each variable gets its own explicit brm() block so formula, iterations, priors,
 # and control settings can be tuned independently.  Models are saved as .rds files
 # under results/12_predictability/.
+#
+# FAMILY CHOICES (matching 11c repeatability models):
+#   Gaussian           – roughly symmetric, no floor/ceiling issues
+#   lognormal()        – strictly positive, right-skewed (skew > ~1)
+#   hurdle_lognormal() – positive + substantial zero-inflation
 
 library(brms)
 library(coda)
@@ -27,6 +32,7 @@ dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 ###################################################################################################
 ################################## feed_intake ####################################################
 ###################################################################################################
+# Gaussian — pp_check OK but pareto_k(14), increase iter
 warnings_feed_intake <- list()
 m2_brm_feed_intake <- withCallingHandlers(
   brm(
@@ -35,8 +41,9 @@ m2_brm_feed_intake <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
-    iter    = 6000,
+    iter    = 10000,
     thin    = 1,
     chains  = 4,
     init    = "random",
@@ -54,6 +61,7 @@ saveRDS(m2_brm_feed_intake, file.path(output_dir, "m2_brm_feed_intake.rds"))
 ###################################################################################################
 ################################## feed_duration ##################################################
 ###################################################################################################
+# Gaussian — low_Bulk_ESS + pareto_k(5), increase iter
 warnings_feed_duration <- list()
 m2_brm_feed_duration <- withCallingHandlers(
   brm(
@@ -62,8 +70,9 @@ m2_brm_feed_duration <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
-    iter    = 6000,
+    iter    = 10000,
     thin    = 1,
     chains  = 4,
     init    = "random",
@@ -81,7 +90,7 @@ saveRDS(m2_brm_feed_duration, file.path(output_dir, "m2_brm_feed_duration.rds"))
 ###################################################################################################
 ################################## feed_visits ####################################################
 ###################################################################################################
-# Uses 10 000 iterations to resolve Bulk ESS warnings
+# skew=1.25, 0% zeros — switch to lognormal (matches 11c)
 warnings_feed_visits <- list()
 m2_brm_feed_visits <- withCallingHandlers(
   brm(
@@ -90,6 +99,7 @@ m2_brm_feed_visits <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = lognormal(),
     warmup  = 1000,
     iter    = 10000,
     thin    = 1,
@@ -109,6 +119,7 @@ saveRDS(m2_brm_feed_visits, file.path(output_dir, "m2_brm_feed_visits.rds"))
 ###################################################################################################
 ################################## water_intake ###################################################
 ###################################################################################################
+# Gaussian — pareto_k(3), increase iter
 warnings_water_intake <- list()
 m2_brm_water_intake <- withCallingHandlers(
   brm(
@@ -117,8 +128,9 @@ m2_brm_water_intake <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
-    iter    = 6000,
+    iter    = 10000,
     thin    = 1,
     chains  = 4,
     init    = "random",
@@ -136,7 +148,7 @@ saveRDS(m2_brm_water_intake, file.path(output_dir, "m2_brm_water_intake.rds"))
 ###################################################################################################
 ################################## water_duration #################################################
 ###################################################################################################
-# Uses 10 000 iterations to resolve Bulk ESS warnings
+# skew=1.65, 0% zeros, low Bulk ESS + pareto_k(8) — switch to lognormal (matches 11c)
 warnings_water_duration <- list()
 m2_brm_water_duration <- withCallingHandlers(
   brm(
@@ -145,6 +157,7 @@ m2_brm_water_duration <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = lognormal(),
     warmup  = 1000,
     iter    = 10000,
     thin    = 1,
@@ -164,7 +177,7 @@ saveRDS(m2_brm_water_duration, file.path(output_dir, "m2_brm_water_duration.rds"
 ###################################################################################################
 ################################## water_visits ###################################################
 ###################################################################################################
-# Uses 10 000 iterations to resolve Bulk ESS warnings
+# Gaussian (per 11c) — increase iter for pareto_k(6)
 warnings_water_visits <- list()
 m2_brm_water_visits <- withCallingHandlers(
   brm(
@@ -173,6 +186,7 @@ m2_brm_water_visits <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
     iter    = 10000,
     thin    = 1,
@@ -192,6 +206,7 @@ saveRDS(m2_brm_water_visits, file.path(output_dir, "m2_brm_water_visits.rds"))
 ###################################################################################################
 ################################## total_meals ####################################################
 ###################################################################################################
+# Gaussian — diagnostics OK
 warnings_total_meals <- list()
 m2_brm_total_meals <- withCallingHandlers(
   brm(
@@ -200,6 +215,7 @@ m2_brm_total_meals <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
     iter    = 6000,
     thin    = 1,
@@ -219,6 +235,7 @@ saveRDS(m2_brm_total_meals, file.path(output_dir, "m2_brm_total_meals.rds"))
 ###################################################################################################
 ################################## median_meal_duration ###########################################
 ###################################################################################################
+# Gaussian (per 11c) — pareto_k(3) but diagnostics otherwise OK
 warnings_median_meal_duration <- list()
 m2_brm_median_meal_duration <- withCallingHandlers(
   brm(
@@ -227,6 +244,7 @@ m2_brm_median_meal_duration <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
     iter    = 6000,
     thin    = 1,
@@ -246,6 +264,7 @@ saveRDS(m2_brm_median_meal_duration, file.path(output_dir, "m2_brm_median_meal_d
 ###################################################################################################
 ################################## median_visit_per_meal ##########################################
 ###################################################################################################
+# Gaussian (per 11c) — pareto_k(5) but diagnostics otherwise OK
 warnings_median_visit_per_meal <- list()
 m2_brm_median_visit_per_meal <- withCallingHandlers(
   brm(
@@ -254,6 +273,7 @@ m2_brm_median_visit_per_meal <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
     iter    = 6000,
     thin    = 1,
@@ -273,6 +293,7 @@ saveRDS(m2_brm_median_visit_per_meal, file.path(output_dir, "m2_brm_median_visit
 ###################################################################################################
 ################################## median_intake_per_meal #########################################
 ###################################################################################################
+# Gaussian (per 11c) — pareto_k(3) but diagnostics otherwise OK
 warnings_median_intake_per_meal <- list()
 m2_brm_median_intake_per_meal <- withCallingHandlers(
   brm(
@@ -281,6 +302,7 @@ m2_brm_median_intake_per_meal <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
     iter    = 6000,
     thin    = 1,
@@ -300,6 +322,7 @@ saveRDS(m2_brm_median_intake_per_meal, file.path(output_dir, "m2_brm_median_inta
 ###################################################################################################
 ################################## median_unique_bins_per_meal ####################################
 ###################################################################################################
+# Gaussian — pareto_k(2) but diagnostics otherwise OK
 warnings_median_unique_bins_per_meal <- list()
 m2_brm_median_unique_bins_per_meal <- withCallingHandlers(
   brm(
@@ -308,6 +331,7 @@ m2_brm_median_unique_bins_per_meal <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
     iter    = 6000,
     thin    = 1,
@@ -327,6 +351,7 @@ saveRDS(m2_brm_median_unique_bins_per_meal, file.path(output_dir, "m2_brm_median
 ###################################################################################################
 ################################## median_feeding_pct_per_meal ####################################
 ###################################################################################################
+# Gaussian — low_Bulk_ESS + pareto_k(5), increase iter
 warnings_median_feeding_pct_per_meal <- list()
 m2_brm_median_feeding_pct_per_meal <- withCallingHandlers(
   brm(
@@ -335,8 +360,9 @@ m2_brm_median_feeding_pct_per_meal <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
-    iter    = 6000,
+    iter    = 10000,
     thin    = 1,
     chains  = 4,
     init    = "random",
@@ -354,6 +380,7 @@ saveRDS(m2_brm_median_feeding_pct_per_meal, file.path(output_dir, "m2_brm_median
 ###################################################################################################
 ################################## unique_feed_bins_visited #######################################
 ###################################################################################################
+# Gaussian — diagnostics OK
 warnings_unique_feed_bins_visited <- list()
 m2_brm_unique_feed_bins_visited <- withCallingHandlers(
   brm(
@@ -362,6 +389,7 @@ m2_brm_unique_feed_bins_visited <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
     iter    = 6000,
     thin    = 1,
@@ -381,6 +409,7 @@ saveRDS(m2_brm_unique_feed_bins_visited, file.path(output_dir, "m2_brm_unique_fe
 ###################################################################################################
 ################################## unique_water_bins_visited ######################################
 ###################################################################################################
+# Gaussian — diagnostics OK
 warnings_unique_water_bins_visited <- list()
 m2_brm_unique_water_bins_visited <- withCallingHandlers(
   brm(
@@ -389,6 +418,7 @@ m2_brm_unique_water_bins_visited <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
     iter    = 6000,
     thin    = 1,
@@ -408,6 +438,7 @@ saveRDS(m2_brm_unique_water_bins_visited, file.path(output_dir, "m2_brm_unique_w
 ###################################################################################################
 ################################## total_bins_visited #############################################
 ###################################################################################################
+# Gaussian — diagnostics OK
 warnings_total_bins_visited <- list()
 m2_brm_total_bins_visited <- withCallingHandlers(
   brm(
@@ -416,6 +447,7 @@ m2_brm_total_bins_visited <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
     iter    = 6000,
     thin    = 1,
@@ -435,6 +467,7 @@ saveRDS(m2_brm_total_bins_visited, file.path(output_dir, "m2_brm_total_bins_visi
 ###################################################################################################
 ################################## number_of_non_nutritive_visits #################################
 ###################################################################################################
+# skew=1.87, 0% zeros, low Bulk ESS + pareto_k(7) — switch to lognormal (matches 11c)
 warnings_number_of_non_nutritive_visits <- list()
 m2_brm_number_of_non_nutritive_visits <- withCallingHandlers(
   brm(
@@ -443,8 +476,9 @@ m2_brm_number_of_non_nutritive_visits <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = lognormal(),
     warmup  = 1000,
-    iter    = 6000,
+    iter    = 10000,
     thin    = 1,
     chains  = 4,
     init    = "random",
@@ -462,6 +496,7 @@ saveRDS(m2_brm_number_of_non_nutritive_visits, file.path(output_dir, "m2_brm_num
 ###################################################################################################
 ################################## median_pct_feed_remaining ######################################
 ###################################################################################################
+# Gaussian — diagnostics OK
 warnings_median_pct_feed_remaining <- list()
 m2_brm_median_pct_feed_remaining <- withCallingHandlers(
   brm(
@@ -470,6 +505,7 @@ m2_brm_median_pct_feed_remaining <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
     iter    = 6000,
     thin    = 1,
@@ -489,16 +525,21 @@ saveRDS(m2_brm_median_pct_feed_remaining, file.path(output_dir, "m2_brm_median_p
 ###################################################################################################
 ################################## median_non_nutritive_per_meal ##################################
 ###################################################################################################
+# skew=2.13, 0.56% zeros, low Bulk ESS + pareto_k(7) — hurdle_lognormal (matches 11c)
+# sigma sub-model captures individual differences in day-to-day variability
+# hu sub-model captures individual differences in probability of zero
 warnings_median_non_nutritive_per_meal <- list()
 m2_brm_median_non_nutritive_per_meal <- withCallingHandlers(
   brm(
     formula = bf(
       median_non_nutritive_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
-      sigma ~ (1 | cow)
+      sigma ~ (1 | cow),
+      hu ~ (1 | cow)
     ),
     data    = master_data,
+    family  = hurdle_lognormal(),
     warmup  = 1000,
-    iter    = 6000,
+    iter    = 10000,
     thin    = 1,
     chains  = 4,
     init    = "random",
@@ -516,6 +557,7 @@ saveRDS(m2_brm_median_non_nutritive_per_meal, file.path(output_dir, "m2_brm_medi
 ###################################################################################################
 ################################## median_pct_actor ###############################################
 ###################################################################################################
+# Gaussian (per 11c) — pareto_k(6), increase iter
 warnings_median_pct_actor <- list()
 m2_brm_median_pct_actor <- withCallingHandlers(
   brm(
@@ -524,8 +566,9 @@ m2_brm_median_pct_actor <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
-    iter    = 6000,
+    iter    = 10000,
     thin    = 1,
     chains  = 4,
     init    = "random",
@@ -543,6 +586,7 @@ saveRDS(m2_brm_median_pct_actor, file.path(output_dir, "m2_brm_median_pct_actor.
 ###################################################################################################
 ################################## median_pct_reactor #############################################
 ###################################################################################################
+# Gaussian (per 11c) — pareto_k(4), increase iter
 warnings_median_pct_reactor <- list()
 m2_brm_median_pct_reactor <- withCallingHandlers(
   brm(
@@ -551,8 +595,9 @@ m2_brm_median_pct_reactor <- withCallingHandlers(
       sigma ~ (1 | cow)
     ),
     data    = master_data,
+    family  = gaussian(),
     warmup  = 1000,
-    iter    = 6000,
+    iter    = 10000,
     thin    = 1,
     chains  = 4,
     init    = "random",

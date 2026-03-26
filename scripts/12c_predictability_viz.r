@@ -1,11 +1,12 @@
 ###################################################################################################
-######################### 12b. Predictability Visualisation ########################################
+######################### 12c. Predictability Visualisation ########################################
 ###################################################################################################
 # Ellipse scatter plot of relative intra-individual variability (rIIV) vs
 # coefficient of predictability (CVP).
 # Each variable is drawn as an ellipse whose horizontal extent spans the 95%
 # credible interval for rIIV and whose vertical extent spans the 95% credible
 # interval for CVP.
+# Shape indicates the likelihood family used.
 
 library(ggplot2)
 library(ggforce)
@@ -42,8 +43,9 @@ p <- ggplot(pred_summary, aes(x0 = rIIV_mean, y0 = CVP_mean,
                               a = a, b = b, angle = 0,
                               fill = variable, colour = variable)) +
   geom_ellipse(alpha = 0.7, linewidth = 0.4) +
-  geom_point(aes(x = rIIV_mean, y = CVP_mean, colour = variable),
-             size = 1.5, show.legend = FALSE,
+  geom_point(aes(x = rIIV_mean, y = CVP_mean, colour = variable,
+                 shape = family),
+             size = 2.5, show.legend = TRUE,
              inherit.aes = FALSE) +
   ggrepel::geom_label_repel(
     aes(x = rIIV_mean, y = CVP_mean, label = label, fill = variable),
@@ -66,22 +68,27 @@ p <- ggplot(pred_summary, aes(x0 = rIIV_mean, y0 = CVP_mean,
   scale_x_continuous(expand = expansion(mult = c(0.25, 0.25))) +
   scale_fill_manual(values   = colour_pal) +
   scale_colour_manual(values = colour_pal) +
+  scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17,
+                                "hurdle_lognormal" = 15)) +
   labs(
-    x = "Relative intra-individual variability (rIIV)",
-    y = "Coefficient of predictability (CVP)"
+    x     = "Relative intra-individual variability (rIIV)",
+    y     = "Coefficient of predictability (CVP)",
+    shape = "Likelihood family"
   ) +
   theme_classic(base_size = 16) +
   theme(
-    legend.position  = "none",
+    legend.position  = "bottom",
+    legend.box       = "horizontal",
     axis.title       = element_text(size = 18),
     axis.text        = element_text(size = 14)
-  )
+  ) +
+  guides(fill = "none", colour = "none")
 
 ggsave(
   filename = "results/12_predictability/predictability_ellipse_scatter.png",
   plot     = p,
   width    = 10,
-  height   = 8
+  height   = 9
 )
 
 cat("Saved: results/12_predictability/predictability_ellipse_scatter.png\n")
