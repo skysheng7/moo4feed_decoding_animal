@@ -68,8 +68,7 @@ p <- ggplot(pred_summary, aes(x0 = rIIV_mean, y0 = CVP_mean,
   scale_x_continuous(expand = expansion(mult = c(0.25, 0.25))) +
   scale_fill_manual(values   = colour_pal) +
   scale_colour_manual(values = colour_pal) +
-  scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17,
-                                "hurdle_lognormal" = 15)) +
+  scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17)) +
   labs(
     x     = "Relative intra-individual variability (rIIV)",
     y     = "Coefficient of predictability (CVP)",

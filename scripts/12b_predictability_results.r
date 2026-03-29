@@ -25,10 +25,9 @@ response_vars <- c(
   "feed_intake", "feed_duration", "feed_visits",
   "water_intake", "water_duration", "water_visits",
   "total_meals", "median_meal_duration", "median_visit_per_meal",
-  "median_intake_per_meal", "median_unique_bins_per_meal", "median_feeding_pct_per_meal",
-  "unique_feed_bins_visited", "unique_water_bins_visited", "total_bins_visited",
+  "median_intake_per_meal", "median_feeding_pct_per_meal",
   "number_of_non_nutritive_visits", "median_pct_feed_remaining",
-  "median_non_nutritive_per_meal", "median_pct_actor", "median_pct_reactor"
+  "median_non_nutritive_per_meal", "total_actor", "total_reactor"
 )
 
 # ---- Load models from .rds if not already in memory ------------------------------------------
@@ -164,7 +163,7 @@ plot_posterior_iiv <- function(m2_brm, response_var,
       size = 1
     ) +
     labs(y = "",
-         x = if (fam %in% c("lognormal", "hurdle_lognormal"))
+         x = if (fam == "lognormal")
                paste0("rIIV \u2014 ", response_var, " (log scale)")
              else
                paste0("rIIV \u2014 ", response_var),

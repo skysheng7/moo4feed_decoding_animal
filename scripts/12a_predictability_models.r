@@ -12,9 +12,8 @@
 # under results/12_predictability/.
 #
 # FAMILY CHOICES (matching 11c repeatability models):
-#   Gaussian           – roughly symmetric, no floor/ceiling issues
-#   lognormal()        – strictly positive, right-skewed (skew > ~1)
-#   hurdle_lognormal() – positive + substantial zero-inflation
+#   Gaussian    – roughly symmetric, no floor/ceiling issues
+#   lognormal() – strictly positive, right-skewed (skew > ~1)
 
 library(brms)
 library(coda)
@@ -320,35 +319,6 @@ m2_brm_median_intake_per_meal <- withCallingHandlers(
 saveRDS(m2_brm_median_intake_per_meal, file.path(output_dir, "m2_brm_median_intake_per_meal.rds"))
 
 ###################################################################################################
-################################## median_unique_bins_per_meal ####################################
-###################################################################################################
-# Gaussian — pareto_k(2) but diagnostics otherwise OK
-warnings_median_unique_bins_per_meal <- list()
-m2_brm_median_unique_bins_per_meal <- withCallingHandlers(
-  brm(
-    formula = bf(
-      median_unique_bins_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
-      sigma ~ (1 | cow)
-    ),
-    data    = master_data,
-    family  = gaussian(),
-    warmup  = 1000,
-    iter    = 6000,
-    thin    = 1,
-    chains  = 4,
-    init    = "random",
-    cores   = 4,
-    seed    = 12345,
-    control = list(adapt_delta = 0.99, max_treedepth = 15)
-  ),
-  warning = function(w) {
-    warnings_median_unique_bins_per_meal[[length(warnings_median_unique_bins_per_meal) + 1]] <<- conditionMessage(w)
-    invokeRestart("muffleWarning")
-  }
-)
-saveRDS(m2_brm_median_unique_bins_per_meal, file.path(output_dir, "m2_brm_median_unique_bins_per_meal.rds"))
-
-###################################################################################################
 ################################## median_feeding_pct_per_meal ####################################
 ###################################################################################################
 # Gaussian — low_Bulk_ESS + pareto_k(5), increase iter
@@ -376,93 +346,6 @@ m2_brm_median_feeding_pct_per_meal <- withCallingHandlers(
   }
 )
 saveRDS(m2_brm_median_feeding_pct_per_meal, file.path(output_dir, "m2_brm_median_feeding_pct_per_meal.rds"))
-
-###################################################################################################
-################################## unique_feed_bins_visited #######################################
-###################################################################################################
-# Gaussian — diagnostics OK
-warnings_unique_feed_bins_visited <- list()
-m2_brm_unique_feed_bins_visited <- withCallingHandlers(
-  brm(
-    formula = bf(
-      unique_feed_bins_visited ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
-      sigma ~ (1 | cow)
-    ),
-    data    = master_data,
-    family  = gaussian(),
-    warmup  = 1000,
-    iter    = 6000,
-    thin    = 1,
-    chains  = 4,
-    init    = "random",
-    cores   = 4,
-    seed    = 12345,
-    control = list(adapt_delta = 0.99, max_treedepth = 15)
-  ),
-  warning = function(w) {
-    warnings_unique_feed_bins_visited[[length(warnings_unique_feed_bins_visited) + 1]] <<- conditionMessage(w)
-    invokeRestart("muffleWarning")
-  }
-)
-saveRDS(m2_brm_unique_feed_bins_visited, file.path(output_dir, "m2_brm_unique_feed_bins_visited.rds"))
-
-###################################################################################################
-################################## unique_water_bins_visited ######################################
-###################################################################################################
-# Gaussian — diagnostics OK
-warnings_unique_water_bins_visited <- list()
-m2_brm_unique_water_bins_visited <- withCallingHandlers(
-  brm(
-    formula = bf(
-      unique_water_bins_visited ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
-      sigma ~ (1 | cow)
-    ),
-    data    = master_data,
-    family  = gaussian(),
-    warmup  = 1000,
-    iter    = 6000,
-    thin    = 1,
-    chains  = 4,
-    init    = "random",
-    cores   = 4,
-    seed    = 12345,
-    control = list(adapt_delta = 0.99, max_treedepth = 15)
-  ),
-  warning = function(w) {
-    warnings_unique_water_bins_visited[[length(warnings_unique_water_bins_visited) + 1]] <<- conditionMessage(w)
-    invokeRestart("muffleWarning")
-  }
-)
-saveRDS(m2_brm_unique_water_bins_visited, file.path(output_dir, "m2_brm_unique_water_bins_visited.rds"))
-
-###################################################################################################
-################################## total_bins_visited #############################################
-###################################################################################################
-# Gaussian — diagnostics OK
-warnings_total_bins_visited <- list()
-m2_brm_total_bins_visited <- withCallingHandlers(
-  brm(
-    formula = bf(
-      total_bins_visited ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
-      sigma ~ (1 | cow)
-    ),
-    data    = master_data,
-    family  = gaussian(),
-    warmup  = 1000,
-    iter    = 6000,
-    thin    = 1,
-    chains  = 4,
-    init    = "random",
-    cores   = 4,
-    seed    = 12345,
-    control = list(adapt_delta = 0.99, max_treedepth = 15)
-  ),
-  warning = function(w) {
-    warnings_total_bins_visited[[length(warnings_total_bins_visited) + 1]] <<- conditionMessage(w)
-    invokeRestart("muffleWarning")
-  }
-)
-saveRDS(m2_brm_total_bins_visited, file.path(output_dir, "m2_brm_total_bins_visited.rds"))
 
 ###################################################################################################
 ################################## number_of_non_nutritive_visits #################################
@@ -525,19 +408,16 @@ saveRDS(m2_brm_median_pct_feed_remaining, file.path(output_dir, "m2_brm_median_p
 ###################################################################################################
 ################################## median_non_nutritive_per_meal ##################################
 ###################################################################################################
-# skew=2.13, 0.56% zeros, low Bulk ESS + pareto_k(7) — hurdle_lognormal (matches 11c)
-# sigma sub-model captures individual differences in day-to-day variability
-# hu sub-model captures individual differences in probability of zero
+# Gaussian — switched from hurdle_lognormal for consistency (gaussian/lognormal only)
 warnings_median_non_nutritive_per_meal <- list()
 m2_brm_median_non_nutritive_per_meal <- withCallingHandlers(
   brm(
     formula = bf(
       median_non_nutritive_per_meal ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
-      sigma ~ (1 | cow),
-      hu ~ (1 | cow)
+      sigma ~ (1 | cow)
     ),
     data    = master_data,
-    family  = hurdle_lognormal(),
+    family  = gaussian(),
     warmup  = 1000,
     iter    = 10000,
     thin    = 1,
@@ -555,20 +435,20 @@ m2_brm_median_non_nutritive_per_meal <- withCallingHandlers(
 saveRDS(m2_brm_median_non_nutritive_per_meal, file.path(output_dir, "m2_brm_median_non_nutritive_per_meal.rds"))
 
 ###################################################################################################
-################################## median_pct_actor ###############################################
+################################## total_actor ####################################################
 ###################################################################################################
-# Gaussian (per 11c) — pareto_k(6), increase iter
-warnings_median_pct_actor <- list()
-m2_brm_median_pct_actor <- withCallingHandlers(
+# Gaussian — daily count of actor displacements
+warnings_total_actor <- list()
+m2_brm_total_actor <- withCallingHandlers(
   brm(
     formula = bf(
-      median_pct_actor ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
+      total_actor ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
     family  = gaussian(),
     warmup  = 1000,
-    iter    = 10000,
+    iter    = 6000,
     thin    = 1,
     chains  = 4,
     init    = "random",
@@ -577,27 +457,27 @@ m2_brm_median_pct_actor <- withCallingHandlers(
     control = list(adapt_delta = 0.99, max_treedepth = 15)
   ),
   warning = function(w) {
-    warnings_median_pct_actor[[length(warnings_median_pct_actor) + 1]] <<- conditionMessage(w)
+    warnings_total_actor[[length(warnings_total_actor) + 1]] <<- conditionMessage(w)
     invokeRestart("muffleWarning")
   }
 )
-saveRDS(m2_brm_median_pct_actor, file.path(output_dir, "m2_brm_median_pct_actor.rds"))
+saveRDS(m2_brm_total_actor, file.path(output_dir, "m2_brm_total_actor.rds"))
 
 ###################################################################################################
-################################## median_pct_reactor #############################################
+################################## total_reactor ##################################################
 ###################################################################################################
-# Gaussian (per 11c) — pareto_k(4), increase iter
-warnings_median_pct_reactor <- list()
-m2_brm_median_pct_reactor <- withCallingHandlers(
+# Gaussian — daily count of reactor displacements
+warnings_total_reactor <- list()
+m2_brm_total_reactor <- withCallingHandlers(
   brm(
     formula = bf(
-      median_pct_reactor ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
+      total_reactor ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow),
       sigma ~ (1 | cow)
     ),
     data    = master_data,
     family  = gaussian(),
     warmup  = 1000,
-    iter    = 10000,
+    iter    = 6000,
     thin    = 1,
     chains  = 4,
     init    = "random",
@@ -606,11 +486,11 @@ m2_brm_median_pct_reactor <- withCallingHandlers(
     control = list(adapt_delta = 0.99, max_treedepth = 15)
   ),
   warning = function(w) {
-    warnings_median_pct_reactor[[length(warnings_median_pct_reactor) + 1]] <<- conditionMessage(w)
+    warnings_total_reactor[[length(warnings_total_reactor) + 1]] <<- conditionMessage(w)
     invokeRestart("muffleWarning")
   }
 )
-saveRDS(m2_brm_median_pct_reactor, file.path(output_dir, "m2_brm_median_pct_reactor.rds"))
+saveRDS(m2_brm_total_reactor, file.path(output_dir, "m2_brm_total_reactor.rds"))
 
 ###################################################################################################
 ################################## Collect warnings ##############################################
@@ -626,16 +506,12 @@ all_warnings <- list(
   median_meal_duration           = warnings_median_meal_duration,
   median_visit_per_meal          = warnings_median_visit_per_meal,
   median_intake_per_meal         = warnings_median_intake_per_meal,
-  median_unique_bins_per_meal    = warnings_median_unique_bins_per_meal,
   median_feeding_pct_per_meal    = warnings_median_feeding_pct_per_meal,
-  unique_feed_bins_visited       = warnings_unique_feed_bins_visited,
-  unique_water_bins_visited      = warnings_unique_water_bins_visited,
-  total_bins_visited             = warnings_total_bins_visited,
   number_of_non_nutritive_visits = warnings_number_of_non_nutritive_visits,
   median_pct_feed_remaining      = warnings_median_pct_feed_remaining,
   median_non_nutritive_per_meal  = warnings_median_non_nutritive_per_meal,
-  median_pct_actor               = warnings_median_pct_actor,
-  median_pct_reactor             = warnings_median_pct_reactor
+  total_actor                    = warnings_total_actor,
+  total_reactor                  = warnings_total_reactor
 )
 
 cat("\n\n========== WARNINGS SUMMARY ==========\n")
@@ -659,10 +535,9 @@ response_vars <- c(
   "feed_intake", "feed_duration", "feed_visits",
   "water_intake", "water_duration", "water_visits",
   "total_meals", "median_meal_duration", "median_visit_per_meal",
-  "median_intake_per_meal", "median_unique_bins_per_meal", "median_feeding_pct_per_meal",
-  "unique_feed_bins_visited", "unique_water_bins_visited", "total_bins_visited",
+  "median_intake_per_meal", "median_feeding_pct_per_meal",
   "number_of_non_nutritive_visits", "median_pct_feed_remaining",
-  "median_non_nutritive_per_meal", "median_pct_actor", "median_pct_reactor"
+  "median_non_nutritive_per_meal", "total_actor", "total_reactor"
 )
 
 models <- list(
@@ -676,14 +551,10 @@ models <- list(
   median_meal_duration           = m2_brm_median_meal_duration,
   median_visit_per_meal          = m2_brm_median_visit_per_meal,
   median_intake_per_meal         = m2_brm_median_intake_per_meal,
-  median_unique_bins_per_meal    = m2_brm_median_unique_bins_per_meal,
   median_feeding_pct_per_meal    = m2_brm_median_feeding_pct_per_meal,
-  unique_feed_bins_visited       = m2_brm_unique_feed_bins_visited,
-  unique_water_bins_visited      = m2_brm_unique_water_bins_visited,
-  total_bins_visited             = m2_brm_total_bins_visited,
   number_of_non_nutritive_visits = m2_brm_number_of_non_nutritive_visits,
   median_pct_feed_remaining      = m2_brm_median_pct_feed_remaining,
   median_non_nutritive_per_meal  = m2_brm_median_non_nutritive_per_meal,
-  median_pct_actor               = m2_brm_median_pct_actor,
-  median_pct_reactor             = m2_brm_median_pct_reactor
+  total_actor                    = m2_brm_total_actor,
+  total_reactor                  = m2_brm_total_reactor
 )
