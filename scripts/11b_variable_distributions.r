@@ -38,11 +38,9 @@ response_vars <- c(
   "water_duration",                "water_visits",
   "total_meals",                   "median_meal_duration",
   "median_visit_per_meal",         "median_intake_per_meal",
-  "median_unique_bins_per_meal",   "median_feeding_pct_per_meal",
-  "unique_feed_bins_visited",      "unique_water_bins_visited",
-  "total_bins_visited",            "number_of_non_nutritive_visits",
+  "median_feeding_pct_per_meal",   "number_of_non_nutritive_visits",
   "median_pct_feed_remaining",     "median_non_nutritive_per_meal",
-  "median_pct_actor",              "median_pct_reactor"
+  "total_actor",                   "total_reactor"
 )
 
 # Human-readable labels
@@ -57,16 +55,12 @@ var_labels <- c(
   median_meal_duration          = "Meal duration (min, median)",
   median_visit_per_meal         = "Visits per meal (median)",
   median_intake_per_meal        = "Intake per meal (kg, median)",
-  median_unique_bins_per_meal   = "Unique bins/meal (median)",
   median_feeding_pct_per_meal   = "Feeding % per meal (median)",
-  unique_feed_bins_visited      = "Unique feed bins (n/d)",
-  unique_water_bins_visited     = "Unique water bins (n/d)",
-  total_bins_visited            = "Total bins visited (n/d)",
   number_of_non_nutritive_visits= "Non-nutritive visits (n/d)",
   median_pct_feed_remaining     = "Feed remaining % (median)",
   median_non_nutritive_per_meal = "Non-nutritive/meal (median)",
-  median_pct_actor              = "Actor % (median)",
-  median_pct_reactor            = "Reactor % (median)"
+  total_actor                   = "Actor displacements (n/d)",
+  total_reactor                 = "Reactor displacements (n/d)"
 )
 
 ###################################################################################################
@@ -125,6 +119,7 @@ make_hist_panel <- function(rv, data, log_x = FALSE) {
     x_axis <- log(x_plot)
   } else {
     x_plot <- x_raw
+    if (length(x_plot) < 10) return(NULL)
     x_axis <- x_plot
   }
 
@@ -163,8 +158,9 @@ make_hist_panel <- function(rv, data, log_x = FALSE) {
     geom_histogram(bins = n_bins, fill = fill_col, colour = "white",
                    alpha = alpha_col, linewidth = 0.2) +
     stat_function(
-      fun  = function(z) dnorm(z, mean = mu, sd = sigma) * scale_fac,
-      colour = "black", linewidth = 0.8, linetype = "dashed"
+      fun    = function(z) dnorm(z, mean = mu, sd = sigma) * scale_fac,
+      colour = "black", linewidth = 0.8, linetype = "dashed",
+      na.rm  = TRUE
     ) +
     labs(
       title    = label,
@@ -189,12 +185,15 @@ make_hist_panel <- function(rv, data, log_x = FALSE) {
 ###################################################################################################
 cat("Building raw-scale histogram grid...\n")
 
-panels_raw <- lapply(response_vars, make_hist_panel,
-                     data = master_data, log_x = FALSE)
+panels_raw <- lapply(response_vars, function(rv) {
+  tryCatch(make_hist_panel(rv, data = master_data, log_x = FALSE),
+           error = function(e) { message("Raw panel failed for ", rv, ": ", e$message); NULL })
+})
 names(panels_raw) <- response_vars
 
-valid_raw <- Filter(Negate(is.null), panels_raw)
-n_valid   <- length(valid_raw)
+panels_raw <- lapply(panels_raw, function(p) if (is.null(p)) grid::rectGrob(gp = grid::gpar(col = NA)) else p)
+n_valid   <- length(panels_raw)
+valid_raw <- panels_raw
 n_cols    <- 4
 n_rows    <- ceiling(n_valid / n_cols)
 
