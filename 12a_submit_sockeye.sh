@@ -16,6 +16,6 @@ cd $SLURM_SUBMIT_DIR
 mkdir -p logs
 
 module load miniconda3
-conda activate moo4feed
+source activate moo4feed
 
 Rscript scripts/12a_predictability_models_hpc.r "$SLURM_ARRAY_TASK_ID"
