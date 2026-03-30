@@ -126,6 +126,10 @@ plot_posterior_iiv <- function(m2_brm, response_var,
   posteriorIIV$value <- posteriorIIV$value +
     fixef(m2_brm, pars = "sigma_Intercept")[1]
 
+  if (fam == "lognormal") {
+    posteriorIIV$value <- exp(posteriorIIV$value)
+  }
+
   posteriorIIV <- posteriorIIV %>%
     dplyr::group_by(cow) %>%
     dplyr::mutate(meanIIV = mean(value)) %>%
@@ -163,10 +167,7 @@ plot_posterior_iiv <- function(m2_brm, response_var,
       size = 1
     ) +
     labs(y = "",
-         x = if (fam == "lognormal")
-               paste0("rIIV \u2014 ", response_var, " (log scale)")
-             else
-               paste0("rIIV \u2014 ", response_var),
+         x = paste0("rIIV \u2014 ", response_var),
          fill = "ID", col = "ID") +
     theme_classic() +
     scale_fill_manual(values  = fill_values) +

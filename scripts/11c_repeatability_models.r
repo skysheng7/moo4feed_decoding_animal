@@ -1,8 +1,7 @@
 ###################################################################################################
 ################################## 11b. Repeatability — Fit Models ################################
 ###################################################################################################
-# Prerequisites: run 11a_repeatability_setup.r first (loads master_data, defines
-# partition_variance).
+# Prerequisites: run 11a_repeatability_setup.r first
 #
 # PARALLELISED: runs 2 models concurrently via future.apply, each brm() using
 # 4 cores for its MCMC chains (2 × 4 = 8 cores total).

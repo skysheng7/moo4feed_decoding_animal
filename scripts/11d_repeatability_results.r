@@ -41,6 +41,73 @@ if (!exists("models")) {
   }
 }
 
+
+
+###################################################################################################
+################################## Variance partitioning helper ###################################
+###################################################################################################
+# Repeatability and CVi for Bayesian GLMMs with (1 | cow) as the sole
+# random effect.  Variance is partitioned into:
+#   var.cow  = between-individual (random intercept) variance
+#   var.res  = residual (within-individual) variance = sigma^2
+# Repeatability R = var.cow / (var.cow + var.res)
+#
+# CVi (coefficient of individual variation) — both on the original data scale
+# so that gaussian and lognormal models are directly comparable:
+#   gaussian  (identity link): CVi = sigma_cow / mu_bar
+#   lognormal (log link):      CVi = sqrt(exp(var.cow) - 1)
+#
+# References
+# ----------
+# Nakagawa, S., Johnson, P. C. D. & Schielzeth, H. (2017). The coefficient
+#   of determination R^2 and intra-class correlation coefficient from
+#   generalized linear mixed-effects models revisited and expanded.
+#   J. R. Soc. Interface 14: 20170213.
+#   https://doi.org/10.1098/rsif.2017.0213
+#
+# Nakagawa, S. & Schielzeth, H. (2010). Repeatability for Gaussian and
+#   non-Gaussian data: a practical guide for biologists.  Biological Reviews
+#   85: 935-956.
+#   https://doi.org/10.1111/j.1469-185X.2010.00141.x
+partition_variance <- function(m1_brm, response_var, data, n_sim = 10000) {
+  ps  <- as_draws_df(m1_brm)
+  fam <- family(m1_brm)$family
+
+  var.cow <- ps$"sd_cow__Intercept"^2
+
+  if (fam %in% c("gaussian", "lognormal")) {
+    var.res   <- ps$"sigma"^2
+    var.total <- var.cow + var.res
+  } else {
+    stop("Unsupported family: ", fam)
+  }
+
+  R_cow <- var.cow / var.total
+  R_res <- var.res / var.total
+
+  if (fam == "gaussian") {
+    CVi <- sqrt(var.cow) / mean(data[[response_var]])
+  } else if (fam == "lognormal") {
+    CVi <- sqrt(exp(var.cow) - 1)
+  }
+
+  cat("\n===", response_var, "(family:", fam, ") ===\n")
+  cat("Repeatability (R_cow):   ", round(mean(R_cow), 4),
+      "  95% HPD:", round(HPDinterval(as.mcmc(R_cow), 0.95), 4), "\n")
+  cat("R_residual:              ", round(mean(R_res), 4), "\n")
+  cat("CVi:                     ", round(mean(CVi), 4),
+      "  95% HPD:", round(HPDinterval(as.mcmc(CVi), 0.95), 4), "\n")
+
+  list(
+    response = response_var,
+    family   = fam,
+    R_cow    = R_cow,
+    R_res    = R_res,
+    CVi      = CVi
+  )
+}
+
+
 ###################################################################################################
 ################################## Variance partitioning ##########################################
 ###################################################################################################
@@ -98,6 +165,16 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
 
   posteriorBT$value <- posteriorBT$value + fixef(m1_brm, pars = "Intercept")[1]
 
+  if (fam == "lognormal") {
+    posteriorBT$value <- exp(posteriorBT$value)
+  }
+
+  # Undo the +1 offset applied in 11a for zero-capable lognormal variables
+  offset_vars <- c("median_non_nutritive_per_meal", "total_actor", "total_reactor")
+  if (response_var %in% offset_vars) {
+    posteriorBT$value <- posteriorBT$value - 1
+  }
+
   posteriorBT <- posteriorBT %>%
     dplyr::group_by(cow) %>%
     dplyr::mutate(meanBT = mean(value)) %>%
@@ -116,11 +193,7 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
   fill_values <- c(focal_colors, "Other individuals" = "gray")
   n_cows <- n_distinct(posteriorBT$cow)
 
-  x_lab <- if (fam == "lognormal") {
-    paste0(response_var, " (log scale)")
-  } else {
-    response_var
-  }
+  x_lab <- response_var
 
   BT <- ggplot() +
     ggridges::geom_density_ridges(data = posteriorBT,
