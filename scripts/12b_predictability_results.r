@@ -33,12 +33,18 @@ response_vars <- c(
 # ---- Load models from .rds if not already in memory ------------------------------------------
 if (!exists("models")) {
   models <- list()
-  for (rv in response_vars) {
-    rds_path <- file.path(output_dir, paste0("m2_brm_", rv, ".rds"))
-    cat("Loading:", rv, "\n")
-    models[[rv]] <- readRDS(rds_path)
-  }
 }
+for (rv in response_vars) {
+  if (!is.null(models[[rv]])) next
+  rds_path <- file.path(output_dir, paste0("m2_brm_", rv, ".rds"))
+  if (!file.exists(rds_path)) {
+    message("Skipping ", rv, " (file not found: ", rds_path, ")")
+    next
+  }
+  cat("Loading:", rv, "\n")
+  models[[rv]] <- readRDS(rds_path)
+}
+response_vars <- intersect(response_vars, names(models))
 
 ###################################################################################################
 ################################## Helper: extract IIV summaries ##################################
