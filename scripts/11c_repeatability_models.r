@@ -36,7 +36,7 @@ model_specs <- list(
 
   list(name = "feed_duration",
        formula_var = "feed_duration",
-       family = "gaussian", iter = 6000),
+       family = "gaussian", iter = 12000),
 
   list(name = "feed_visits",
        formula_var = "feed_visits",
@@ -64,7 +64,7 @@ model_specs <- list(
 
   list(name = "median_visit_per_meal",
        formula_var = "median_visit_per_meal",
-       family = "lognormal", iter = 6000),
+       family = "lognormal", iter = 12000),
 
   list(name = "median_intake_per_meal",
        formula_var = "median_intake_per_meal",
@@ -72,7 +72,7 @@ model_specs <- list(
 
   list(name = "median_feeding_pct_per_meal",
        formula_var = "median_feeding_pct_per_meal",
-       family = "gaussian", iter = 6000),
+       family = "gaussian", iter = 12000),
 
   list(name = "number_of_non_nutritive_visits",
        formula_var = "number_of_non_nutritive_visits",

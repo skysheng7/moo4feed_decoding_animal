@@ -30,33 +30,15 @@ dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 ################################## Model Specifications ###########################################
 ###################################################################################################
 model_specs <- list(
-  list(name = "water_visits",
-       formula_var = "water_visits",
-       family = "lognormal", iter = 10000),
-
-  list(name = "total_meals",
-       formula_var = "total_meals",
-       family = "lognormal", iter = 6000),
-
-  list(name = "median_meal_duration",
-       formula_var = "median_meal_duration",
-       family = "lognormal", iter = 6000),
-
-  list(name = "number_of_non_nutritive_visits",
-       formula_var = "number_of_non_nutritive_visits",
-       family = "lognormal", iter = 15000),
-
-  list(name = "median_non_nutritive_per_meal",
-       formula_var = "median_non_nutritive_per_meal",
-       family = "lognormal", iter = 10000),
-
-  list(name = "total_actor",
-       formula_var = "total_actor",
-       family = "lognormal", iter = 6000),
-
-  list(name = "total_reactor",
-       formula_var = "total_reactor",
-       family = "lognormal", iter = 6000)
+  list(name = "feed_duration",
+       formula_var = "feed_duration",
+       family = "gaussian", iter = 12000),
+  list(name = "median_visit_per_meal",
+       formula_var = "median_visit_per_meal",
+       family = "lognormal", iter = 12000),
+  list(name = "median_feeding_pct_per_meal",
+       formula_var = "median_feeding_pct_per_meal",
+       family = "gaussian", iter = 12000),
 )
 
 ###################################################################################################
