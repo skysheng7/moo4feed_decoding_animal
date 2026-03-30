@@ -38,7 +38,7 @@ model_specs <- list(
        family = "lognormal", iter = 12000),
   list(name = "median_feeding_pct_per_meal",
        formula_var = "median_feeding_pct_per_meal",
-       family = "gaussian", iter = 12000),
+       family = "gaussian", iter = 12000)
 )
 
 ###################################################################################################
