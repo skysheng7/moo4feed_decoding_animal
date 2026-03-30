@@ -34,14 +34,6 @@ dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 ################################## Model Specifications ###########################################
 ###################################################################################################
 model_specs <- list(
-  list(name = "feed_intake",
-       formula_var = "feed_intake",
-       family = "gaussian", iter = 10000),
-
-  list(name = "feed_duration",
-       formula_var = "feed_duration",
-       family = "gaussian", iter = 12000),
-
   list(name = "feed_visits",
        formula_var = "feed_visits",
        family = "lognormal", iter = 12000),
