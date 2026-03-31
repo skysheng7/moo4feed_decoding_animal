@@ -17,5 +17,11 @@ mkdir -p logs
 
 module load gcc apptainer
 
-apptainer exec /arc/software/apptainer_images/rstudio/rstudio_4.5.0_geos.sif \
+export TMPDIR=/scratch/st-nina-1/skysheng/tmp/12a_${SLURM_ARRAY_TASK_ID}_${SLURM_JOB_ID}
+mkdir -p "$TMPDIR"
+
+apptainer exec --bind "$TMPDIR":/tmp \
+    /arc/software/apptainer_images/rstudio/rstudio_4.5.0_geos.sif \
     Rscript --no-init-file scripts/12a_predictability_models_hpc.r "$SLURM_ARRAY_TASK_ID"
+
+rm -rf "$TMPDIR"
