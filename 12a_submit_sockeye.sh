@@ -15,7 +15,7 @@
 cd $SLURM_SUBMIT_DIR
 mkdir -p logs
 
-module load miniconda3
-source activate moo4feed2
+module load gcc apptainer
 
-Rscript --no-init-file scripts/12a_predictability_models_hpc.r "$SLURM_ARRAY_TASK_ID"
+apptainer exec /arc/software/apptainer_images/rstudio/rstudio_4.5.0_geos.sif \
+    Rscript --no-init-file scripts/12a_predictability_models_hpc.r "$SLURM_ARRAY_TASK_ID"
