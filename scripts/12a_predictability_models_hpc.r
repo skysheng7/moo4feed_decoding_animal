@@ -19,7 +19,7 @@
 # FAMILY CHOICES (matching 11c repeatability models):
 #   Gaussian    – roughly symmetric, no floor/ceiling issues
 #   lognormal() – strictly positive, right-skewed (skew > ~1)
-.libPaths("/arc/project/st-nina-1/skysheng/my_r_lib")
+.libPaths("./my_r_lib")
 library(brms)
 
 args <- commandArgs(trailingOnly = TRUE)
