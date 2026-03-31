@@ -10,6 +10,7 @@ library(tidyverse)
 library(ggplot2)
 library(ggridges)
 library(ggrepel)
+library(ggforce)
 library(bayesplot)
 library(moo4feed)
 
@@ -341,64 +342,136 @@ pred_summary <- moo4feed::read_data_safely("results/12_predictability/predictabi
                                            header = TRUE, sep = ",")
 
 combined_summary <- rep_summary %>%
-  dplyr::select(variable, CVi_mean) %>%
+  dplyr::select(variable, family, CVi_mean, CVi_lower, CVi_upper) %>%
   dplyr::inner_join(
-    pred_summary %>% dplyr::select(variable, CVP_mean, rIIV_mean),
+    pred_summary %>% dplyr::select(variable, CVP_mean, CVP_lower, CVP_upper,
+                                   rIIV_mean, rIIV_lower, rIIV_upper),
     by = "variable"
-  )
+  ) %>%
+  dplyr::mutate(label = gsub("_", " ", variable))
 
-repred_label_layer <- function() {
-  ggrepel::geom_label_repel(
-    aes(fill = variable),
-    colour          = "black",
-    fontface        = "bold",
-    size            = 3,
-    alpha           = 0.7,
-    label.padding   = unit(0.2, "lines"),
-    box.padding     = unit(0.4, "lines"),
-    point.padding   = unit(0.3, "lines"),
-    direction       = "both",
-    max.overlaps    = Inf,
-    show.legend     = FALSE
+n_vars     <- nrow(combined_summary)
+colour_pal <- scales::hue_pal()(n_vars)
+names(colour_pal) <- combined_summary$variable
+
+# ---- Scatter 1: CVP vs CVi (ellipses = 95 % credible intervals) ----
+combined_summary <- combined_summary %>%
+  dplyr::mutate(
+    a_cvi_cvp = (CVi_upper - CVi_lower) / 2,
+    b_cvi_cvp = (CVP_upper - CVP_lower) / 2
   )
-}
 
 scatter_CVP_CVi <- ggplot(combined_summary,
-                          aes(x = CVi_mean, y = CVP_mean,
-                              colour = variable, label = variable)) +
-  geom_point(size = 3, alpha = 0.7) +
-  repred_label_layer() +
-  labs(
-    x      = "CVi mean (Repeatability \u2014 between-individual variation)",
-    y      = "CVP mean (Predictability \u2014 within-individual variation)",
-    colour = "Variable"
+                          aes(x0 = CVi_mean, y0 = CVP_mean,
+                              a = a_cvi_cvp, b = b_cvi_cvp, angle = 0,
+                              fill = variable, colour = variable)) +
+  ggforce::geom_ellipse(alpha = 0.7, linewidth = 0.4) +
+  geom_point(aes(x = CVi_mean, y = CVP_mean, colour = variable,
+                 shape = family),
+             size = 2.5, show.legend = TRUE,
+             inherit.aes = FALSE) +
+  ggrepel::geom_label_repel(
+    aes(x = CVi_mean, y = CVP_mean, label = label, fill = variable),
+    colour             = "black",
+    fontface           = "bold",
+    size               = 4,
+    alpha              = 0.5,
+    label.padding      = unit(0.15, "lines"),
+    box.padding        = unit(0.5, "lines"),
+    point.padding      = unit(0.3, "lines"),
+    force              = 50,
+    force_pull         = 0.3,
+    max.iter           = 20000,
+    direction          = "both",
+    min.segment.length = 0,
+    segment.size       = 0.3,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    inherit.aes        = FALSE
   ) +
-  theme_classic() +
-  theme(legend.position = "none")
+  scale_x_continuous(limits = c(0, 0.65), expand = expansion(mult = c(0.02, 0.02))) +
+  scale_y_continuous(limits = c(0, 0.65), expand = expansion(mult = c(0.02, 0.02))) +
+  scale_fill_manual(values   = colour_pal) +
+  scale_colour_manual(values = colour_pal) +
+  scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17)) +
+  labs(
+    x     = "CVi (Repeatability \u2014 between-individual variation)",
+    y     = "CVP (Predictability \u2014 within-individual variation)",
+    shape = "Likelihood family"
+  ) +
+  theme_classic(base_size = 16) +
+  theme(
+    legend.position = "bottom",
+    legend.box      = "horizontal",
+    axis.title      = element_text(size = 18),
+    axis.text       = element_text(size = 14)
+  ) +
+  guides(fill = "none", colour = "none")
 
 ggsave(
   filename = file.path(output_dir, "scatter_CVP_vs_CVi.png"),
   plot     = scatter_CVP_CVi,
   width    = 10,
-  height   = 8
+  height   = 9
 )
 
+# ---- Scatter 2: rIIV vs CVi (ellipses = 95 % credible intervals) ----
+combined_summary <- combined_summary %>%
+  dplyr::mutate(
+    a_cvi_riiv = (CVi_upper  - CVi_lower)  / 2,
+    b_cvi_riiv = (rIIV_upper - rIIV_lower) / 2
+  )
+
 scatter_rIIV_CVi <- ggplot(combined_summary,
-                           aes(x = CVi_mean, y = rIIV_mean,
-                               colour = variable, label = variable)) +
-  geom_point(size = 3, alpha = 0.7) +
-  repred_label_layer() +
-  labs(
-    x      = "CVi mean (Repeatability \u2014 between-individual variation)",
-    y      = "rIIV mean (Predictability \u2014 residual intra-individual variance)",
-    colour = "Variable"
+                           aes(x0 = CVi_mean, y0 = rIIV_mean,
+                               a = a_cvi_riiv, b = b_cvi_riiv, angle = 0,
+                               fill = variable, colour = variable)) +
+  ggforce::geom_ellipse(alpha = 0.7, linewidth = 0.4) +
+  geom_point(aes(x = CVi_mean, y = rIIV_mean, colour = variable,
+                 shape = family),
+             size = 2.5, show.legend = TRUE,
+             inherit.aes = FALSE) +
+  ggrepel::geom_label_repel(
+    aes(x = CVi_mean, y = rIIV_mean, label = label, fill = variable),
+    colour             = "black",
+    fontface           = "bold",
+    size               = 4,
+    alpha              = 0.5,
+    label.padding      = unit(0.15, "lines"),
+    box.padding        = unit(0.5, "lines"),
+    point.padding      = unit(0.3, "lines"),
+    force              = 50,
+    force_pull         = 0.3,
+    max.iter           = 20000,
+    direction          = "both",
+    min.segment.length = 0,
+    segment.size       = 0.3,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    inherit.aes        = FALSE
   ) +
-  theme_classic() +
-  theme(legend.position = "none")
+  scale_x_continuous(expand = expansion(mult = c(0.05, 0.05))) +
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.05))) +
+  scale_fill_manual(values   = colour_pal) +
+  scale_colour_manual(values = colour_pal) +
+  scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17)) +
+  labs(
+    x     = "CVi (Repeatability \u2014 between-individual variation)",
+    y     = "rIIV (Predictability \u2014 residual intra-individual variance)",
+    shape = "Likelihood family"
+  ) +
+  theme_classic(base_size = 16) +
+  theme(
+    legend.position = "bottom",
+    legend.box      = "horizontal",
+    axis.title      = element_text(size = 18),
+    axis.text       = element_text(size = 14)
+  ) +
+  guides(fill = "none", colour = "none")
 
 ggsave(
   filename = file.path(output_dir, "scatter_rIIV_vs_CVi.png"),
   plot     = scatter_rIIV_CVi,
   width    = 10,
-  height   = 8
+  height   = 9
 )
