@@ -248,33 +248,50 @@ write.csv(behaviour_clusters,
 behaviour_clusters$label <- gsub("_", " ", behaviour_clusters$variable)
 behaviour_clusters$cluster_label <- paste("Cluster", behaviour_clusters$cluster)
 
+cluster_colours <- c("Cluster 1" = "#E41A1C",
+                     "Cluster 2" = "#377EB8",
+                     "Cluster 3" = "#4DAF4A")
+
 cluster_plot <- ggplot(behaviour_clusters,
-                       aes(x = CVi_mean, y = R_cow_mean,
-                           colour = cluster_label, shape = cluster_label)) +
+                       aes(x = R_cow_mean, y = CVi_mean,
+                           colour = cluster_label, fill = cluster_label,
+                           shape = cluster_label)) +
   geom_point(size = 3.5) +
-  ggrepel::geom_text_repel(
-    aes(label = label),
-    size               = 3.5,
-    max.overlaps       = Inf,
-    box.padding        = unit(0.4, "lines"),
-    point.padding      = unit(0.3, "lines"),
-    force              = 30,
+  ggrepel::geom_label_repel(
+    aes(label = label, fill = cluster_label),
+    colour             = "black",
+    fontface           = "bold",
+    size               = 4,
+    alpha              = 0.5,
+    label.padding      = unit(0.2, "lines"),
+    box.padding        = unit(0.8, "lines"),
+    point.padding      = unit(0.5, "lines"),
+    force              = 20,
+    force_pull         = 0.5,
+    direction          = "both",
     min.segment.length = 0,
     segment.size       = 0.3,
+    max.overlaps       = Inf,
     show.legend        = FALSE
   ) +
-  scale_colour_manual(values = c("Cluster 1" = "#E41A1C",
-                                 "Cluster 2" = "#377EB8",
-                                 "Cluster 3" = "#4DAF4A")) +
+  scale_colour_manual(values = cluster_colours) +
+  scale_fill_manual(values = cluster_colours) +
   scale_shape_manual(values = c("Cluster 1" = 16,
                                 "Cluster 2" = 17,
                                 "Cluster 3" = 15)) +
-  labs(x      = "CVi (between-individual variation)",
-       y      = "Repeatability (R)",
+  scale_x_continuous(expand = expansion(mult = c(0.1, 0.1))) +
+  labs(x      = "Repeatability (R)",
+       y      = "CVi (between-individual variation)",
        colour = "Cluster",
        shape  = "Cluster") +
-  theme_classic(base_size = 14) +
-  theme(legend.position = "bottom")
+  theme_classic(base_size = 16) +
+  theme(
+    legend.position  = "bottom",
+    legend.box       = "horizontal",
+    axis.title       = element_text(size = 18),
+    axis.text        = element_text(size = 14)
+  ) +
+  guides(fill = "none")
 
 ggsave(file.path(output_dir, "behaviour_cluster_plot.png"),
        cluster_plot, width = 9, height = 7)

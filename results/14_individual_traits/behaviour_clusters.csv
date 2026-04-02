@@ -1,0 +1,17 @@
+"variable","R_cow_mean","CVi_mean","cluster"
+"number_of_non_nutritive_visits",0.6419,0.5255,1
+"total_actor",0.4999,0.4651,1
+"median_non_nutritive_per_meal",0.5559,0.4419,1
+"water_duration",0.7425,0.3934,1
+"total_reactor",0.4372,0.3751,1
+"median_visit_per_meal",0.5188,0.3286,1
+"feed_visits",0.6771,0.2919,1
+"water_visits",0.5506,0.2827,1
+"median_meal_duration",0.3138,0.1833,2
+"median_intake_per_meal",0.2915,0.1787,2
+"total_meals",0.3834,0.1523,2
+"median_pct_feed_remaining",0.2063,0.126,2
+"feed_intake",0.3874,0.0957,2
+"feed_duration",0.5608,0.1357,3
+"water_intake",0.5507,0.1351,3
+"median_feeding_pct_per_meal",0.5946,0.0891,3
