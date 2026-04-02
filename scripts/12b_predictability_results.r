@@ -133,9 +133,7 @@ plot_posterior_iiv <- function(m2_brm, response_var,
   posteriorIIV$value <- posteriorIIV$value +
     fixef(m2_brm, pars = "sigma_Intercept")[1]
 
-  if (fam == "lognormal") {
-    posteriorIIV$value <- exp(posteriorIIV$value)
-  }
+  posteriorIIV$value <- exp(posteriorIIV$value)
 
   posteriorIIV <- posteriorIIV %>%
     dplyr::group_by(cow) %>%
