@@ -172,7 +172,9 @@ plot_posterior_iiv <- function(m2_brm, response_var,
       size = 1
     ) +
     labs(y = "",
-         x = paste0("rIIV \u2014 ", response_var),
+         x = paste0("Within-individual variation \u2014 ", response_var,
+                     if (fam == "lognormal") " (SD on log scale)"
+                     else " (SD on original scale)"),
          fill = "ID", col = "ID") +
     theme_classic() +
     scale_fill_manual(values  = fill_values) +
