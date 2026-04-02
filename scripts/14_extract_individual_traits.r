@@ -209,14 +209,16 @@ clust_data$cluster_raw <- km$cluster
 #   Cluster 1 = highest CVi + highest R  (high CVi, high R)
 #   Cluster 2 = high R + low CVi
 #   Cluster 3 = low R + low CVi
-# Strategy: rank clusters by CVi mean (descending), then by R mean (descending)
+# Strategy: rank clusters by R mean (descending), then by CVi mean (descending).
+# Cluster 1 (high R, high CVi) naturally ranks first; among the low-CVi pair,
+# cluster 2 gets high R and cluster 3 gets low R.
 cluster_profiles <- clust_data %>%
   group_by(cluster_raw) %>%
   summarise(mean_R   = mean(R_cow_mean),
             mean_CVi = mean(CVi_mean),
             .groups  = "drop") %>%
-  # Primary sort: CVi descending, secondary: R descending
-  arrange(desc(mean_CVi), desc(mean_R)) %>%
+  # Primary sort: R descending, secondary: CVi descending
+  arrange(desc(mean_R), desc(mean_CVi)) %>%
   mutate(new_label = 1:3)
 
 relabel_map <- setNames(cluster_profiles$new_label, cluster_profiles$cluster_raw)
