@@ -32,10 +32,6 @@ model_specs <- list(
 
   list(name = "median_feed_rate",
        formula_var = "median_feed_rate",
-       family = "lognormal", iter = 12000),
-
-  list(name = "median_water_rate",
-       formula_var = "median_water_rate",
        family = "lognormal", iter = 12000)
 )
 
