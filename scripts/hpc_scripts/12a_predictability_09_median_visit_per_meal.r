@@ -6,6 +6,7 @@
 #
 # Prerequisites: results/11_repeatability/master_data.rda
 
+.libPaths("/scratch/st-nina-1/skysheng/moo4feed_decoding_animal/my_r_lib")
 library(brms)
 
 load("results/11_repeatability/master_data.rda")
