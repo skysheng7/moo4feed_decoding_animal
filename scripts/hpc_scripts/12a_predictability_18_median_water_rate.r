@@ -35,7 +35,7 @@ tryCatch(
         data    = master_data,
         family  = lognormal(),
         warmup  = 1000,
-        iter    = 12000,
+        iter    = 15000,
         thin    = 1,
         chains  = 4,
         init    = "random",

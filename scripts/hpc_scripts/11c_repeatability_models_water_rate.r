@@ -29,7 +29,7 @@ model <- withCallingHandlers(
     data    = master_data,
     family  = lognormal(),
     warmup  = 1000,
-    iter    = 12000,
+    iter    = 15000,
     chains  = 4,
     init    = "random",
     cores   = 4,
