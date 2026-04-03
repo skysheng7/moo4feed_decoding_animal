@@ -183,8 +183,8 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
 
   # Combined biplot + cluster visualisation on RC1-RC2
   # Sunset palette for clusters
-  sunset_palette <- c("#D9C696", "#FAC484", "#F8A07E", "#EB7F86",
-                      "#CE6693", "#A059A0", "#5C53A5", "#3D4D8A")
+  sunset_palette <- c("#D9C696", "#F8A07E", "#EB6770",
+                     "#A059A0", "#3D4D8A")
 
   # Helper: draw biplot for a given pair of components
   draw_biplot <- function(idx_x, idx_y, suffix) {

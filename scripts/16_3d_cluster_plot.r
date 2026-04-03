@@ -34,6 +34,11 @@ rc1_col <- rc_cols[1]
 rc2_col <- rc_cols[2]
 rc3_col <- rc_cols[3]
 
+rc_to_full <- function(x) gsub("RC(\\d+)", "Rotated Component \\1", x)
+rc1_label <- rc_to_full(rc1_col)
+rc2_label <- rc_to_full(rc2_col)
+rc3_label <- rc_to_full(rc3_col)
+
 cow_clusters$cluster <- factor(cow_clusters$cluster)
 
 cat("Number of cows:", nrow(cow_clusters), "\n")
@@ -44,8 +49,8 @@ print(table(cow_clusters$cluster))
 ###################################################################################################
 ################################## Sunset palette #################################################
 ###################################################################################################
-sunset_palette <- c("#D9C696", "#FAC484", "#F8A07E", "#EB7F86",
-                      "#CE6693", "#A059A0", "#5C53A5", "#3D4D8A")
+sunset_palette <- c("#D9C696", "#F8A07E", "#EB6770",
+                     "#A059A0", "#3D4D8A")
 
 n_clust <- nlevels(cow_clusters$cluster)
 colours_used <- colorRampPalette(sunset_palette)(n_clust)
@@ -70,17 +75,17 @@ fig <- plot_ly(
   hoverinfo    = "text",
   hovertext    = ~paste0("Cow: ", cow,
                          "<br>Cluster: ", cluster,
-                         "<br>", rc1_col, ": ", round(get(rc1_col), 2),
-                         "<br>", rc2_col, ": ", round(get(rc2_col), 2),
-                         "<br>", rc3_col, ": ", round(get(rc3_col), 2))
+                         "<br>", rc1_label, ": ", round(get(rc1_col), 2),
+                         "<br>", rc2_label, ": ", round(get(rc2_col), 2),
+                         "<br>", rc3_label, ": ", round(get(rc3_col), 2))
 ) %>%
   layout(
     scene = list(
-      xaxis = list(title = paste0(rc1_col, " (", var_rc1, "%)"),
+      xaxis = list(title = paste0(rc1_label, " (", var_rc1, "%)"),
                    titlefont = list(size = 18), tickfont = list(size = 14)),
-      yaxis = list(title = paste0(rc2_col, " (", var_rc2, "%)"),
+      yaxis = list(title = paste0(rc2_label, " (", var_rc2, "%)"),
                    titlefont = list(size = 18), tickfont = list(size = 14)),
-      zaxis = list(title = paste0(rc3_col, " (", var_rc3, "%)"),
+      zaxis = list(title = paste0(rc3_label, " (", var_rc3, "%)"),
                    titlefont = list(size = 18), tickfont = list(size = 14))
     ),
     legend = list(
