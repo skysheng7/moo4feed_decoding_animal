@@ -22,7 +22,8 @@
 library(tidyverse)
 library(ggplot2)
 library(ggrepel)
-library(factoextra)   # fviz_screeplot, fviz_pca_biplot, fviz_cluster, fviz_nbclust
+library(psych)        # principal, fa.parallel (Horn's parallel analysis)
+library(factoextra)   # fviz_nbclust, fviz_cluster
 
 output_dir <- "results/15_pca_clustering"
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
@@ -81,43 +82,42 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
   cow_ids <- mat$cow
   X <- mat[, -1, drop = FALSE]
 
-  # Scale (center + unit variance) — standard for PCA
-  X_scaled <- scale(X)
+  # ---- Determine number of components (>= 80% cumulative variance) ----
+  # First run unrotated PCA to get eigenvalues
+  pca_all <- principal(X, nfactors = ncol(X), rotate = "none", scores = FALSE)
+  all_var  <- pca_all$values / sum(pca_all$values)
+  cum_all  <- cumsum(all_var)
+  n_comp   <- which(cum_all >= 0.80)[1]
+  if (is.na(n_comp) || n_comp < 1) n_comp <- 1
+  cat("  Components to reach 80% variance:", n_comp, "\n")
 
-  # ---- PCA ----
-  pca <- prcomp(X_scaled, center = FALSE, scale. = FALSE)  # already scaled
+  # ---- PCA via psych::principal with varimax rotation ----
+  pca <- principal(X, nfactors = n_comp, rotate = "varimax", scores = TRUE)
 
-  # Variance explained
-  var_exp   <- pca$sdev^2 / sum(pca$sdev^2)
-  cum_var   <- cumsum(var_exp)
-  n_pc_70   <- which(cum_var >= 0.70)[1]
-  n_pc_80   <- which(cum_var >= 0.80)[1]
+  # Variance explained per component (from original eigenvalues)
+  var_exp  <- pca$values[1:n_comp] / sum(pca_all$values)
+  cum_var  <- cumsum(var_exp)
 
   pca_summary <- data.frame(
-    PC              = paste0("PC", seq_along(var_exp)),
+    RC              = paste0("RC", seq_len(n_comp)),
+    eigenvalue      = round(pca$values[1:n_comp], 4),
     variance_pct    = round(var_exp * 100, 2),
     cumulative_pct  = round(cum_var * 100, 2)
   )
 
-  cat("  PCs to reach 70%:", n_pc_70, "\n")
-  cat("  PCs to reach 80%:", n_pc_80, "\n")
+  cat("  Variance explained by retained components:", round(cum_var[n_comp] * 100, 1), "%\n")
 
-  # Loadings for first min(6, ncol) PCs
-  n_show <- min(6, ncol(pca$rotation))
-  loadings_df <- as.data.frame(pca$rotation[, 1:n_show]) %>%
-    rownames_to_column("variable")
+  # Loadings matrix (varimax-rotated)
+  load_mat <- as.data.frame(unclass(pca$loadings))
+  loadings_df <- load_mat %>% rownames_to_column("variable")
 
-  cat("\n  Top loadings (PC1):\n")
-  top_pc1 <- loadings_df %>% arrange(desc(abs(PC1))) %>% head(8)
-  for (i in seq_len(nrow(top_pc1))) {
-    cat(sprintf("    %-40s  %+.3f\n", top_pc1$variable[i], top_pc1$PC1[i]))
-  }
-
-  if (n_show >= 2) {
-    cat("\n  Top loadings (PC2):\n")
-    top_pc2 <- loadings_df %>% arrange(desc(abs(PC2))) %>% head(8)
-    for (i in seq_len(nrow(top_pc2))) {
-      cat(sprintf("    %-40s  %+.3f\n", top_pc2$variable[i], top_pc2$PC2[i]))
+  # Print top loadings per component
+  for (rc in seq_len(min(n_comp, 6))) {
+    rc_name <- colnames(load_mat)[rc]
+    cat(sprintf("\n  Top loadings (%s):\n", rc_name))
+    top <- loadings_df %>% arrange(desc(abs(.data[[rc_name]]))) %>% head(8)
+    for (i in seq_len(nrow(top))) {
+      cat(sprintf("    %-40s  %+.3f\n", top$variable[i], top[[rc_name]][i]))
     }
   }
 
@@ -130,27 +130,26 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
             row.names = FALSE)
 
   # Scree plot
-  scree <- fviz_screeplot(pca, ncp = min(15, length(var_exp)),
-                          addlabels = TRUE, barfill = "steelblue") +
-    ggtitle(paste("Scree plot —", method$name))
+  all_eig <- data.frame(
+    component  = seq_along(pca_all$values),
+    eigenvalue = pca_all$values
+  )
+  scree <- ggplot(all_eig, aes(x = component, y = eigenvalue)) +
+    geom_line(colour = "steelblue", linewidth = 1) +
+    geom_point(colour = "steelblue", size = 2) +
+    geom_hline(yintercept = 1, linetype = "dashed", colour = "grey50") +
+    geom_vline(xintercept = n_comp + 0.5, linetype = "dotted", colour = "grey40") +
+    labs(title = paste("Scree plot —", method$name),
+         x = "Component", y = "Eigenvalue") +
+    theme_classic()
   ggsave(file.path(output_dir, paste0("pca_", method$name, "_screeplot.png")),
          scree, width = 8, height = 5)
 
-  # Biplot (PC1 vs PC2)
-  biplot <- fviz_pca_biplot(pca, repel = TRUE, col.var = "contrib",
-                            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-                            col.ind = "gray60", alpha.ind = 0.5,
-                            label = "var", labelsize = 3) +
-    ggtitle(paste("Biplot —", method$name))
-  ggsave(file.path(output_dir, paste0("pca_", method$name, "_biplot.png")),
-         biplot, width = 10, height = 8)
-
   # ---- Determine optimal K ----
-  # Use PCs that explain >= 80% variance for clustering
-  scores <- pca$x[, 1:n_pc_80, drop = FALSE]
+  scores <- pca$scores
 
   # Silhouette method for optimal K
-  sil_plot <- fviz_nbclust(scores, kmeans, method = "silhouette",
+  sil_plot <- fviz_nbclust(as.data.frame(scores), kmeans, method = "silhouette",
                            k.max = min(10, nrow(scores) - 1)) +
     ggtitle(paste("Optimal K (silhouette) —", method$name))
   ggsave(file.path(output_dir, paste0("pca_", method$name, "_silhouette.png")),
@@ -163,7 +162,8 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
 
   # ---- K-means clustering ----
   set.seed(42)
-  km <- kmeans(scores, centers = optimal_k, nstart = 50, iter.max = 200)
+  scores_mat <- as.data.frame(scores)
+  km <- kmeans(scores_mat, centers = optimal_k, nstart = 50, iter.max = 200)
 
   cow_clusters <- data.frame(
     cow     = cow_ids,
@@ -171,18 +171,16 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
     stringsAsFactors = FALSE
   )
 
-  # Attach PC scores
-  pc_scores_df <- as.data.frame(scores)
-  pc_scores_df$cow <- cow_ids
-  cow_clusters <- cow_clusters %>% left_join(pc_scores_df, by = "cow")
+  # Attach component scores
+  scores_mat$cow <- cow_ids
+  cow_clusters <- cow_clusters %>% left_join(scores_mat, by = "cow")
 
   write.csv(cow_clusters,
             file.path(output_dir, paste0("pca_", method$name, "_cow_clusters.csv")),
             row.names = FALSE)
 
-  # Cluster visualisation on PC1-PC2
-  cluster_df <- data.frame(scores[, 1:min(2, ncol(scores))], cluster = factor(km$cluster))
-  clust_plot <- fviz_cluster(km, data = scores[, 1:min(2, ncol(scores))],
+  # Cluster visualisation on RC1-RC2
+  clust_plot <- fviz_cluster(km, data = scores_mat[, 1:min(2, n_comp), drop = FALSE],
                              geom = "point", ellipse.type = "convex",
                              palette = "jco", ggtheme = theme_classic()) +
     ggtitle(paste("Cow clusters —", method$name))
@@ -199,15 +197,16 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
   cat(sprintf("  Cluster sizes:   %s\n", paste(km$size, collapse = ", ")))
 
   list(
-    method       = method$name,
-    n_vars       = length(method$cols),
-    n_pc_80      = n_pc_80,
-    optimal_k    = optimal_k,
-    mean_sil     = round(mean_sil, 4),
-    bss_tss      = round(bss_tss, 4),
+    method        = method$name,
+    n_vars        = length(method$cols),
+    n_comp        = n_comp,
+    cum_var_pct   = round(cum_var[n_comp] * 100, 1),
+    optimal_k     = optimal_k,
+    mean_sil      = round(mean_sil, 4),
+    bss_tss       = round(bss_tss, 4),
     cluster_sizes = paste(sort(km$size), collapse = "/"),
-    var_pc1_pct  = round(var_exp[1] * 100, 1),
-    var_pc2_pct  = round(var_exp[2] * 100, 1)
+    var_rc1_pct   = round(var_exp[1] * 100, 1),
+    var_rc2_pct   = if (n_comp >= 2) round(var_exp[2] * 100, 1) else NA
   )
 }
 
@@ -230,24 +229,25 @@ cat(strrep("=", 90), "\n\n")
 print(as.data.frame(comp_df), right = FALSE, row.names = FALSE)
 
 cat("\n--- Interpretation Guide ---\n")
-cat("  mean_sil:  Average silhouette width (higher = better-defined clusters, >0.5 strong)\n")
-cat("  bss_tss:   Between-SS / Total-SS ratio (higher = more separation, >0.5 good)\n")
-cat("  var_pc1/2: Variance explained by PC1 and PC2 (higher = more structure captured)\n")
-cat("  n_pc_80:   Number of PCs to reach 80% variance (fewer = more parsimonious)\n")
-cat("  optimal_k: Optimal number of clusters via silhouette method\n")
+cat("  mean_sil:    Average silhouette width (higher = better-defined clusters, >0.5 strong)\n")
+cat("  bss_tss:     Between-SS / Total-SS ratio (higher = more separation, >0.5 good)\n")
+cat("  var_rc1/2:   Variance explained by RC1 and RC2 (higher = more structure captured)\n")
+cat("  n_comp:      Number of components retained (>= 80% cumulative variance)\n")
+cat("  cum_var_pct: Cumulative variance explained by retained components\n")
+cat("  optimal_k:   Optimal number of clusters via silhouette method\n")
 
 # Rank methods
 comp_df <- comp_df %>%
   mutate(
     rank_sil    = rank(-mean_sil),
     rank_bss    = rank(-bss_tss),
-    rank_pars   = rank(n_pc_80),     # fewer PCs = more parsimonious
+    rank_pars   = rank(n_comp),      # fewer components = more parsimonious
     avg_rank    = (rank_sil + rank_bss + rank_pars) / 3
   ) %>%
   arrange(avg_rank)
 
 cat("\n--- Ranking (lower avg_rank = better) ---\n")
-print(as.data.frame(comp_df %>% select(method, mean_sil, bss_tss, n_pc_80,
+print(as.data.frame(comp_df %>% select(method, mean_sil, bss_tss, n_comp, cum_var_pct,
                                         rank_sil, rank_bss, rank_pars, avg_rank)),
       right = FALSE, row.names = FALSE)
 
@@ -255,7 +255,7 @@ best <- comp_df$method[1]
 cat("\n  Best method:", best, "\n")
 cat("    Criteria: highest silhouette width (cluster definition),\n")
 cat("              highest BSS/TSS (cluster separation),\n")
-cat("              fewest PCs to 80% (parsimony / interpretability).\n")
+cat("              fewest components from parallel analysis (parsimony).\n")
 
 write.csv(comp_df,
           file.path(output_dir, "method_comparison.csv"),
