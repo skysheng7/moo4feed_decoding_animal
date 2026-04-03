@@ -8,6 +8,14 @@ This repository contains a comprehensive data analysis workflow for extracting i
 
 The analysis pipeline transforms raw visit-level data into meaningful behavioral metrics including meal patterns, social interactions, feed availability preferences, and dominance relationships. This workflow supports animal welfare research and data-driven monitoring by enabling reproducible, scalable analysis of precision livestock farming data.
 
+## Interactive 3D Cow Clustering Plot
+
+Explore the interactive 3D scatter plot of 5 clusters of cows grouped by personality here:
+
+**[View Interactive 3D Plot](https://skysheng7.github.io/moo4feed_decoding_animal/)**
+
+The plot shows cows positioned by their first three rotated principal components (RC1, RC2, RC3), coloured by K-means cluster assignment. Each cow is labelled by ID. Rotate, zoom, and hover for details.
+
 ## Project Structure
 
 ```
@@ -139,13 +147,7 @@ Run the scripts sequentially in order (1 through 11). Each script builds upon ou
     - Partitions variance into within-individual and between-individual components
     - Outputs: Fitted model object (`m1_brm.rds`) and model summaries
 
-## Interactive 3D Cow Clustering Plot
 
-Explore the interactive 3D scatter plot of cow clusters (PCA Method 3: Cluster-1 intercepts, varimax-rotated) here:
-
-**[View Interactive 3D Plot](https://skysheng7.github.io/moo4feed_decoding_animal/)**
-
-The plot shows cows positioned by their first three rotated principal components (RC1, RC2, RC3), coloured by K-means cluster assignment. Each cow is labelled by ID. Rotate, zoom, and hover for details.
 
 ## Results Documentation
 
