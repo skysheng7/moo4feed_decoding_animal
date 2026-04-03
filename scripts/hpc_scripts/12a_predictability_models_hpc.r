@@ -9,10 +9,10 @@
 #
 # USAGE (Slurm array job):
 #   Rscript scripts/12a_predictability_models_hpc.r <MODEL_INDEX>
-#   where MODEL_INDEX is 1..16 (passed automatically by Slurm via $SLURM_ARRAY_TASK_ID).
+#   where MODEL_INDEX is 1..18 (passed automatically by Slurm via $SLURM_ARRAY_TASK_ID).
 #
 # Each model uses 4 cores for its 4 MCMC chains.  When submitted as a Slurm array
-# (--array=1-16, --cpus-per-task=4), all 16 models run concurrently across the cluster.
+# (--array=1-18, --cpus-per-task=4), all 18 models run concurrently across the cluster.
 #
 # Models that already have an .rds file on disk are skipped automatically.
 #
@@ -97,7 +97,15 @@ model_specs <- list(
 
   list(name = "total_reactor",
        formula_var = "total_reactor",
-       family = "lognormal", iter = 6000)
+       family = "lognormal", iter = 6000),
+
+  list(name = "median_feed_rate",
+       formula_var = "median_feed_rate",
+       family = "lognormal", iter = 12000),
+
+  list(name = "median_water_rate",
+       formula_var = "median_water_rate",
+       family = "lognormal", iter = 12000)
 )
 
 if (model_index < 1 || model_index > length(model_specs)) {

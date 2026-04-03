@@ -96,7 +96,15 @@ model_specs <- list(
 
   list(name = "total_reactor",
        formula_var = "total_reactor",
-       family = "lognormal", iter = 6000)
+       family = "lognormal", iter = 6000),
+
+  list(name = "median_feed_rate",
+       formula_var = "median_feed_rate",
+       family = "lognormal", iter = 12000),
+
+  list(name = "median_water_rate",
+       formula_var = "median_water_rate",
+       family = "lognormal", iter = 12000)
 )
 
 ###################################################################################################
@@ -223,7 +231,8 @@ response_vars <- c(
   "total_meals", "median_meal_duration", "median_visit_per_meal",
   "median_intake_per_meal", "median_feeding_pct_per_meal",
   "number_of_non_nutritive_visits", "median_pct_feed_remaining",
-  "median_non_nutritive_per_meal", "total_actor", "total_reactor"
+  "median_non_nutritive_per_meal", "total_actor", "total_reactor",
+  "median_feed_rate", "median_water_rate"
 )
 
 models <- lapply(results, \(r) r$model)

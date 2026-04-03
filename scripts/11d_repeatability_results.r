@@ -28,7 +28,8 @@ response_vars <- c(
   "total_meals", "median_meal_duration", "median_visit_per_meal",
   "median_intake_per_meal", "median_feeding_pct_per_meal",
   "number_of_non_nutritive_visits", "median_pct_feed_remaining",
-  "median_non_nutritive_per_meal", "total_actor", "total_reactor"
+  "median_non_nutritive_per_meal", "total_actor", "total_reactor",
+  "median_feed_rate", "median_water_rate"
 )
 
 # ---- Load models from .rds if not already in memory -------------------------------------------

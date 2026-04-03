@@ -30,7 +30,7 @@ output_dir <- "results/11_repeatability"
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 ###################################################################################################
-################################## Variable list (20 response vars) ###############################
+################################## Variable list (18 response vars) ###############################
 ###################################################################################################
 response_vars <- c(
   "feed_intake",                   "feed_duration",
@@ -40,7 +40,8 @@ response_vars <- c(
   "median_visit_per_meal",         "median_intake_per_meal",
   "median_feeding_pct_per_meal",   "number_of_non_nutritive_visits",
   "median_pct_feed_remaining",     "median_non_nutritive_per_meal",
-  "total_actor",                   "total_reactor"
+  "total_actor",                   "total_reactor",
+  "median_feed_rate",              "median_water_rate"
 )
 
 # Human-readable labels
@@ -60,7 +61,9 @@ var_labels <- c(
   median_pct_feed_remaining     = "Feed remaining % (median)",
   median_non_nutritive_per_meal = "Non-nutritive/meal (median)",
   total_actor                   = "Actor displacements (n/d)",
-  total_reactor                 = "Reactor displacements (n/d)"
+  total_reactor                 = "Reactor displacements (n/d)",
+  median_feed_rate              = "Feed intake rate (kg/s, median)",
+  median_water_rate             = "Water intake rate (kg/s, median)"
 )
 
 ###################################################################################################
@@ -225,8 +228,10 @@ cat("Saved: results/11_repeatability/variable_distributions.png\n")
 ###################################################################################################
 cat("Building log-scale histogram grid...\n")
 
-panels_log <- lapply(response_vars, make_hist_panel,
-                     data = master_data, log_x = TRUE)
+panels_log <- lapply(response_vars, function(rv) {
+  tryCatch(make_hist_panel(rv, data = master_data, log_x = TRUE),
+           error = function(e) { message("Log panel failed for ", rv, ": ", e$message); NULL })
+})
 names(panels_log) <- response_vars
 
 valid_log <- Filter(Negate(is.null), panels_log)
