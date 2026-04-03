@@ -13,7 +13,7 @@
 #
 # For each method: PCA, interpret loadings, cluster cows (K-means), compare.
 #
-# Outputs under results/15_pca_clustering/:
+# Outputs under results/15_pcfa_clustering/:
 #   - pca_method_<N>_summary.csv, pca_method_<N>_loadings.csv
 #   - pca_method_<N>_screeplot.png, pca_method_<N>_biplot.png
 #   - pca_method_<N>_cow_clusters.csv, pca_method_<N>_cluster_plot.png
@@ -183,7 +183,7 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
 
   # Combined biplot + cluster visualisation on RC1-RC2
   # Sunset palette for clusters
-  sunset_palette <- c("#F3E79B", "#FAC484", "#F8A07E", "#EB7F86",
+  sunset_palette <- c("#FAC484", "#F8A07E", "#EB7F86",
                       "#CE6693", "#A059A0", "#5C53A5", "#3D4D8A")
 
   # Helper: draw biplot for a given pair of components
