@@ -8,6 +8,7 @@
 #
 # FAMILY: lognormal – strictly positive, right-skewed
 
+.libPaths("/scratch/st-nina-1/skysheng/moo4feed_decoding_animal/my_r_lib")
 library(brms)
 
 output_dir <- "results/11_repeatability"
