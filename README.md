@@ -139,6 +139,14 @@ Run the scripts sequentially in order (1 through 11). Each script builds upon ou
     - Partitions variance into within-individual and between-individual components
     - Outputs: Fitted model object (`m1_brm.rds`) and model summaries
 
+## Interactive 3D Cow Clustering Plot
+
+Explore the interactive 3D scatter plot of cow clusters (PCA Method 3: Cluster-1 intercepts, varimax-rotated) here:
+
+**[View Interactive 3D Plot](https://skysheng7.github.io/moo4feed_decoding_animal/)**
+
+The plot shows cows positioned by their first three rotated principal components (RC1, RC2, RC3), coloured by K-means cluster assignment. Each cow is labelled by ID. Rotate, zoom, and hover for details.
+
 ## Results Documentation
 
 Detailed documentation of all output files is available in [`results/README.md`](results/README.md). This includes:

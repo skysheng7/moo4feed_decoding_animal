@@ -74,16 +74,19 @@ p <- ggplot(rep_summary, aes(x0 = R_cow_mean, y0 = CVi_mean,
   scale_colour_manual(values = colour_pal) +
   scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17)) +
   labs(
-    x     = "Repeatability (R) \n proportion of variance due to individual differences",
-    y     = "Coefficient of variation (CVi) \n relative magnitude of individual differences",
+    x     = "Repeatability (R) \n proportion of variance due to individual variation",
+    y     = "Coefficient of variation (CVi) \n relative magnitude of individual variation",
     shape = "Likelihood family"
   ) +
-  theme_classic(base_size = 16) +
+  theme_classic(base_size = 20) +
   theme(
     legend.position  = "bottom",
     legend.box       = "horizontal",
-    axis.title       = element_text(size = 18),
-    axis.text        = element_text(size = 14)
+    legend.text      = element_text(size = 18),
+    legend.title     = element_text(size = 20),
+    plot.title       = element_text(size = 22),
+    axis.title       = element_text(size = 22),
+    axis.text        = element_text(size = 18)
   ) +
   guides(fill = "none", colour = "none")
 

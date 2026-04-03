@@ -195,7 +195,7 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
   fill_values <- c(focal_colors, "Other individuals" = "gray")
   n_cows <- n_distinct(posteriorBT$cow)
 
-  x_lab <- response_var
+  x_lab <- tools::toTitleCase(gsub("_", " ", response_var))
 
   BT <- ggplot() +
     ggridges::geom_density_ridges(data = posteriorBT,
@@ -209,7 +209,16 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
                aes(x = meanBT, y = as.factor(cow), col = col),
                size = 1) +
     labs(y = "", x = x_lab, fill = "ID", col = "ID") +
-    theme_classic() +
+    theme_classic(base_size = 20) +
+    theme(
+      legend.position  = "bottom",
+      legend.box       = "horizontal",
+      legend.text      = element_text(size = 18),
+      legend.title     = element_text(size = 20),
+      plot.title       = element_text(size = 22),
+      axis.title       = element_text(size = 22),
+      axis.text        = element_text(size = 18)
+    ) +
     scale_fill_manual(values  = fill_values) +
     scale_color_manual(values = fill_values)
 

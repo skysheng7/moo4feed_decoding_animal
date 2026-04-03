@@ -74,12 +74,15 @@ p <- ggplot(pred_summary, aes(x0 = rIIV_mean, y0 = CVP_mean,
     y     = "Coefficient of predictability (CVP)",
     shape = "Likelihood family"
   ) +
-  theme_classic(base_size = 16) +
+  theme_classic(base_size = 20) +
   theme(
     legend.position  = "bottom",
     legend.box       = "horizontal",
-    axis.title       = element_text(size = 18),
-    axis.text        = element_text(size = 14)
+    legend.text      = element_text(size = 18),
+    legend.title     = element_text(size = 20),
+    plot.title       = element_text(size = 22),
+    axis.title       = element_text(size = 22),
+    axis.text        = element_text(size = 18)
   ) +
   guides(fill = "none", colour = "none")
 

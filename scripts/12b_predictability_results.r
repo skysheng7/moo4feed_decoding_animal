@@ -173,11 +173,21 @@ plot_posterior_iiv <- function(m2_brm, response_var,
       size = 1
     ) +
     labs(y = "",
-         x = paste0("Within-individual variation \u2014 ", response_var,
-                     if (fam == "lognormal") " (SD on log scale)"
-                     else " (SD on original scale)"),
+         x = paste0("Within-individual variation \u2014 ",
+                     tools::toTitleCase(gsub("_", " ", response_var)),
+                     if (fam == "lognormal") " \n(SD on log scale)"
+                     else " \n(SD on original scale)"),
          fill = "ID", col = "ID") +
-    theme_classic() +
+    theme_classic(base_size = 20) +
+    theme(
+      legend.position  = "bottom",
+      legend.box       = "horizontal",
+      legend.text      = element_text(size = 18),
+      legend.title     = element_text(size = 20),
+      plot.title       = element_text(size = 22),
+      axis.title       = element_text(size = 22),
+      axis.text        = element_text(size = 18)
+    ) +
     scale_fill_manual(values  = fill_values) +
     scale_color_manual(values = fill_values)
 
@@ -355,24 +365,24 @@ n_vars     <- nrow(combined_summary)
 colour_pal <- scales::hue_pal()(n_vars)
 names(colour_pal) <- combined_summary$variable
 
-# ---- Scatter 1: CVP vs CVi (ellipses = 95 % credible intervals) ----
+# ---- Scatter 1: CVP (x) vs CVi (y) (ellipses = 95 % credible intervals) ----
 combined_summary <- combined_summary %>%
   dplyr::mutate(
-    a_cvi_cvp = (CVi_upper - CVi_lower) / 2,
-    b_cvi_cvp = (CVP_upper - CVP_lower) / 2
+    a_cvi_cvp = (CVP_upper - CVP_lower) / 2,
+    b_cvi_cvp = (CVi_upper - CVi_lower) / 2
   )
 
 scatter_CVP_CVi <- ggplot(combined_summary,
-                          aes(x0 = CVi_mean, y0 = CVP_mean,
+                          aes(x0 = CVP_mean, y0 = CVi_mean,
                               a = a_cvi_cvp, b = b_cvi_cvp, angle = 0,
                               fill = variable, colour = variable)) +
   ggforce::geom_ellipse(alpha = 0.7, linewidth = 0.4) +
-  geom_point(aes(x = CVi_mean, y = CVP_mean, colour = variable,
+  geom_point(aes(x = CVP_mean, y = CVi_mean, colour = variable,
                  shape = family),
              size = 2.5, show.legend = TRUE,
              inherit.aes = FALSE) +
   ggrepel::geom_label_repel(
-    aes(x = CVi_mean, y = CVP_mean, label = label, fill = variable),
+    aes(x = CVP_mean, y = CVi_mean, label = label, fill = variable),
     colour             = "black",
     fontface           = "bold",
     size               = 4,
@@ -396,16 +406,19 @@ scatter_CVP_CVi <- ggplot(combined_summary,
   scale_colour_manual(values = colour_pal) +
   scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17)) +
   labs(
-    x     = "CVi (Repeatability \u2014 between-individual variation)",
-    y     = "CVP (Predictability \u2014 within-individual variation)",
+    x     = "Coefficient of variation in predictability (CVP) \n within-individual variation",
+    y     = "Coefficient of variation (CVi) \n relative magnitude of among-individual variation",
     shape = "Likelihood family"
   ) +
-  theme_classic(base_size = 16) +
+  theme_classic(base_size = 20) +
   theme(
-    legend.position = "bottom",
-    legend.box      = "horizontal",
-    axis.title      = element_text(size = 18),
-    axis.text       = element_text(size = 14)
+    legend.position  = "bottom",
+    legend.box       = "horizontal",
+    legend.text      = element_text(size = 18),
+    legend.title     = element_text(size = 20),
+    plot.title       = element_text(size = 22),
+    axis.title       = element_text(size = 22),
+    axis.text        = element_text(size = 18)
   ) +
   guides(fill = "none", colour = "none")
 
@@ -416,24 +429,24 @@ ggsave(
   height   = 9
 )
 
-# ---- Scatter 2: rIIV vs CVi (ellipses = 95 % credible intervals) ----
+# ---- Scatter 2: rIIV (x) vs CVi (y) (ellipses = 95 % credible intervals) ----
 combined_summary <- combined_summary %>%
   dplyr::mutate(
-    a_cvi_riiv = (CVi_upper  - CVi_lower)  / 2,
-    b_cvi_riiv = (rIIV_upper - rIIV_lower) / 2
+    a_cvi_riiv = (rIIV_upper - rIIV_lower) / 2,
+    b_cvi_riiv = (CVi_upper  - CVi_lower)  / 2
   )
 
 scatter_rIIV_CVi <- ggplot(combined_summary,
-                           aes(x0 = CVi_mean, y0 = rIIV_mean,
+                           aes(x0 = rIIV_mean, y0 = CVi_mean,
                                a = a_cvi_riiv, b = b_cvi_riiv, angle = 0,
                                fill = variable, colour = variable)) +
   ggforce::geom_ellipse(alpha = 0.7, linewidth = 0.4) +
-  geom_point(aes(x = CVi_mean, y = rIIV_mean, colour = variable,
+  geom_point(aes(x = rIIV_mean, y = CVi_mean, colour = variable,
                  shape = family),
              size = 2.5, show.legend = TRUE,
              inherit.aes = FALSE) +
   ggrepel::geom_label_repel(
-    aes(x = CVi_mean, y = rIIV_mean, label = label, fill = variable),
+    aes(x = rIIV_mean, y = CVi_mean, label = label, fill = variable),
     colour             = "black",
     fontface           = "bold",
     size               = 4,
@@ -457,16 +470,19 @@ scatter_rIIV_CVi <- ggplot(combined_summary,
   scale_colour_manual(values = colour_pal) +
   scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17)) +
   labs(
-    x     = "CVi (Repeatability \u2014 between-individual variation)",
-    y     = "rIIV (Predictability \u2014 residual intra-individual variance)",
+    x     = "Residual intra-individual variation (rIIV) \n within-individual variation",
+    y     = "Coefficient of variation (CVi) \n relative magnitude of among-individual variation",
     shape = "Likelihood family"
   ) +
-  theme_classic(base_size = 16) +
+  theme_classic(base_size = 20) + 
   theme(
-    legend.position = "bottom",
-    legend.box      = "horizontal",
-    axis.title      = element_text(size = 18),
-    axis.text       = element_text(size = 14)
+    legend.position  = "bottom",
+    legend.box       = "horizontal",
+    legend.text      = element_text(size = 18),
+    legend.title     = element_text(size = 20),
+    plot.title       = element_text(size = 22),
+    axis.title       = element_text(size = 22),
+    axis.text        = element_text(size = 18)
   ) +
   guides(fill = "none", colour = "none")
 

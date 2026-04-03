@@ -95,4 +95,14 @@ html_path <- normalizePath(file.path(output_dir, "M3_3d_cluster_plot.html"), mus
 htmlwidgets::saveWidget(fig, file = html_path, selfcontained = FALSE)
 
 cat("\nInteractive 3D plot saved to:", html_path, "\n")
+
+# Copy to docs/ for GitHub Pages
+docs_dir <- "docs"
+dir.create(docs_dir, showWarnings = FALSE, recursive = TRUE)
+file.copy(html_path, file.path(docs_dir, "index.html"), overwrite = TRUE)
+lib_dir <- file.path(output_dir, "M3_3d_cluster_plot_files")
+if (dir.exists(lib_dir)) {
+  file.copy(lib_dir, docs_dir, recursive = TRUE, overwrite = TRUE)
+}
+cat("Copied to docs/ for GitHub Pages.\n")
 cat("Open the HTML file in a browser to explore the plot.\n")
