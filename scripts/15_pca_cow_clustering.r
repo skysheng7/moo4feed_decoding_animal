@@ -240,8 +240,8 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
       scale_fill_manual(values   = clust_cols) +
       labs(
         title  = paste0("Biplot (", rc_x, " vs ", rc_y, ") — ", method$name),
-        x      = paste0(rc_x, " (varimax-rotated)"),
-        y      = paste0(rc_y, " (varimax-rotated)"),
+        x      = rc_x,
+        y      = rc_y,
         colour = "Cluster",
         fill   = "Cluster"
       ) +
