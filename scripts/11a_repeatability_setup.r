@@ -121,7 +121,9 @@ master_data <- data %>%
     # the distribution.  Interpret model estimates on the (original + 1) scale.
     median_non_nutritive_per_meal  = median_non_nutritive_per_meal  + 1,
     total_actor                  = total_actor                  + 1,
-    total_reactor                = total_reactor                + 1
+    total_reactor                = total_reactor                + 1,
+    median_feed_rate             = median_feed_rate             + 1,
+    median_water_rate            = median_water_rate            + 1
   )
 
 dir.create("results/11_repeatability", showWarnings = FALSE, recursive = TRUE)

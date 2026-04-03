@@ -36,7 +36,8 @@ response_vars <- c(
 )
 
 # Variables that had a +1 offset applied in 11a (lognormal, can be zero)
-offset_vars <- c("median_non_nutritive_per_meal", "total_actor", "total_reactor")
+offset_vars <- c("median_non_nutritive_per_meal", "total_actor", "total_reactor",
+                  "median_feed_rate", "median_water_rate")
 
 # Load master_data (needed for gaussian back-transformation)
 load("results/11_repeatability/master_data.rda")

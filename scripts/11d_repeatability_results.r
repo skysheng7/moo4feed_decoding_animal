@@ -171,7 +171,8 @@ plot_posterior_bt <- function(m1_brm, response_var, data,
   }
 
   # Undo the +1 offset applied in 11a for zero-capable lognormal variables
-  offset_vars <- c("median_non_nutritive_per_meal", "total_actor", "total_reactor")
+  offset_vars <- c("median_non_nutritive_per_meal", "total_actor", "total_reactor",
+                    "median_feed_rate", "median_water_rate")
   if (response_var %in% offset_vars) {
     posteriorBT$value <- posteriorBT$value - 1
   }
