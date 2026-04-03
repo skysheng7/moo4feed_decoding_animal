@@ -163,7 +163,7 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
   cat("  Optimal K (silhouette):", optimal_k, "\n")
 
   # ---- K-means clustering ----
-  set.seed(7)
+  set.seed(8)
   scores_mat <- as.data.frame(scores)
   km <- kmeans(scores_mat, centers = optimal_k, nstart = 50, iter.max = 200)
 
