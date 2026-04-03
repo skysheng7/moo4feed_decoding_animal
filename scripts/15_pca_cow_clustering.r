@@ -145,6 +145,8 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
   ggsave(file.path(output_dir, paste0("pca_", method$name, "_screeplot.png")),
          scree, width = 8, height = 5)
 
+  # (biplot is drawn after clustering below)
+
   # ---- Determine optimal K ----
   scores <- pca$scores
 
@@ -161,7 +163,7 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
   cat("  Optimal K (silhouette):", optimal_k, "\n")
 
   # ---- K-means clustering ----
-  set.seed(42)
+  set.seed(7)
   scores_mat <- as.data.frame(scores)
   km <- kmeans(scores_mat, centers = optimal_k, nstart = 50, iter.max = 200)
 
@@ -179,13 +181,90 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
             file.path(output_dir, paste0("pca_", method$name, "_cow_clusters.csv")),
             row.names = FALSE)
 
-  # Cluster visualisation on RC1-RC2
-  clust_plot <- fviz_cluster(km, data = scores_mat[, 1:min(2, n_comp), drop = FALSE],
-                             geom = "point", ellipse.type = "convex",
-                             palette = "jco", ggtheme = theme_classic()) +
-    ggtitle(paste("Cow clusters —", method$name))
-  ggsave(file.path(output_dir, paste0("pca_", method$name, "_cluster_plot.png")),
-         clust_plot, width = 8, height = 6)
+  # Combined biplot + cluster visualisation on RC1-RC2
+  # Sunset palette for clusters
+  sunset_palette <- c("#F3E79B", "#FAC484", "#F8A07E", "#EB7F86",
+                      "#CE6693", "#A059A0", "#5C53A5", "#3D4D8A")
+
+  # Helper: draw biplot for a given pair of components
+  draw_biplot <- function(idx_x, idx_y, suffix) {
+    sc_mat   <- pca$scores
+    ld_mat   <- unclass(pca$loadings)
+    rc_x     <- colnames(sc_mat)[idx_x]
+    rc_y     <- colnames(sc_mat)[idx_y]
+
+    plot_df <- data.frame(
+      dim1    = sc_mat[, idx_x],
+      dim2    = sc_mat[, idx_y],
+      cluster = factor(km$cluster)
+    )
+
+    load2 <- data.frame(
+      ld1      = ld_mat[, idx_x],
+      ld2      = ld_mat[, idx_y],
+      variable = gsub("_", " ", rownames(ld_mat))
+    )
+    sf <- 0.8 * max(abs(c(plot_df$dim1, plot_df$dim2)))
+    load2$xend <- load2$ld1 * sf
+    load2$yend <- load2$ld2 * sf
+
+    clust_cols <- colorRampPalette(sunset_palette)(optimal_k)
+
+    p <- ggplot(plot_df, aes(x = dim1, y = dim2, colour = cluster, fill = cluster)) +
+      stat_ellipse(geom = "polygon", level = 0.95, alpha = 0.10,
+                   linewidth = 0.4, linetype = "solid") +
+      geom_point(size = 3, alpha = 0.7) +
+      geom_segment(data = load2, inherit.aes = FALSE,
+                   aes(x = 0, y = 0, xend = xend, yend = yend),
+                   arrow = arrow(length = unit(0.25, "cm")),
+                   colour = "sienna", linewidth = 0.6) +
+      ggrepel::geom_text_repel(
+        data            = load2,
+        inherit.aes     = FALSE,
+        aes(x = xend, y = yend, label = variable),
+        colour          = "sienna",
+        fontface        = "bold",
+        size            = 5.5,
+        box.padding     = unit(0.5, "lines"),
+        point.padding   = unit(0.3, "lines"),
+        force           = 50,
+        force_pull      = 0.3,
+        max.iter        = 20000,
+        direction       = "both",
+        min.segment.length = 0,
+        segment.size    = 0.3,
+        segment.colour  = "sienna",
+        max.overlaps    = Inf
+      ) +
+      scale_colour_manual(values = clust_cols) +
+      scale_fill_manual(values   = clust_cols) +
+      labs(
+        title  = paste0("Biplot (", rc_x, " vs ", rc_y, ") — ", method$name),
+        x      = paste0(rc_x, " (varimax-rotated)"),
+        y      = paste0(rc_y, " (varimax-rotated)"),
+        colour = "Cluster",
+        fill   = "Cluster"
+      ) +
+      theme_classic(base_size = 20) +
+      theme(
+        legend.position  = "bottom",
+        legend.box       = "horizontal",
+        legend.text      = element_text(size = 18),
+        legend.title     = element_text(size = 20),
+        plot.title       = element_text(size = 22),
+        axis.title       = element_text(size = 22),
+        axis.text        = element_text(size = 18)
+      )
+    ggsave(file.path(output_dir, paste0("pca_", method$name, "_biplot_clusters_", suffix, ".png")),
+           p, width = 10, height = 9)
+  }
+
+  # Draw biplots for all available component pairs
+  if (n_comp >= 2) draw_biplot(1, 2, "rc1_rc2")
+  if (n_comp >= 3) {
+    draw_biplot(1, 3, "rc1_rc3")
+    draw_biplot(2, 3, "rc2_rc3")
+  }
 
   # ---- Cluster quality metrics ----
   avg_sil <- cluster::silhouette(km$cluster, dist(scores))
