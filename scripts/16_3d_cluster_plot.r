@@ -34,7 +34,7 @@ rc1_col <- rc_cols[1]
 rc2_col <- rc_cols[2]
 rc3_col <- rc_cols[3]
 
-rc_to_full <- function(x) gsub("RC(\\d+)", "Rotated Component \\1", x)
+rc_to_full <- function(x) gsub("RC(\\d+)", "RC \\1", x)
 rc1_label <- rc_to_full(rc1_col)
 rc2_label <- rc_to_full(rc2_col)
 rc3_label <- rc_to_full(rc3_col)
@@ -49,7 +49,7 @@ print(table(cow_clusters$cluster))
 ###################################################################################################
 ################################## Sunset palette #################################################
 ###################################################################################################
-sunset_palette <- c("#D9C696", "#F8A07E", "#EB6770",
+sunset_palette <- c("#F8A07E", "#EB6770",
                      "#A059A0", "#3D4D8A")
 
 n_clust <- nlevels(cow_clusters$cluster)

@@ -297,7 +297,7 @@ best_res <- results[[best_idx]]
 
 cat("\nDrawing biplots for best method:", best, "\n")
 
-sunset_palette <- c("#D9C696", "#F8A07E", "#EB6770", "#A059A0", "#3D4D8A")
+sunset_palette <- c("#F8A07E", "#EB6770", "#A059A0", "#3D4D8A")
 
 draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y, suffix) {
   sc_mat <- pca_obj$scores
