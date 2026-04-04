@@ -19,7 +19,7 @@
 #   - pca_method_<N>_cow_clusters.csv, pca_method_<N>_cluster_plot.png
 #   - method_comparison.csv
 
-set.seed(42)
+set.seed(234)
 
 library(tidyverse)
 library(ggplot2)
@@ -154,7 +154,7 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
 
   # Silhouette method for optimal K (with nstart/iter.max for stable results)
   sil_plot <- fviz_nbclust(scores_mat, kmeans, method = "silhouette",
-                           k.max = k_max, nstart = 50, iter.max = 100) +
+                           k.max = k_max, nstart = 100, iter.max = 200) +
     ggtitle(paste("Optimal K (silhouette) —", method$name))
   ggsave(file.path(output_dir, paste0("pca_", method$name, "_silhouette.png")),
          sil_plot, width = 7, height = 5)
@@ -173,7 +173,7 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
   for (s in seq_len(n_seeds)) {
     set.seed(s)
     avg_sil <- sapply(k_range, function(k) {
-      km_tmp <- kmeans(scores_mat, centers = k, nstart = 50, iter.max = 100)
+      km_tmp <- kmeans(scores_mat, centers = k, nstart = 100, iter.max = 200)
       mean(cluster::silhouette(km_tmp$cluster, d)[, "sil_width"])
     })
     best_k_per_seed[s] <- k_range[which.max(avg_sil)]
@@ -195,7 +195,7 @@ run_pca_cluster <- function(method, cow_traits, output_dir) {
 
   # ---- K-means clustering ----
   set.seed(100)  # restore seed for reproducible final clustering
-  km <- kmeans(scores_mat, centers = optimal_k, nstart = 50, iter.max = 100)
+  km <- kmeans(scores_mat, centers = optimal_k, nstart = 100, iter.max = 200)
 
   cow_clusters <- data.frame(
     cow     = cow_ids,
