@@ -10,7 +10,7 @@ The analysis pipeline transforms raw visit-level data into meaningful behavioral
 
 ## Interactive 3D Cow Clustering Plot
 
-Explore the interactive 3D scatter plot of 5 clusters of cows grouped by personality here:
+Explore the interactive 3D scatter plot of 4 clusters of cows grouped by personality here:
 
 **[View Interactive 3D Plot](https://skysheng7.github.io/moo4feed_decoding_animal/)**
 
