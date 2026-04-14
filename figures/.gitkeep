@@ -1,0 +1,9 @@
+# Figures Directory
+
+This directory contains all figures, images, and visual materials for the paper.
+
+## Organization Tips:
+- Use descriptive filenames (e.g., `methodology-flowchart.png`)
+- Keep high-resolution versions for publication
+- Include source files when possible (e.g., `.svg`, `.psd`)
+- Consider version control for iterative figure development

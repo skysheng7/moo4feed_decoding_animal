@@ -1,0 +1,47 @@
+project:
+  type: manuscript
+  output-dir: _output
+
+# Project-wide defaults
+bibliography: paper/references.bib
+csl: https://www.zotero.org/styles/computers-and-electronics-in-agriculture
+link-citations: true
+
+# Author information (shared across documents)
+author:
+  - name: "Kehan Sheng"
+    affiliation: "1"
+  - name: "Borbala Foris"  
+    affiliation: "1,2"
+  - name: "Marina A.G. von Keyserlingk"
+    affiliation: "1"
+  - name: "Daniel M. Weary"
+    affiliation: "1"
+
+institute:
+  - "1": "Animal Welfare Program, Faculty of Land and Food Systems, The University of British Columbia, 2357 Main Mall, Vancouver, BC, V6T 1Z6, Canada"
+  - "2": "Centre for Animal Nutrition and Welfare, University of Veterinary Medicine, Veterinärpl. 1, Vienna, 1210, Austria"
+
+# Format-specific settings
+format:
+  html:
+    theme: minty
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    mainfont: "Times New Roman"
+    
+  pdf:
+    documentclass: article
+    geometry:
+      - margin=1in
+    number-sections: true
+    toc: true
+    keep-tex: false
+    mainfont: "Times New Roman"
+    mathfont: "Times New Roman"
+    
+  docx:
+    toc: true
+    number-sections: true
+    reference-doc: fresh-reference-doc.docx

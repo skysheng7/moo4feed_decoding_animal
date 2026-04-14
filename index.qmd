@@ -1,0 +1,43 @@
+---
+title: "Beyond the herd: Decoding individual animal behavioral narratives through data"
+author: "Kehan Sheng^1^, Borbala Foris^1,2^, Daniel M. Weary^1^, Marina A.G. von Keyserlingk^1^" 
+# Override project defaults for the main document
+format: 
+  html:
+    toc: false
+    number-sections: false
+  pdf:
+    toc: false  
+    number-sections: false
+  docx:
+    toc: false
+    number-sections: false
+---
+
+^1^Animal Welfare Program, Faculty of Land and Food Systems, The University of British Columbia, 2357 Main Mall, Vancouver, BC, V6T 1Z6, Canada
+
+^2^Animal Welfare Science Unit, University of Veterinary Medicine, Veterinärpl. 1, Vienna, 1210, Austria
+
+**Corresponding author email:** marina.vonkeyserlingk@ubc.ca
+
+---
+
+
+<!-- {{< include paper/abstract.md >}} -->
+
+{{< include paper/sections/01-introduction.md >}}
+
+<!-- {{< include paper/sections/02-methodology.md >}} -->
+
+{{< include paper/sections/02-methodology.md >}}
+
+<!-- {{< include paper/sections/03-results.md >}} -->
+
+<!-- {{< include paper/sections/04-discussion.md >}} -->
+
+<!-- {{< include paper/sections/05-conclusion.md >}} -->
+
+## References
+
+::: {#refs}
+:::
