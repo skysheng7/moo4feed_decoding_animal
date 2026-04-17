@@ -1,14 +1,33 @@
 ```{r results-setup, include=FALSE}
 library(dplyr)
 library(knitr)
+library(gt)
+library(scales)
 
-# Load results
-rep   <- read.csv("results/11_repeatability/repeatability_summary.csv")
-pred  <- read.csv("results/12_predictability/predictability_summary.csv")
-clust <- read.csv("results/14_individual_traits/behaviour_clusters.csv")
-mcomp <- read.csv("results/15_pca_clustering/method_comparison.csv")
-k_m3  <- read.csv("results/15_pca_clustering/pca_M3_c1_int_k_stability.csv")
-load_m3 <- read.csv("results/15_pca_clustering/pca_M3_c1_int_loadings.csv")
+# Resolve the project root so relative paths work whether this file is
+# rendered standalone (cwd = paper/sections/) or included via index.qmd
+# (cwd = project root). We walk up from the current directory looking for
+# a sentinel file that only exists at the project root.
+.find_project_root <- function(sentinels = c("_quarto.yml", "renv.lock", ".Rprojroot"),
+                               start = getwd(), max_up = 6) {
+  dir <- normalizePath(start, mustWork = FALSE)
+  for (i in seq_len(max_up)) {
+    if (any(file.exists(file.path(dir, sentinels)))) return(dir)
+    parent <- dirname(dir)
+    if (parent == dir) break
+    dir <- parent
+  }
+  getwd()
+}
+.proj_root <- .find_project_root()
+.in_proj <- function(...) file.path(.proj_root, ...)
+
+rep   <- read.csv(.in_proj("results/11_repeatability/repeatability_summary.csv"))
+pred  <- read.csv(.in_proj("results/12_predictability/predictability_summary.csv"))
+clust <- read.csv(.in_proj("results/14_individual_traits/behaviour_clusters.csv"))
+mcomp <- read.csv(.in_proj("results/15_pca_clustering/method_comparison.csv"))
+k_m3  <- read.csv(.in_proj("results/15_pca_clustering/pca_M3_c1_int_k_stability.csv"))
+load_m3 <- read.csv(.in_proj("results/15_pca_clustering/pca_M3_c1_int_loadings.csv"))
 
 # ── Format helpers ─────────────────────────────────────────────────────────────
 fmt <- function(x, digits = 2) formatC(round(x, digits), format = "f", digits = digits)
@@ -76,12 +95,33 @@ Repeatability (R) provides complementary but not redundant information. Daily wa
 
 As anticipated in Section 3.4, R and CVi do not always rank traits the same way, and the divergences are informative. The clearest example is the median percentage of meal time spent feeding, which has a moderately high R (`r r_val("median_feeding_pct_per_meal")` `r r_ci("median_feeding_pct_per_meal")`) but the lowest CVi of all 16 variables (`r cvi_val("median_feeding_pct_per_meal")` `r cvi_ci("median_feeding_pct_per_meal")`). This is the signature of a trait where within-individual variance is small — cows are each very consistent from day to day — but cows are also nearly identical to each other, so R is inflated by low noise rather than by real individual differences. The opposite pattern is seen for agonistic behavior: total actor events have a moderate R (`r r_val("total_actor")` `r r_ci("total_actor")`) but one of the highest CVi values (`r cvi_val("total_actor")` `r cvi_ci("total_actor")`), and total reactor events show the same pattern (R = `r r_val("total_reactor")` `r r_ci("total_reactor")`; CVi = `r cvi_val("total_reactor")` `r cvi_ci("total_reactor")`). Here, cows genuinely differ from one another by a large margin, but their day-to-day variability is also substantial, so R is moderate despite large between-individual spread. Variables ranked near the top on both R and CVi — notably the total number of non-nutritive visits, water drinking duration, and the median number of non-nutritive visits per meal — represent the most useful candidates for individual profiling, since cows both differ meaningfully from one another and behave consistently enough for those differences to be detectable from repeated observations.
 
-```{r tbl-rep-pred, echo=FALSE}
+```{r echo=FALSE}
 #| label: tbl-rep-pred
-#| tbl-cap: "Posterior means and 95% credible intervals for repeatability (R), coefficient of individual variation (CVi), coefficient of variation of predictability (CVP), and residual intra-individual variability (rIIV) for each of the 16 behavioral variables. Rows are sorted by CVi (largest to smallest). Note that R and CVi rank traits differently: traits with low within-individual variance can have high R despite small between-individual spread, and vice versa."
+#| tbl-cap: "Repeatability (R), coefficient of individual variation (CVi), coefficient of variation of predictability (CVP), and residual intra-individual variability (rIIV) for the 16 behavioral variables. Values are posterior means with 95% credible intervals in brackets. Cell color encodes the posterior mean within each metric (darker = higher). Rows are grouped by behavioral category."
 
-tbl1 <- rep %>%
-  select(variable, family,
+# Pretty variable labels and category grouping
+var_meta <- tibble::tribble(
+  ~variable,                          ~Category,              ~Variable,
+  "feed_intake",                      "Feeding",              "Daily feed intake",
+  "feed_duration",                    "Feeding",              "Daily feeding duration",
+  "feed_visits",                      "Feeding",              "Daily feeding visits",
+  "median_pct_feed_remaining",        "Feeding",              "Median % feed remaining",
+  "water_intake",                     "Drinking",             "Daily water intake",
+  "water_duration",                   "Drinking",             "Daily drinking duration",
+  "water_visits",                     "Drinking",             "Daily drinking visits",
+  "total_meals",                      "Meal patterns",        "Total meals",
+  "median_meal_duration",             "Meal patterns",        "Median meal duration",
+  "median_visit_per_meal",            "Meal patterns",        "Median visits per meal",
+  "median_intake_per_meal",           "Meal patterns",        "Median intake per meal",
+  "median_feeding_pct_per_meal",      "Meal patterns",        "Median feeding % per meal",
+  "number_of_non_nutritive_visits",   "Non-nutritive behavior", "Non-nutritive visits",
+  "median_non_nutritive_per_meal",    "Non-nutritive behavior", "Median non-nutritive per meal",
+  "total_actor",                      "Social dominance",     "Total actor events",
+  "total_reactor",                    "Social dominance",     "Total reactor events"
+)
+
+tbl1_dat <- rep %>%
+  select(variable,
          R_cow_mean, R_cow_lower, R_cow_upper,
          CVi_mean, CVi_lower, CVi_upper) %>%
   inner_join(
@@ -90,25 +130,115 @@ tbl1 <- rep %>%
                     rIIV_mean, rIIV_lower, rIIV_upper),
     by = "variable"
   ) %>%
-  arrange(desc(CVi_mean)) %>%
+  inner_join(var_meta, by = "variable") %>%
   mutate(
-    Variable = gsub("_", " ", variable),
-    Family   = family,
-    R        = fmt_ci(R_cow_mean, R_cow_lower, R_cow_upper),
-    CVi      = fmt_ci(CVi_mean,    CVi_lower,    CVi_upper),
-    CVP      = fmt_ci(CVP_mean,    CVP_lower,    CVP_upper),
-    rIIV     = fmt_ci(rIIV_mean,   rIIV_lower,   rIIV_upper)
+    Category = factor(Category, levels = c(
+      "Feeding", "Drinking", "Meal patterns",
+      "Non-nutritive behavior", "Social dominance"
+    )),
+    R_txt    = fmt_ci(R_cow_mean, R_cow_lower, R_cow_upper),
+    CVi_txt  = fmt_ci(CVi_mean,    CVi_lower,    CVi_upper),
+    CVP_txt  = fmt_ci(CVP_mean,    CVP_lower,    CVP_upper),
+    rIIV_txt = fmt_ci(rIIV_mean,   rIIV_lower,   rIIV_upper)
   ) %>%
-  select(Variable, Family, R, CVi, CVP, rIIV)
+  arrange(Category) %>%
+  select(Category, Variable,
+         R_mean = R_cow_mean, R_txt,
+         CVi_mean, CVi_txt,
+         CVP_mean, CVP_txt,
+         rIIV_mean, rIIV_txt)
 
-knitr::kable(tbl1, align = "llllll")
+# Helper: pick black/white text for contrast against a hex fill
+pick_text_color <- function(hex) {
+  rgb <- grDevices::col2rgb(hex)
+  lum <- (0.299 * rgb[1, ] + 0.587 * rgb[2, ] + 0.114 * rgb[3, ]) / 255
+  ifelse(lum > 0.6, "#000000", "#FFFFFF")
+}
+
+# Build per-column fill + text-color vectors based on the numeric mean
+make_palette <- function(values, low, high) {
+  rng <- range(values, na.rm = TRUE)
+  pal <- scales::col_numeric(c(low, high), domain = rng)
+  fills <- pal(values)
+  list(fill = fills, text = pick_text_color(fills))
+}
+
+pal_R    <- make_palette(tbl1_dat$R_mean,    "#E8F5E9", "#1B5E20")  # greens
+pal_CVi  <- make_palette(tbl1_dat$CVi_mean,  "#E3E8F5", "#1A237E")  # blues
+pal_CVP  <- make_palette(tbl1_dat$CVP_mean,  "#FFF3E0", "#BF360C")  # oranges
+pal_rIIV <- make_palette(tbl1_dat$rIIV_mean, "#F3E5F5", "#4A148C")  # purples
+
+gt_tbl <- tbl1_dat %>%
+  select(Category, Variable,
+         R = R_txt, CVi = CVi_txt, CVP = CVP_txt, rIIV = rIIV_txt) %>%
+  gt(groupname_col = "Category") %>%
+  cols_label(
+    R    = md("**R** [95% CI]"),
+    CVi  = md("**CVi** [95% CI]"),
+    CVP  = md("**CVP** [95% CI]"),
+    rIIV = md("**rIIV** [95% CI]")
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold", color = "#1F3A93"),
+    locations = cells_row_groups()
+  ) %>%
+  tab_style(
+    style = list(cell_fill(color = "#1F3A93"),
+                 cell_text(color = "white", weight = "bold")),
+    locations = cells_column_labels()
+  ) %>%
+  cols_align("left",  columns = Variable) %>%
+  cols_align("center", columns = c(R, CVi, CVP, rIIV)) %>%
+  tab_style(
+    style = cell_borders(sides = c("left", "right"),
+                         color = "#B0B0B0", weight = px(1)),
+    locations = list(
+      cells_body(),
+      cells_column_labels()
+    )
+  )
+
+# Apply per-row fills for each metric column
+for (i in seq_len(nrow(tbl1_dat))) {
+  gt_tbl <- gt_tbl %>%
+    tab_style(
+      style = list(cell_fill(color = pal_R$fill[i]),
+                   cell_text(color = pal_R$text[i])),
+      locations = cells_body(columns = R, rows = i)
+    ) %>%
+    tab_style(
+      style = list(cell_fill(color = pal_CVi$fill[i]),
+                   cell_text(color = pal_CVi$text[i])),
+      locations = cells_body(columns = CVi, rows = i)
+    ) %>%
+    tab_style(
+      style = list(cell_fill(color = pal_CVP$fill[i]),
+                   cell_text(color = pal_CVP$text[i])),
+      locations = cells_body(columns = CVP, rows = i)
+    ) %>%
+    tab_style(
+      style = list(cell_fill(color = pal_rIIV$fill[i]),
+                   cell_text(color = pal_rIIV$text[i])),
+      locations = cells_body(columns = rIIV, rows = i)
+    )
+}
+
+gt_tbl <- gt_tbl %>%
+  tab_source_note(md(paste0(
+    "*R* = repeatability; *CVi* = individual coefficient of variation; ",
+    "*CVP* = coefficient of variation of predictability; ",
+    "*rIIV* = residual intra-individual variability. ",
+    "Darker fills indicate larger posterior means within each metric."
+  )))
+
+gt_tbl
 ```
 
-```{r fig-rep-cvp-scatter, echo=FALSE}
+```{r echo=FALSE}
 #| label: fig-rep-cvp-scatter
 #| fig-cap: "Between- and within-individual variation in the 16 behavioral variables. (A) Repeatability (R) vs coefficient of individual variation (CVi). (B) Coefficient of variation of predictability (CVP) vs CVi. Each point is a behavioral variable; ellipses show 95% credible intervals on both axes. Points are coloured by the 3-cluster k-means solution of Section 4.3 (Cluster 1 = high R, high CVi; Cluster 2 = high R, low CVi; Cluster 3 = low R, low CVi). Point shape distinguishes the likelihood family used for the mixed model."
 
-knitr::include_graphics("results/14_individual_traits/ellipse_scatter_grid_AB.png")
+knitr::include_graphics(.in_proj("results/14_individual_traits/ellipse_scatter_grid_AB.png"))
 ```
 
 ## 4.2 Within-Individual Variation: Predictability
@@ -133,7 +263,7 @@ K-means clustering of the 16 variables based on their R and CVi values identifie
 
 We applied PCA with varimax rotation to the intercepts of the `r length(c1_vars)` Cluster 1 variables (one row per cow, one column per variable). `r m3_ncomp` components were retained to meet the ≥80% cumulative-variance criterion, together explaining `r m3_cumvar`% of the total variance (@tbl-pca-loadings). RC1 explained the largest share of variance (`r m3_rc1`%), driven primarily by non-nutritive visiting behavior and within-meal visit patterns. RC2 explained `r m3_rc2`% of variance and was most strongly associated with drinking patterns. RC3 captured the remaining variance, primarily related to agonistic behavior (actor and reactor events).
 
-```{r tbl-pca-loadings, echo=FALSE}
+```{r echo=FALSE}
 #| label: tbl-pca-loadings
 #| tbl-cap: "Varimax-rotated PCA loadings for the 8 Cluster-1 intercept variables. Values with magnitude > 0.5 indicate primary drivers of each component and are the basis for component interpretation."
 
@@ -144,10 +274,24 @@ loadings_tbl <- load_m3 %>%
   ) %>%
   select(Variable, RC1, RC2, RC3)
 
-knitr::kable(loadings_tbl, digits = 2, align = "lrrr")
+loadings_tbl %>%
+  gt() %>%
+  fmt_number(columns = c(RC1, RC2, RC3), decimals = 2) %>%
+  cols_align("left", columns = Variable) %>%
+  cols_align("right", columns = c(RC1, RC2, RC3)) %>%
+  tab_style(
+    style = list(cell_fill(color = "#1F3A93"),
+                 cell_text(color = "white", weight = "bold")),
+    locations = cells_column_labels()
+  ) %>%
+  tab_style(
+    style = cell_borders(sides = c("left", "right"),
+                         color = "#B0B0B0", weight = px(1)),
+    locations = list(cells_body(), cells_column_labels())
+  )
 ```
 
-```{r fig-pca-biplots, echo=FALSE}
+```{r echo=FALSE}
 #| label: fig-pca-biplots
 #| fig-cap: "PCA biplots using the intercepts of Cluster-1 variables (Method M3). Left: RC1 vs RC2. Right: RC1 vs RC3. Each point is a cow, coloured by k-means cluster assignment; arrows represent variable loadings scaled to the score space. Ellipses show 95% confidence regions around each cluster centroid."
 #| fig-subcap:
@@ -155,8 +299,8 @@ knitr::kable(loadings_tbl, digits = 2, align = "lrrr")
 #|   - "RC1 vs RC3"
 #| layout-ncol: 2
 
-knitr::include_graphics("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc2.png")
-knitr::include_graphics("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc3.png")
+knitr::include_graphics(.in_proj("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc2.png"))
+knitr::include_graphics(.in_proj("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc3.png"))
 ```
 
 K-means clustering on the retained component scores, with $k$ selected by the silhouette method, identified k = `r m3_k` as the optimal number of cow clusters. This solution was entirely stable across all `r m3_k_total` random seed replicates (`r m3_k_wins`/`r m3_k_total` seeds selected k = `r m3_k`). The mean silhouette width of the final clustering was `r m3_sil`, indicating reasonably well-defined groupings. The `r m3_k` clusters were markedly unequal in size: one large cluster contained `r m3_sizes[1]` cows (~`r m3_pct(1)`% of the herd), a second contained `r m3_sizes[2]` cows (~`r m3_pct(2)`%), a third contained `r m3_sizes[3]` cows (~`r m3_pct(3)`%), and a fourth contained only `r m3_sizes[4]` cows (~`r m3_pct(4)`%). The smaller clusters represent cows with more extreme or atypical behavioral profiles relative to the herd majority. An interactive 3D visualization of cow positions in RC1–RC`r m3_ncomp` space, colored by cluster assignment, is available at <https://www.skysheng.io/moo4feed_decoding_animal/>.

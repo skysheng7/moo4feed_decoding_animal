@@ -23,3 +23,6 @@ Elephant_data_Tutorial.pdf
 results/11_repeatability/m1_brm_median_feed_rate.rds
 results/11_repeatability/m1_brm_median_water_rate.rds
 paper/sections/.Rhistory
+
+/.quarto/
+index.log

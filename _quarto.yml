@@ -2,6 +2,8 @@ project:
   type: manuscript
   output-dir: _output
 
+notebook-links: false
+
 # Evaluate code chunks with the project root as the working directory so that
 # relative paths (e.g. results/11_repeatability/...) in included .qmd files
 # resolve correctly regardless of the file's own location.

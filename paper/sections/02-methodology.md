@@ -62,39 +62,43 @@ We used Bayesian mixed-effects models to quantify repeatability and predictabili
 
 **Repeatability.** For each of the 16 behavioral variables, a Bayesian mixed model was fitted:
 
-response ~ DIM + parity + THI_mean + poly(month, 2) + (1 | cow)
+$$
+\text{response} \sim \text{DIM} + \text{parity} + \text{THI}_{\text{mean}} + \text{poly}(\text{month},\, 2) + (1 \mid \text{cow})
+$$
 
 where DIM (days in milk), parity, and mean daily THI were fixed effects controlling for changes in physiological state and thermal environment, a second-degree polynomial of calendar month captured seasonal trends, and cow identity was a random intercept. Default brms priors were used. MCMC sampling used 4 chains with 1,000 warmup iterations; total iterations ranged from 6,000 to 17,000 per variable to ensure convergence.
 
 Between-individual variation was quantified using two metrics derived from posterior draws: repeatability **(R)** and the coefficient of individual variation **(CVi)** [@hertel2020]. R is the proportion of total variance attributable to between-cow differences:
 
-\[
+$$
 R = \frac{\text{var.cow}}{\text{var.cow} + \text{var.res}}
-\]
+$$
 
-where \(\text{var.cow}\) is the posterior variance of the cow-level random intercept and \(\text{var.res}\) is the residual variance. R is thus confounded by the within-individual variance. A high value of R could mean cows differ a lot from each other, or simply mean that each cow is very consistent within herself. To resolve this ambiguity, we also computed CVi, which calculates between-individual spread relative to the population mean, independently of within-individual consistency:
+where $\text{var.cow}$ is the posterior variance of the cow-level random intercept and $\text{var.res}$ is the residual variance. R is thus confounded by the within-individual variance. A high value of R could mean cows differ a lot from each other, or simply mean that each cow is very consistent within herself. To resolve this ambiguity, we also computed CVi, which calculates between-individual spread relative to the population mean, independently of within-individual consistency:
 
-\[
+$$
 \text{CVi} = \frac{\sqrt{\text{var.cow}}}{\bar{y}}
-\]
+$$
 
-where \(\bar{y}\) is the mean of the response variable. For lognormal models, CVi was instead computed as \(\sqrt{\exp(\text{var.cow}) - 1}\) to place the estimate on the original data scale. CVi is interpretable across behaviors with different units and facilitates comparison across studies. Model convergence was assessed via R-hat (< 1.01), Bulk- and Tail-Effective Sample Size (ESS), trace plots, and posterior predictive checks. Individual-level posterior distributions were visualized using ridge plots ordered by each cow's posterior mean.
+where $\bar{y}$ is the mean of the response variable. For lognormal models, CVi was instead computed as $\sqrt{\exp(\text{var.cow}) - 1}$ to place the estimate on the original data scale. CVi is interpretable across behaviors with different units and facilitates comparison across studies. Model convergence was assessed via R-hat (< 1.01), Bulk- and Tail-Effective Sample Size (ESS), trace plots, and posterior predictive checks. Individual-level posterior distributions were visualized using ridge plots ordered by each cow's posterior mean.
 
-**Predictability.** Within-individual variance was quantified using a double hierarchical generalized linear model (DHGLM) implemented in brms. In addition to modeling the mean response, brms allows a variance structure to also be imposed on the residual variance (i.e., within-individual variance) . Each DHGLM extended the repeatability model by adding a cow-level random effect to the residual variance, partitioning it per individual so that cows with high residual variance are identified as more unpredictable than cows with low residual variance:
+**Predictability.** Within-individual variance was quantified using a double hierarchical generalized linear model (DHGLM) implemented in brms. In addition to modeling the mean response, brms allows a variance structure to also be imposed on the residual variance (i.e., within-individual variance). Each DHGLM extended the repeatability model by adding a cow-level random effect to the residual variance, partitioning it per individual so that cows with high residual variance are identified as more unpredictable than cows with low residual variance:
 
-sigma ~ (1 | cow)
+$$
+\text{sigma} \sim (1 \mid \text{cow})
+$$
 
-Population-level predictability was summarized using two metrics derived from the posterior SD of the cow-level random effect in the sigma sub-model (\(\text{sd.sigma.cow}\)). The residual intra-individual variability **(rIIV)** captures how much cows differ from one another in their within-individual consistency [@hertel2020]:
+Population-level predictability was summarized using two metrics derived from the posterior SD of the cow-level random effect in the sigma sub-model ($\text{sd.sigma.cow}$). The residual intra-individual variability **(rIIV)** captures how much cows differ from one another in their within-individual consistency [@hertel2020]:
 
-\[
+$$
 \text{rIIV} = \exp(\text{sd.sigma.cow})^2
-\]
+$$
 
 We also computed the coefficient of variation of predictability **(CVP)**, which can be used to compare predictability across different behavioural traits and studies, independent of the scale of the trait:
 
-\[
+$$
 \text{CVP} = \sqrt{\exp(\text{sd.sigma.cow}^2) - 1}
-\]
+$$
 
 A high CVP value means that cows differ considerably from each other in how consistent their day-to-day behavior is: for example, some cows may eat nearly the same amount of feed every day, while others fluctuate substantially. A low CVP value means that cows are similar to each other in their level of day-to-day consistency: whether that means all cows are highly consistent, or all cows are highly variable, there is little difference between individuals in their within-individual consistency. MCMC sampling settings were identical to those used for the repeatability models.
 
@@ -110,17 +114,27 @@ Following PCA, cows were grouped into behavioral types by applying k-means clust
 
 The silhouette score quantifies how well each data point fits its assigned cluster relative to neighboring clusters. For each cow $i$ belonging to cluster $C_i$, we first compute $a(i)$, the mean distance from cow $i$ to all other cows within the same cluster:
 
-$$a(i) = \frac{1}{|C_i| - 1} \sum_{j \in C_i,\, j \neq i} d(i, j)$$
+$$
+a(i) = \frac{1}{|C_i| - 1} \sum_{j \in C_i,\, j \neq i} d(i, j)
+$$
 
 where $|C_i|$ is the number of cows in cluster $C_i$ and $d(i, j)$ is the Euclidean distance between cows $i$ and $j$. A smaller $a(i)$ indicates that cow $i$ is tightly grouped with its cluster members.
 
-We then compute $b(i)$, the mean distance from cow $i$ to all cows in the nearest neighboring cluster $C_j$ (i.e., the closest cluster to which cow $i$ does not belong):
+We then compute $b(i)$, the mean distance from cow $i$ to all cows in the nearest neighboring cluster (i.e., the cluster $C \neq C_i$ that minimizes the expression below):
 
-$$b(i) = \min_{j \neq i} \frac{1}{|C_j|} \sum_{k \in C_j} d(i, k)$$
+$$
+b(i) = \min_{C \neq C_i} \frac{1}{|C|} \sum_{h \in C} d(i, h)
+$$
 
 A larger $b(i)$ indicates that cow $i$ is well-separated from neighboring clusters. The silhouette score for cow $i$ is then defined as:
 
-$$s(i) = \begin{cases} 1 - \dfrac{a(i)}{b(i)}, & \text{if } a(i) < b(i) \\[6pt] 0, & \text{if } a(i) = b(i) \\[6pt] \dfrac{b(i)}{a(i)} - 1, & \text{if } a(i) > b(i) \end{cases}$$
+$$
+s(i) = \begin{cases}
+  1 - \dfrac{a(i)}{b(i)}, & \text{if } a(i) < b(i) \\[6pt]
+  0, & \text{if } a(i) = b(i) \\[6pt]
+  \dfrac{b(i)}{a(i)} - 1, & \text{if } a(i) > b(i)
+\end{cases}
+$$
 
 Values of $s(i)$ range from $-1$ to $1$, where values close to $1$ indicate that the cow is well-matched to its own cluster and clearly separated from others, values near $0$ indicate borderline assignment, and negative values suggest possible misclassification.
 
@@ -128,4 +142,4 @@ The mean silhouette score $\bar{s}$ across all cows serves as an overall measure
 
 ## 3.5 Reproducible Data Science Workflow and Software
 
-To support full transparency and reproducibility, all data processing, variable extraction, and analytical steps were implemented in the moo4feed R package (<www.skysheng.io/moo4feed/>), which is publicly available with detailed tutorials. The functions implemented in this R package have been thoroughly tested with 96% code coverage (code coverage report: <https://app.codecov.io/gh/skysheng7/moo4feed>). This R package enables future researchers to replicate our variable extraction pipeline on their own datasets and to extend the approach to additional behavioral measures. The source code and example data included in the R package is hosted on GitHub: <https://github.com/skysheng7/moo4feed.git>. We used the newly developed R package to extract the behavioral variables described in Section 3.3 and conduct all statistical analyses described in Section 3.4, data and code for all the data analysis are available at: <https://github.com/skysheng7/competition_dominance_analysis.git>. We have also used Borealis to archive the R package at: <https://doi.org/10.5683/SP3/LF4DRO> and data analysis code at: <https://doi.org/10.5683/SP3/K6J350>.
+To support full transparency and reproducibility, all data processing, variable extraction, and analytical steps were implemented in the moo4feed R package <www.skysheng.io/moo4feed/>, which is publicly available with detailed tutorials. The functions implemented in this R package have been thoroughly tested with 96% code coverage (code coverage report: <https://app.codecov.io/gh/skysheng7/moo4feed>). This R package enables future researchers to replicate our variable extraction pipeline on their own datasets and to extend the approach to additional behavioral measures. The source code and example data included in the R package is hosted on GitHub: <https://github.com/skysheng7/moo4feed.git>. We used the newly developed R package to extract the behavioral variables described in Section 3.3 and conduct all statistical analyses described in Section 3.4, data and code for all the data analysis are available at: <https://github.com/skysheng7/competition_dominance_analysis.git>. We have also used Borealis to archive the R package at: <https://doi.org/10.5683/SP3/LF4DRO> and data analysis code at: <https://doi.org/10.5683/SP3/K6J350>.

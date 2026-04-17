@@ -27,11 +27,9 @@ format:
 
 {{< include paper/sections/01-introduction.md >}}
 
-<!-- {{< include paper/sections/02-methodology.md >}} -->
-
 {{< include paper/sections/02-methodology.md >}}
 
-<!-- {{< include paper/sections/03-results.qmd >}} -->
+{{< include paper/sections/03-results.qmd >}}
 
 <!-- {{< include paper/sections/04-discussion.md >}} -->
 
