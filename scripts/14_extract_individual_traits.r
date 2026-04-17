@@ -252,9 +252,9 @@ write.csv(behaviour_clusters,
 behaviour_clusters$label <- gsub("_", " ", behaviour_clusters$variable)
 behaviour_clusters$cluster_label <- paste("Cluster", behaviour_clusters$cluster)
 
-cluster_colours <- c("Cluster 1" = "#E41A1C",
-                     "Cluster 2" = "#377EB8",
-                     "Cluster 3" = "#4DAF4A")
+cluster_colours <- c("Cluster 1" = "#F28E2B",
+                     "Cluster 2" = "#FF9D9A",
+                     "Cluster 3" = "#D4A6C8")
 
 cluster_plot <- ggplot(behaviour_clusters,
                        aes(x = R_cow_mean, y = CVi_mean,
@@ -368,7 +368,7 @@ rep_scatter_c <- ggplot(rep_summary_c,
   theme_classic(base_size = 20) +
   theme(
     legend.position  = "bottom",
-    legend.box       = "horizontal",
+    legend.box       = "vertical",
     legend.text      = element_text(size = 18),
     legend.title     = element_text(size = 20),
     axis.title       = element_text(size = 22),
@@ -377,7 +377,7 @@ rep_scatter_c <- ggplot(rep_summary_c,
   guides(fill = "none")
 
 ggsave(file.path(output_dir, "repeatability_ellipse_scatter_by_cluster.png"),
-       rep_scatter_c, width = 10, height = 9)
+       rep_scatter_c, width = 12, height = 9)
 
 # ---- CVP vs CVi ellipse scatter, coloured by cluster -----------------------------------------
 pred_summary <- read.csv("results/12_predictability/predictability_summary.csv",
@@ -437,7 +437,7 @@ cvp_cvi_c <- ggplot(combined_c,
   theme_classic(base_size = 20) +
   theme(
     legend.position  = "bottom",
-    legend.box       = "horizontal",
+    legend.box       = "vertical",
     legend.text      = element_text(size = 18),
     legend.title     = element_text(size = 20),
     axis.title       = element_text(size = 22),
@@ -446,6 +446,30 @@ cvp_cvi_c <- ggplot(combined_c,
   guides(fill = "none")
 
 ggsave(file.path(output_dir, "scatter_CVP_vs_CVi_by_cluster.png"),
-       cvp_cvi_c, width = 10, height = 9)
+       cvp_cvi_c, width = 12, height = 9)
+
+###################################################################################################
+################################## Combined A/B grid plot #########################################
+###################################################################################################
+library(patchwork)
+
+rep_scatter_A <- rep_scatter_c +
+  theme(legend.position = "none") +
+  labs(tag = "A")
+
+cvp_cvi_B <- cvp_cvi_c +
+  theme(
+    legend.position  = c(0.98, 0.98),
+    legend.justification = c("right", "top"),
+    legend.box       = "vertical",
+    legend.background = element_rect(fill = "white", colour = "grey80", linewidth = 0.3)
+  ) +
+  labs(tag = "B")
+
+grid_plot <- rep_scatter_A + cvp_cvi_B +
+  plot_layout(ncol = 2)
+
+ggsave(file.path(output_dir, "ellipse_scatter_grid_AB.png"),
+       grid_plot, width = 22, height = 10)
 
 cat("\nDone. Outputs saved to:", output_dir, "\n")

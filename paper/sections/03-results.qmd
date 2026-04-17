@@ -106,14 +106,9 @@ knitr::kable(tbl1, align = "llllll")
 
 ```{r fig-rep-cvp-scatter, echo=FALSE}
 #| label: fig-rep-cvp-scatter
-#| fig-cap: "Between- and within-individual variation in the 16 behavioral variables. Left: repeatability (R) vs coefficient of individual variation (CVi). Right: coefficient of variation of predictability (CVP) vs CVi. Each point is a behavioral variable; ellipses show 95% credible intervals on both axes. Points are coloured by the 3-cluster k-means solution of Section 4.3 (Cluster 1 = high R, high CVi; Cluster 2 = high R, low CVi; Cluster 3 = low R, low CVi). Point shape distinguishes the likelihood family used for the mixed model."
-#| fig-subcap:
-#|   - "Repeatability (R) vs CVi"
-#|   - "CVP vs CVi"
-#| layout-ncol: 2
+#| fig-cap: "Between- and within-individual variation in the 16 behavioral variables. (A) Repeatability (R) vs coefficient of individual variation (CVi). (B) Coefficient of variation of predictability (CVP) vs CVi. Each point is a behavioral variable; ellipses show 95% credible intervals on both axes. Points are coloured by the 3-cluster k-means solution of Section 4.3 (Cluster 1 = high R, high CVi; Cluster 2 = high R, low CVi; Cluster 3 = low R, low CVi). Point shape distinguishes the likelihood family used for the mixed model."
 
-knitr::include_graphics("results/14_individual_traits/repeatability_ellipse_scatter_by_cluster.png")
-knitr::include_graphics("results/14_individual_traits/scatter_CVP_vs_CVi_by_cluster.png")
+knitr::include_graphics("results/14_individual_traits/ellipse_scatter_grid_AB.png")
 ```
 
 ## 4.2 Within-Individual Variation: Predictability
