@@ -300,4 +300,152 @@ cluster_plot <- ggplot(behaviour_clusters,
 ggsave(file.path(output_dir, "behaviour_cluster_plot.png"),
        cluster_plot, width = 9, height = 7)
 
+###################################################################################################
+################################## Cluster-coloured ellipse scatters ##############################
+###################################################################################################
+# Re-draw the R-vs-CVi ellipse scatter (from 11e) and the CVP-vs-CVi ellipse scatter
+# (from 12b) using the 3-cluster colour scheme defined above so the clustering result
+# can be read directly off the same figures. Saved to this step's output directory
+# rather than overwriting 11e / 12b output, so the original per-variable colour
+# versions remain available.
+
+library(ggforce)
+
+# Helper: map each variable to its cluster label.
+cluster_map <- behaviour_clusters %>%
+  dplyr::select(variable, cluster_label)
+
+# ---- R vs CVi ellipse scatter, coloured by cluster ------------------------------------------
+rep_summary_c <- rep_summary %>%
+  dplyr::left_join(cluster_map, by = "variable") %>%
+  dplyr::mutate(
+    a     = (R_cow_upper - R_cow_lower) / 2,
+    b     = (CVi_upper   - CVi_lower)   / 2,
+    label = gsub("_", " ", variable)
+  )
+
+x_max_r <- max(rep_summary_c$R_cow_upper, na.rm = TRUE) * 1.1
+y_max_r <- max(rep_summary_c$CVi_upper,   na.rm = TRUE) * 1.1
+
+rep_scatter_c <- ggplot(rep_summary_c,
+                        aes(x0 = R_cow_mean, y0 = CVi_mean,
+                            a = a, b = b, angle = 0,
+                            fill = cluster_label, colour = cluster_label)) +
+  ggforce::geom_ellipse(alpha = 0.35, linewidth = 0.4) +
+  geom_point(aes(x = R_cow_mean, y = CVi_mean,
+                 colour = cluster_label, shape = family),
+             size = 2.5, show.legend = TRUE,
+             inherit.aes = FALSE) +
+  ggrepel::geom_label_repel(
+    aes(x = R_cow_mean, y = CVi_mean, label = label, fill = cluster_label),
+    colour             = "black",
+    fontface           = "bold",
+    size               = 4,
+    alpha              = 0.5,
+    label.padding      = unit(0.15, "lines"),
+    box.padding        = unit(0.5, "lines"),
+    point.padding      = unit(0.3, "lines"),
+    force              = 50,
+    force_pull         = 0.3,
+    max.iter           = 20000,
+    direction          = "both",
+    min.segment.length = 0,
+    segment.size       = 0.3,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    inherit.aes        = FALSE
+  ) +
+  scale_x_continuous(limits = c(0, x_max_r), expand = expansion(mult = c(0.02, 0.05))) +
+  scale_y_continuous(limits = c(0, y_max_r), expand = expansion(mult = c(0.02, 0.05))) +
+  scale_fill_manual(values   = cluster_colours, name = "Cluster") +
+  scale_colour_manual(values = cluster_colours, name = "Cluster") +
+  scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17)) +
+  labs(
+    x     = "Repeatability (R) \n proportion of variance due to individual variation",
+    y     = "Coefficient of variation (CVi) \n relative magnitude of individual variation",
+    shape = "Likelihood family"
+  ) +
+  theme_classic(base_size = 20) +
+  theme(
+    legend.position  = "bottom",
+    legend.box       = "horizontal",
+    legend.text      = element_text(size = 18),
+    legend.title     = element_text(size = 20),
+    axis.title       = element_text(size = 22),
+    axis.text        = element_text(size = 18)
+  ) +
+  guides(fill = "none")
+
+ggsave(file.path(output_dir, "repeatability_ellipse_scatter_by_cluster.png"),
+       rep_scatter_c, width = 10, height = 9)
+
+# ---- CVP vs CVi ellipse scatter, coloured by cluster -----------------------------------------
+pred_summary <- read.csv("results/12_predictability/predictability_summary.csv",
+                         stringsAsFactors = FALSE)
+
+combined_c <- rep_summary %>%
+  dplyr::select(variable, family, CVi_mean, CVi_lower, CVi_upper) %>%
+  dplyr::inner_join(
+    pred_summary %>% dplyr::select(variable, CVP_mean, CVP_lower, CVP_upper),
+    by = "variable"
+  ) %>%
+  dplyr::left_join(cluster_map, by = "variable") %>%
+  dplyr::mutate(
+    a     = (CVP_upper - CVP_lower) / 2,
+    b     = (CVi_upper - CVi_lower) / 2,
+    label = gsub("_", " ", variable)
+  )
+
+cvp_cvi_c <- ggplot(combined_c,
+                    aes(x0 = CVP_mean, y0 = CVi_mean,
+                        a = a, b = b, angle = 0,
+                        fill = cluster_label, colour = cluster_label)) +
+  ggforce::geom_ellipse(alpha = 0.35, linewidth = 0.4) +
+  geom_point(aes(x = CVP_mean, y = CVi_mean,
+                 colour = cluster_label, shape = family),
+             size = 2.5, show.legend = TRUE,
+             inherit.aes = FALSE) +
+  ggrepel::geom_label_repel(
+    aes(x = CVP_mean, y = CVi_mean, label = label, fill = cluster_label),
+    colour             = "black",
+    fontface           = "bold",
+    size               = 4,
+    alpha              = 0.5,
+    label.padding      = unit(0.15, "lines"),
+    box.padding        = unit(0.5, "lines"),
+    point.padding      = unit(0.3, "lines"),
+    force              = 50,
+    force_pull         = 0.3,
+    max.iter           = 20000,
+    direction          = "both",
+    min.segment.length = 0,
+    segment.size       = 0.3,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    inherit.aes        = FALSE
+  ) +
+  scale_x_continuous(limits = c(0, 0.65), expand = expansion(mult = c(0.02, 0.02))) +
+  scale_y_continuous(limits = c(0, 0.65), expand = expansion(mult = c(0.02, 0.02))) +
+  scale_fill_manual(values   = cluster_colours, name = "Cluster") +
+  scale_colour_manual(values = cluster_colours, name = "Cluster") +
+  scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17)) +
+  labs(
+    x     = "Coefficient of variation in predictability (CVP) \n within-individual variation",
+    y     = "Coefficient of variation (CVi) \n relative magnitude of among-individual variation",
+    shape = "Likelihood family"
+  ) +
+  theme_classic(base_size = 20) +
+  theme(
+    legend.position  = "bottom",
+    legend.box       = "horizontal",
+    legend.text      = element_text(size = 18),
+    legend.title     = element_text(size = 20),
+    axis.title       = element_text(size = 22),
+    axis.text        = element_text(size = 18)
+  ) +
+  guides(fill = "none")
+
+ggsave(file.path(output_dir, "scatter_CVP_vs_CVi_by_cluster.png"),
+       cvp_cvi_c, width = 10, height = 9)
+
 cat("\nDone. Outputs saved to:", output_dir, "\n")

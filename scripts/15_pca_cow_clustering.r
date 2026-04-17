@@ -351,7 +351,6 @@ draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y, s
     scale_colour_manual(values = clust_cols) +
     scale_fill_manual(values   = clust_cols) +
     labs(
-      title  = paste0("Biplot (", rc_x, " vs ", rc_y, ") — ", method_name),
       x      = rc_x,
       y      = rc_y,
       colour = "Cluster",
@@ -363,7 +362,6 @@ draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y, s
       legend.box       = "horizontal",
       legend.text      = element_text(size = 18),
       legend.title     = element_text(size = 20),
-      plot.title       = element_text(size = 22),
       axis.title       = element_text(size = 22),
       axis.text        = element_text(size = 18)
     )

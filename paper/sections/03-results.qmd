@@ -1,0 +1,167 @@
+```{r results-setup, include=FALSE}
+library(dplyr)
+library(knitr)
+
+# Load results
+rep   <- read.csv("results/11_repeatability/repeatability_summary.csv")
+pred  <- read.csv("results/12_predictability/predictability_summary.csv")
+clust <- read.csv("results/14_individual_traits/behaviour_clusters.csv")
+mcomp <- read.csv("results/15_pca_clustering/method_comparison.csv")
+k_m3  <- read.csv("results/15_pca_clustering/pca_M3_c1_int_k_stability.csv")
+load_m3 <- read.csv("results/15_pca_clustering/pca_M3_c1_int_loadings.csv")
+
+# ── Format helpers ─────────────────────────────────────────────────────────────
+fmt <- function(x, digits = 2) formatC(round(x, digits), format = "f", digits = digits)
+fmt_ci <- function(m, l, u, digits = 2) {
+  sprintf("%s [%s, %s]", fmt(m, digits), fmt(l, digits), fmt(u, digits))
+}
+
+# Repeatability
+r_val  <- function(v) fmt(rep$R_cow_mean[rep$variable == v])
+r_ci   <- function(v) paste0("[", fmt(rep$R_cow_lower[rep$variable == v]), ", ",
+                                   fmt(rep$R_cow_upper[rep$variable == v]), "]")
+
+# CVi
+cvi_val <- function(v) fmt(rep$CVi_mean[rep$variable == v])
+cvi_ci  <- function(v) paste0("[", fmt(rep$CVi_lower[rep$variable == v]), ", ",
+                                    fmt(rep$CVi_upper[rep$variable == v]), "]")
+
+# CVP
+cvp_val <- function(v) fmt(pred$CVP_mean[pred$variable == v])
+cvp_ci  <- function(v) paste0("[", fmt(pred$CVP_lower[pred$variable == v]), ", ",
+                                    fmt(pred$CVP_upper[pred$variable == v]), "]")
+
+# rIIV
+riiv_val <- function(v) fmt(pred$rIIV_mean[pred$variable == v])
+riiv_ci  <- function(v) paste0("[", fmt(pred$rIIV_lower[pred$variable == v]), ", ",
+                                     fmt(pred$rIIV_upper[pred$variable == v]), "]")
+
+# ── Behavior clusters ──────────────────────────────────────────────────────────
+clean_label <- function(v) gsub("_", " ", v)
+
+c1_vars <- clust$variable[clust$cluster == 1]
+c2_vars <- clust$variable[clust$cluster == 2]
+c3_vars <- clust$variable[clust$cluster == 3]
+
+# ── PCA / clustering metrics (pulled from the precomputed comparison table) ────
+m3        <- mcomp[mcomp$method == "M3_c1_int", ]
+m3_sil    <- fmt(m3$mean_sil)
+m3_ncomp  <- m3$n_comp
+m3_cumvar <- m3$cum_var_pct
+m3_k      <- m3$optimal_k
+m3_rc1    <- m3$var_rc1_pct
+m3_rc2    <- m3$var_rc2_pct
+
+# Parse and sort cluster sizes (largest to smallest)
+m3_sizes <- sort(as.integer(strsplit(m3$cluster_sizes, "/")[[1]]), decreasing = TRUE)
+n_cows   <- sum(m3_sizes)
+m3_pct   <- function(i) round(m3_sizes[i] / n_cows * 100)
+
+# K stability
+m3_k_wins  <- k_m3$wins[k_m3$k == m3_k]
+m3_k_total <- sum(k_m3$wins)
+```
+
+# 4. Results
+
+## 4.1 Between-Individual Variation: Repeatability and CVi
+
+Throughout this section, all repeatability and predictability measures (R, CVi, CVP, and rIIV) are reported as posterior means followed by their 95% credible intervals (CrIs) in square brackets.
+
+Because R is confounded by within-individual variance (Section 3.4), we use the coefficient of individual variation (CVi) as the primary metric for comparing the magnitude of between-individual differences across the 16 behavioral variables, and we report R alongside CVi as a reference for how reliably those differences persist from day to day (@tbl-rep-pred, @fig-rep-cvp-scatter).
+
+Among all variables, the total number of non-nutritive visits showed the largest relative between-individual spread (CVi = `r cvi_val("number_of_non_nutritive_visits")` `r cvi_ci("number_of_non_nutritive_visits")`), meaning that on average, cows differ from one another by more than half the population mean in how often they visit a feed bin without eating. The total number of actor events (CVi = `r cvi_val("total_actor")` `r cvi_ci("total_actor")`) and the median number of non-nutritive visits per meal (CVi = `r cvi_val("median_non_nutritive_per_meal")` `r cvi_ci("median_non_nutritive_per_meal")`) were also highly variable across individuals, indicating that agonistic and non-nutritive visiting tendencies are among the most individually distinguishing behaviors in this herd. At the other end of the spectrum, the percentage of meal time spent actively feeding (CVi = `r cvi_val("median_feeding_pct_per_meal")` `r cvi_ci("median_feeding_pct_per_meal")`) and daily feed intake (CVi = `r cvi_val("feed_intake")` `r cvi_ci("feed_intake")`) showed the smallest relative spread, meaning cows are nearly indistinguishable from one another on these dimensions.
+
+Repeatability (R) provides complementary but not redundant information. Daily water drinking duration had the highest R (`r r_val("water_duration")` `r r_ci("water_duration")`), followed by daily feeding visits (R = `r r_val("feed_visits")` `r r_ci("feed_visits")`) and the total number of non-nutritive visits (R = `r r_val("number_of_non_nutritive_visits")` `r r_ci("number_of_non_nutritive_visits")`). The lowest R values were observed for the median proportion of feed remaining when a cow arrived at a bin (R = `r r_val("median_pct_feed_remaining")` `r r_ci("median_pct_feed_remaining")`), median feed intake per meal (R = `r r_val("median_intake_per_meal")` `r r_ci("median_intake_per_meal")`), and median meal duration (R = `r r_val("median_meal_duration")` `r r_ci("median_meal_duration")`).
+
+As anticipated in Section 3.4, R and CVi do not always rank traits the same way, and the divergences are informative. The clearest example is the median percentage of meal time spent feeding, which has a moderately high R (`r r_val("median_feeding_pct_per_meal")` `r r_ci("median_feeding_pct_per_meal")`) but the lowest CVi of all 16 variables (`r cvi_val("median_feeding_pct_per_meal")` `r cvi_ci("median_feeding_pct_per_meal")`). This is the signature of a trait where within-individual variance is small — cows are each very consistent from day to day — but cows are also nearly identical to each other, so R is inflated by low noise rather than by real individual differences. The opposite pattern is seen for agonistic behavior: total actor events have a moderate R (`r r_val("total_actor")` `r r_ci("total_actor")`) but one of the highest CVi values (`r cvi_val("total_actor")` `r cvi_ci("total_actor")`), and total reactor events show the same pattern (R = `r r_val("total_reactor")` `r r_ci("total_reactor")`; CVi = `r cvi_val("total_reactor")` `r cvi_ci("total_reactor")`). Here, cows genuinely differ from one another by a large margin, but their day-to-day variability is also substantial, so R is moderate despite large between-individual spread. Variables ranked near the top on both R and CVi — notably the total number of non-nutritive visits, water drinking duration, and the median number of non-nutritive visits per meal — represent the most useful candidates for individual profiling, since cows both differ meaningfully from one another and behave consistently enough for those differences to be detectable from repeated observations.
+
+```{r tbl-rep-pred, echo=FALSE}
+#| label: tbl-rep-pred
+#| tbl-cap: "Posterior means and 95% credible intervals for repeatability (R), coefficient of individual variation (CVi), coefficient of variation of predictability (CVP), and residual intra-individual variability (rIIV) for each of the 16 behavioral variables. Rows are sorted by CVi (largest to smallest). Note that R and CVi rank traits differently: traits with low within-individual variance can have high R despite small between-individual spread, and vice versa."
+
+tbl1 <- rep %>%
+  select(variable, family,
+         R_cow_mean, R_cow_lower, R_cow_upper,
+         CVi_mean, CVi_lower, CVi_upper) %>%
+  inner_join(
+    pred %>% select(variable,
+                    CVP_mean, CVP_lower, CVP_upper,
+                    rIIV_mean, rIIV_lower, rIIV_upper),
+    by = "variable"
+  ) %>%
+  arrange(desc(CVi_mean)) %>%
+  mutate(
+    Variable = gsub("_", " ", variable),
+    Family   = family,
+    R        = fmt_ci(R_cow_mean, R_cow_lower, R_cow_upper),
+    CVi      = fmt_ci(CVi_mean,    CVi_lower,    CVi_upper),
+    CVP      = fmt_ci(CVP_mean,    CVP_lower,    CVP_upper),
+    rIIV     = fmt_ci(rIIV_mean,   rIIV_lower,   rIIV_upper)
+  ) %>%
+  select(Variable, Family, R, CVi, CVP, rIIV)
+
+knitr::kable(tbl1, align = "llllll")
+```
+
+```{r fig-rep-cvp-scatter, echo=FALSE}
+#| label: fig-rep-cvp-scatter
+#| fig-cap: "Between- and within-individual variation in the 16 behavioral variables. Left: repeatability (R) vs coefficient of individual variation (CVi). Right: coefficient of variation of predictability (CVP) vs CVi. Each point is a behavioral variable; ellipses show 95% credible intervals on both axes. Points are coloured by the 3-cluster k-means solution of Section 4.3 (Cluster 1 = high R, high CVi; Cluster 2 = high R, low CVi; Cluster 3 = low R, low CVi). Point shape distinguishes the likelihood family used for the mixed model."
+#| fig-subcap:
+#|   - "Repeatability (R) vs CVi"
+#|   - "CVP vs CVi"
+#| layout-ncol: 2
+
+knitr::include_graphics("results/14_individual_traits/repeatability_ellipse_scatter_by_cluster.png")
+knitr::include_graphics("results/14_individual_traits/scatter_CVP_vs_CVi_by_cluster.png")
+```
+
+## 4.2 Within-Individual Variation: Predictability
+
+For the same reason that R is not directly comparable across traits, residual intra-individual variability (rIIV) also depends on the scale of each variable and is not directly interpretable across behaviors. We therefore use the coefficient of variation of predictability (CVP) as the primary metric for cross-trait comparisons of day-to-day consistency, and report rIIV alongside as a reference.
+
+Variables related to within-meal structure were the most predictable. The median number of non-nutritive visits per meal (CVP = `r cvp_val("median_non_nutritive_per_meal")` `r cvp_ci("median_non_nutritive_per_meal")`), median visits per meal (CVP = `r cvp_val("median_visit_per_meal")` `r cvp_ci("median_visit_per_meal")`), and median meal duration (CVP = `r cvp_val("median_meal_duration")` `r cvp_ci("median_meal_duration")`) had the lowest CVP values, meaning individual cows expressed these behaviors at a similar level from day to day, and cows differed little from one another in how predictable they were. In contrast, daily feed intake (CVP = `r cvp_val("feed_intake")` `r cvp_ci("feed_intake")`), total actor events (CVP = `r cvp_val("total_actor")` `r cvp_ci("total_actor")`), and the median percentage of meal time spent feeding (CVP = `r cvp_val("median_feeding_pct_per_meal")` `r cvp_ci("median_feeding_pct_per_meal")`) had the highest CVP, indicating greater individual variation in day-to-day consistency: some cows were much more consistent than others in these behaviors. All 16 variables had rIIV values greater than 1 (@tbl-rep-pred), confirming that individual cows differ from one another not only in their average behavioral expression but also in how predictably they behave.
+
+The right panel of @fig-rep-cvp-scatter shows that CVP and CVi are largely decoupled: high between-individual spread does not guarantee high predictability, nor vice versa. The variables most useful for profiling (Section 4.3) occupy the high-CVi / moderate-CVP region — cows differ substantially from each other on these traits, and day-to-day behavior is consistent enough for those differences to be reliably estimated.
+
+## 4.3 Classifying Behavioral Variables by Profiling Potential
+
+K-means clustering of the 16 variables based on their R and CVi values identified three groups that differ in how useful they are for distinguishing individuals (@fig-rep-cvp-scatter, left panel).
+
+**Cluster 1 — high R, high CVi** contained `r length(c1_vars)` variables: `r paste(clean_label(c1_vars), collapse = ", ")`. These variables show the strongest individual-level signatures — cows not only behave consistently over time (high R) but also differ substantially from one another (high CVi). These are the most informative variables for building behavioral profiles.
+
+**Cluster 2 — high R, low CVi** contained `r length(c2_vars)` variables: `r paste(clean_label(c2_vars), collapse = ", ")`. Cows are consistent in these behaviors over time, but all cows tend to express them at similar levels, limiting their power to distinguish individuals from one another.
+
+**Cluster 3 — low R, low CVi** contained `r length(c3_vars)` variables: `r paste(clean_label(c3_vars), collapse = ", ")`. These behaviors are neither particularly consistent within individuals nor particularly variable across them, suggesting they are more strongly driven by daily environmental factors (e.g., feed availability, group dynamics) than by stable individual traits.
+
+## 4.4 Identifying Cow Types via PCA
+
+We applied PCA with varimax rotation to the intercepts of the `r length(c1_vars)` Cluster 1 variables (one row per cow, one column per variable). `r m3_ncomp` components were retained to meet the ≥80% cumulative-variance criterion, together explaining `r m3_cumvar`% of the total variance (@tbl-pca-loadings). RC1 explained the largest share of variance (`r m3_rc1`%), driven primarily by non-nutritive visiting behavior and within-meal visit patterns. RC2 explained `r m3_rc2`% of variance and was most strongly associated with drinking patterns. RC3 captured the remaining variance, primarily related to agonistic behavior (actor and reactor events).
+
+```{r tbl-pca-loadings, echo=FALSE}
+#| label: tbl-pca-loadings
+#| tbl-cap: "Varimax-rotated PCA loadings for the 8 Cluster-1 intercept variables. Values with magnitude > 0.5 indicate primary drivers of each component and are the basis for component interpretation."
+
+loadings_tbl <- load_m3 %>%
+  mutate(
+    Variable = gsub("^int_", "", variable),
+    Variable = gsub("_", " ", Variable)
+  ) %>%
+  select(Variable, RC1, RC2, RC3)
+
+knitr::kable(loadings_tbl, digits = 2, align = "lrrr")
+```
+
+```{r fig-pca-biplots, echo=FALSE}
+#| label: fig-pca-biplots
+#| fig-cap: "PCA biplots using the intercepts of Cluster-1 variables (Method M3). Left: RC1 vs RC2. Right: RC1 vs RC3. Each point is a cow, coloured by k-means cluster assignment; arrows represent variable loadings scaled to the score space. Ellipses show 95% confidence regions around each cluster centroid."
+#| fig-subcap:
+#|   - "RC1 vs RC2"
+#|   - "RC1 vs RC3"
+#| layout-ncol: 2
+
+knitr::include_graphics("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc2.png")
+knitr::include_graphics("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc3.png")
+```
+
+K-means clustering on the retained component scores, with $k$ selected by the silhouette method, identified k = `r m3_k` as the optimal number of cow clusters. This solution was entirely stable across all `r m3_k_total` random seed replicates (`r m3_k_wins`/`r m3_k_total` seeds selected k = `r m3_k`). The mean silhouette width of the final clustering was `r m3_sil`, indicating reasonably well-defined groupings. The `r m3_k` clusters were markedly unequal in size: one large cluster contained `r m3_sizes[1]` cows (~`r m3_pct(1)`% of the herd), a second contained `r m3_sizes[2]` cows (~`r m3_pct(2)`%), a third contained `r m3_sizes[3]` cows (~`r m3_pct(3)`%), and a fourth contained only `r m3_sizes[4]` cows (~`r m3_pct(4)`%). The smaller clusters represent cows with more extreme or atypical behavioral profiles relative to the herd majority. An interactive 3D visualization of cow positions in RC1–RC`r m3_ncomp` space, colored by cluster assignment, is available at <https://www.skysheng.io/moo4feed_decoding_animal/>.

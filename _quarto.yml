@@ -2,6 +2,12 @@ project:
   type: manuscript
   output-dir: _output
 
+# Evaluate code chunks with the project root as the working directory so that
+# relative paths (e.g. results/11_repeatability/...) in included .qmd files
+# resolve correctly regardless of the file's own location.
+execute:
+  dir: project
+
 # Project-wide defaults
 bibliography: paper/references.bib
 csl: https://www.zotero.org/styles/computers-and-electronics-in-agriculture
