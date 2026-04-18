@@ -228,17 +228,17 @@ Variables related to meal-patterns were the most predictable. The median number 
 
 ## 4.3 Classifying Behavioral Variables
 
-K-means clustering of the 16 variables based on their R and CVi values identified three groups that differ in how useful they are for distinguishing among individual cows (@fig-rep-cvp-scatter A).
+We grouped the 16 variables into 3 clusters based on their R and CVi values using K-means (@fig-rep-cvp-scatter A).
 
-**Cluster 1 — high R, high CVi** contained `r length(c1_vars)` variables: `r paste(clean_label(c1_vars), collapse = ", ")`. These variables show the strongest individual-level signatures — cows not only behave consistently over time (high R) but also differ substantially from one another (high CVi). These are the most informative variables for building behavioral profiles.
+**Cluster 1 — high R, high CVi** contained `r length(c1_vars)` variables: `r paste(clean_label(c1_vars), collapse = ", ")`. Cows in this cluster differed widely from one another in their average behavioral expression, and these differences remained stable over time. In other words, each cow had a distinctive and repeatable behavioural signature. These variables are the most useful for characterising individual behavioural profiles.
 
-**Cluster 2 — high R, low CVi** contained `r length(c2_vars)` variables: `r paste(clean_label(c2_vars), collapse = ", ")`. Cows are consistent in these behaviors over time, but all cows tend to express them at similar levels, limiting their power to distinguish individuals from one another.
+**Cluster 2 — high R, low CVi** contained `r length(c2_vars)` variables: `r paste(clean_label(c2_vars), collapse = ", ")`. Individual differences were again consistent over time, but the spread of individual differences across the herd was narrow relative to the herd mean.
 
-**Cluster 3 — low R, low CVi** contained `r length(c3_vars)` variables: `r paste(clean_label(c3_vars), collapse = ", ")`. These behaviors are neither particularly consistent within individuals nor particularly variable across them, suggesting they are more strongly driven by daily environmental factors (e.g., feed availability, group dynamics) than by stable individual traits.
+**Cluster 3 — low R, low CVi** contained `r length(c3_vars)` variables: `r paste(clean_label(c3_vars), collapse = ", ")`. Cows showed little variation from one another in these behaviours, and what variation did exist was inconsistent across days. This pattern suggests these behaviours are driven more by day-to-day environmental conditions (e.g., feed availability, group dynamics) than by stable individual tendencies.
 
 ## 4.4 Identifying Cow Types via PCA
 
-We applied PCA with varimax rotation to the intercepts of the `r length(c1_vars)` Cluster 1 variables (one row per cow, one column per variable). `r m3_ncomp` components were retained to meet the ≥80% cumulative-variance criterion, together explaining `r m3_cumvar`% of the total variance (Table 2). RC1 explained the largest share of variance (`r m3_rc1`%), driven primarily by non-nutritive visiting behavior and within-meal visit patterns. RC2 explained `r m3_rc2`% of variance and was most strongly associated with drinking patterns. RC3 captured the remaining variance, primarily related to agonistic behavior (actor and reactor events).
+We applied PCA with varimax rotation to the intercepts (average individual cow's behaviour expression) of the `r length(c1_vars)` Cluster 1 variables. `r m3_ncomp` components were retained to meet the ≥80% cumulative-variance criterion, together explaining `r m3_cumvar`% of the total variance (Table 2, @fig-pca-biplots). Rotated Component (RC) 1 explained the largest share of variance (`r m3_rc1`%), driven primarily by non-nutritive behavior and feeding patterns. RC2 explained `r m3_rc2`% of variance and was most strongly associated with drinking patterns. RC3 captured the remaining variance, primarily related to agonistic behavior (actor and reactor events).
 
 ::: {.content-visible when-format="docx"}
 ```{=openxml}
@@ -294,4 +294,4 @@ knitr::include_graphics("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters
 ```
 :::
 
-K-means clustering on the `r m3_ncomp` retained rotated components after PCA, with $k$ selected by the silhouette method, identified k = `r m3_k` as the optimal number of cow clusters. The mean silhouette width of the final clustering was `r m3_sil`, indicating reasonably well-defined groupings. The `r m3_k` clusters were uneven in size: one large cluster contained `r m3_sizes[1]` cows (~`r m3_pct(1)`% of the herd), a second contained `r m3_sizes[2]` cows (~`r m3_pct(2)`%), a third contained `r m3_sizes[3]` cows (~`r m3_pct(3)`%), and a fourth contained only `r m3_sizes[4]` cows (~`r m3_pct(4)`%). An interactive visualization of the `r m3_k` clusters of cows in the 3D space, colored by cluster assignment, is available at <https://www.skysheng.io/moo4feed_decoding_animal/>.
+K-means clustering on the `r m3_ncomp` retained rotated components after PCA, with $k$ selected by the silhouette method, identified k = `r m3_k` as the optimal number of cow clusters. The mean silhouette width of the final clustering was `r m3_sil`, indicating reasonably well-defined groupings. The `r m3_k` clusters were uneven in size: one large cluster contained `r m3_sizes[1]` cows (~`r m3_pct(1)`% of the herd), a second contained `r m3_sizes[2]` cows (~`r m3_pct(2)`%), a third contained `r m3_sizes[3]` cows (~`r m3_pct(3)`%), and a fourth contained only `r m3_sizes[4]` cows (~`r m3_pct(4)`%) (@fig-pca-biplots). An interactive visualization of the `r m3_k` clusters of cows in the 3D space, colored by cluster assignment, is available at <https://www.skysheng.io/moo4feed_decoding_animal/>.
