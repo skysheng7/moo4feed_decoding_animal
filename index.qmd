@@ -23,7 +23,7 @@ format:
 ---
 
 
-<!-- {{< include paper/abstract.md >}} -->
+{{< include paper/sections/abstract.qmd >}}
 
 {{< include paper/sections/01-introduction.md >}}
 
