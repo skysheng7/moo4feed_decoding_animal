@@ -1,5 +1,5 @@
 ---
-title: "Beyond the herd: Decoding individual animal behavioral narratives through data"
+title: "Decoding individual dairy cow feeding behaviour narratives using data streams collected from an automatic feeding system"
 author: "Kehan Sheng^1^, Borbala Foris^1,2^, Daniel M. Weary^1^, Marina A.G. von Keyserlingk^1^" 
 # Override project defaults for the main document
 format: 
