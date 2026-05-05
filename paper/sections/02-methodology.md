@@ -6,15 +6,15 @@ Data were collected as part of a larger study described in detail by Sheng et al
 
 ## 3.2 Data Cleaning and Filtering
 
-All data preparation and analysis were conducted using R (version 4.3.1; @R-base). To ensure that the data we analyze reflect the behavioural baseline patterns of cows when they are healthy and not in estrus, we applied stricter data cleaning and filtering criteria that extended beyond the data cleaning procedure described in our previous work [@sheng2024redefining]. Starting from 14,728 cow-days across 159 cows and 306 d, exclusions were applied at two levels. At the individ level, data were removed for specific cows on days affected by:
+All data preparation and analysis were conducted using R (version 4.3.1; @R-base). To ensure that the data we analyze reflect the behavioural baseline patterns of cows when they are healthy and not in estrus, we applied stricter data cleaning and filtering criteria that extended beyond the data cleaning procedure described in our previous work [@sheng2024redefining]. Starting from 14,728 cow-days across 159 cows and 306 d, exclusions were applied at two levels. At the individual level, data were removed for specific cows on days affected by:
 
-(1) health events, including illness episodes when cows were moved to the hospital pen and when cows received veterinary treatment while remaining in the pen (e.g., mastitis, fever, injury), with a buffer period around each event (7 days before and 7 days after the recorded events) to account for potential behavioural changes during the prodromal and recovery periods (16 cows across 120 days, 197 cow-days).
+(1) health events, including illness episodes when cows were moved to the sick pen and when cows received veterinary treatment while remaining in the pen (e.g., mastitis, fever, injury), with a buffer period around each event (7 days before and 7 days after the recorded events) to account for potential behavioural changes during the prodromal and recovery periods (16 cows across 120 days, 197 cow-days).
 
 (2) lameness, defined as two consecutive weekly locomotion scores >= 3 [@flower2006effect; @eriksson2020effects], with all days during the lame period removed until the cow was scored as sound again, plus a 7-d buffer before lameness onset (48 cows across 227 days, 679 cow-days).
 
 (3) the first and last day each cow was present in the group, as data on these days would be incomplete (159 cows across 43 days, 285 cow-days).
 
-(4) days when farm staff recorded interference with individual cows due to lose of ear tags, hoof trimming or other routine husbandry procedures, as these events may temporarily alter behaviour through handling stress or cows being away from the Insentec bins for extended period of times (9 cows across 22 days, 24 cow-days).
+(4) days when farm staff recorded interference with individual cows due to lose of ear tags, hoof trimming or other routine husbandry procedures, as these events may temporarily alter behaviour through handling stress or cows being away from the electronic feed and water bins for extended period of times (9 cows across 22 days, 24 cow-days).
 
 (5) days when cows were not confirmed pregnant, as reproductive status (e.g., bred, fresh, open) may influence behaviour through oestrous cycling and associated hormonal fluctuations; only cow-days where the reproductive status was recorded as pregnant were retained (87 cows across 207 days, 2,695 cow-days removed).
 
