@@ -40,6 +40,10 @@ To process the raw feeding and drinking data and extract meaningful behavioral v
 
 **Data Processing, Configuration and Quality Control.** Raw visit data were converted into a standardized format, with each record capturing the cow's identity, the bin number, visit start and end times, and the start and end weights of feed or water in the bin. Only days for which both feeder and drinker data files were available were retained. Daylight saving time transitions were detected and corrected automatically based on the timezone. During fall-back transitions (when clocks move back one hour, causing chronological order of visits within the repeated hour to be ambiguous), we removed all visits from the duplicated hour, since it is not possible to determine the true chronological order, and adjusts subsequent timestamps accordingly. During spring-forward transitions (when clocks move forward by one hour), visit timestamps are shifted forward by one hour for the remainder of the day. Records were then passed through a sequence of automated quality control checks, summarized in Table 1.
 
+```{=latex}
+\newpage
+```
+
 **Table 1.** Automated quality control checks applied to raw visit data from electronic feed and water bins. Dashes (—) indicate that threshold id is not applicable or is data-driven, no hard-coded numerical threshold applies. Action: Flag = abnormal record is retained and sent to researchers on the farm to review for bin health check; Correct = the record is automatically corrected; Remove = the record is deleted from the dataset. For negative weight corrections, intake is recalculated from the corrected weights (start weight − end weight); if the recalculated intake remains negative, the record is removed.
 
 ```{r echo=FALSE}
@@ -52,7 +56,7 @@ qc_tbl <- tibble::tribble(
   "Negative weight",                 "Negative start or end weight measurements in the bin",                                                                               "\u2014",          "\u2014",           "Correct to 0",
   "Large single-visit intake",       "Abnormal large intake per visit",                                                                                              ">8 kg",           ">30 L",            "Flag",
   "No afternoon feeding or drinking","Cow did not feed or drink after noon, potentially due to a lost ear tag or illness",                                                  "\u2014",          "\u2014",           "Flag",
-  "Low or no bin traffic",           "Bins with unusually low traffic or no visits, indicating potential bin malfunction",                                             "\u2014",          "\u2014",           "Flag",
+  "Low or no bin traffic",           "Bins with fewer than 10 visits that day (no visits or unusually low traffic), indicating potential bin malfunction",                "<10 visits/bin/d", "<10 visits/bin/d",  "Flag",
   "Long visit duration",             "Abnormal long visit duration, indicating potential bin malfunction",                                                                                                     ">2,000 s",        ">1,800 s",         "Flag",
   "High intake rate",                "Excessively high intake rate per visit",                                                                                              ">0.008 kg/s",     ">0.35 L/s",        "Flag",
   "Low daily visit count",           "Fewer than 10 visits recorded, suggesting a potentially incomplete day due to bin malfunction",                                                              "<10 visits",      "<10 visits",       "Flag",
