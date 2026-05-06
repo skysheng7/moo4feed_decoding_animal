@@ -299,7 +299,16 @@ cat("\nDrawing biplots for best method:", best, "\n")
 
 sunset_palette <- c("#F8A07E", "#EB6770", "#A059A0", "#3D4D8A")
 
-draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y, suffix) {
+# Compute a single global axis limit and scaling factor across ALL retained RCs
+# so that every biplot panel shares the same coordinate space.
+{
+  sc_all      <- best_res$pca_obj$scores[, seq_len(best_res$n_comp)]
+  global_lim  <- c(-1, 1) * (max(abs(sc_all)) * 1.12)
+  global_sf   <- 0.8 * max(abs(sc_all))
+}
+
+draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y,
+                        suffix, global_lim, global_sf) {
   sc_mat <- pca_obj$scores
   ld_mat <- unclass(pca_obj$loadings)
   rc_x   <- colnames(sc_mat)[idx_x]
@@ -316,9 +325,8 @@ draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y, s
     ld2      = ld_mat[, idx_y],
     variable = gsub("_", " ", rownames(ld_mat))
   )
-  sf <- 0.8 * max(abs(c(plot_df$dim1, plot_df$dim2)))
-  load2$xend <- load2$ld1 * sf
-  load2$yend <- load2$ld2 * sf
+  load2$xend <- load2$ld1 * global_sf
+  load2$yend <- load2$ld2 * global_sf
 
   clust_cols <- colorRampPalette(sunset_palette)(optimal_k)
 
@@ -350,6 +358,7 @@ draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y, s
     ) +
     scale_colour_manual(values = clust_cols) +
     scale_fill_manual(values   = clust_cols) +
+    coord_cartesian(xlim = global_lim, ylim = global_lim) +
     labs(
       x      = rc_x,
       y      = rc_y,
@@ -365,16 +374,47 @@ draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y, s
       axis.title       = element_text(size = 22),
       axis.text        = element_text(size = 18)
     )
-  ggsave(file.path(output_dir, paste0("pca_", method_name, "_biplot_clusters_", suffix, ".png")),
-         p, width = 10, height = 9)
+  p
 }
 
+library(patchwork)
+
 if (best_res$n_comp >= 2) {
-  draw_biplot(best_res$pca_obj, best_res$km_obj, best_res$optimal_k, best, 1, 2, "rc1_rc2")
+  p_rc1_rc2 <- draw_biplot(best_res$pca_obj, best_res$km_obj, best_res$optimal_k, best,
+                            1, 2, "rc1_rc2", global_lim, global_sf)
 }
 if (best_res$n_comp >= 3) {
-  draw_biplot(best_res$pca_obj, best_res$km_obj, best_res$optimal_k, best, 1, 3, "rc1_rc3")
-  draw_biplot(best_res$pca_obj, best_res$km_obj, best_res$optimal_k, best, 2, 3, "rc2_rc3")
+  p_rc1_rc3 <- draw_biplot(best_res$pca_obj, best_res$km_obj, best_res$optimal_k, best,
+                            1, 3, "rc1_rc3", global_lim, global_sf)
+  p_rc2_rc3 <- draw_biplot(best_res$pca_obj, best_res$km_obj, best_res$optimal_k, best,
+                            2, 3, "rc2_rc3", global_lim, global_sf)
 }
+
+# Save individual panels (for reference / supplementary use)
+ggsave(file.path(output_dir, paste0("pca_", best, "_biplot_clusters_rc1_rc2.png")),
+       p_rc1_rc2, width = 10, height = 9)
+ggsave(file.path(output_dir, paste0("pca_", best, "_biplot_clusters_rc1_rc3.png")),
+       p_rc1_rc3, width = 10, height = 9)
+ggsave(file.path(output_dir, paste0("pca_", best, "_biplot_clusters_rc2_rc3.png")),
+       p_rc2_rc3, width = 10, height = 9)
+
+# Combined A/B panel (RC1v2 and RC1v3) with shared legend
+biplot_A <- p_rc1_rc2 +
+  theme(legend.position = "none") +
+  labs(tag = "A")
+
+biplot_B <- p_rc1_rc3 +
+  theme(
+    legend.position  = "bottom",
+    legend.box       = "horizontal"
+  ) +
+  labs(tag = "B")
+
+biplot_AB <- biplot_A + biplot_B +
+  plot_layout(ncol = 2, guides = "collect") &
+  theme(legend.position = "bottom")
+
+ggsave(file.path(output_dir, paste0("pca_", best, "_biplot_clusters_AB.png")),
+       biplot_AB, width = 20, height = 9)
 
 cat("\nDone. Outputs saved to:", output_dir, "\n")
