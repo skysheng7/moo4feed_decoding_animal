@@ -287,6 +287,9 @@ flextable(loadings_tbl) %>%
   autofit()
 ```
 
+K-means clustering on the `r m3_ncomp` retained rotated components after PCA, with $k$ selected by the silhouette method, identified k = `r m3_k` as the optimal number of cow clusters. The mean silhouette width of the final clustering was `r m3_sil`, indicating reasonably well-defined groupings. An interactive visualization of the `r m3_k` clusters of cows in the 3D space, colored by cluster assignment, is available at <https://www.skysheng.io/moo4feed_decoding_animal/>.
+
+
 ::: {.content-visible when-format="docx"}
 ```{=openxml}
 <w:p><w:pPr><w:pStyle w:val="BodyText"/></w:pPr></w:p>
@@ -307,7 +310,6 @@ knitr::include_graphics(.p("results/15_pca_clustering/pca_M3_c1_int_biplot_clust
 ```
 :::
 
-K-means clustering on the `r m3_ncomp` retained rotated components after PCA, with $k$ selected by the silhouette method, identified k = `r m3_k` as the optimal number of cow clusters. The mean silhouette width of the final clustering was `r m3_sil`, indicating reasonably well-defined groupings. An interactive visualization of the `r m3_k` clusters of cows in the 3D space, colored by cluster assignment, is available at <https://www.skysheng.io/moo4feed_decoding_animal/>.
 
 ```{r cow-cluster-biology, include=FALSE}
 # ── Load per-cow cluster assignments and per-cow intercept estimates ─────────
