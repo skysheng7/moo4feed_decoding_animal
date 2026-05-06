@@ -189,7 +189,7 @@ ft <- flextable(tbl1_disp) %>%
   align(align = "center", part = "header") %>%
   valign(j = "Category", valign = "top", part = "body") %>%
   bold(j = "Category", part = "body") %>%
-  bg(bg = "#B0E2FF", part = "header") %>%
+  bg(bg = "#6E8B3D", part = "header") %>%
   color(color = "white", part = "header") %>%
   bold(part = "header")
 
