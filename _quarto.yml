@@ -2,7 +2,7 @@ project:
   type: manuscript
   output-dir: _output
   post-render:
-    - python3 scripts/fix_docx.py _output/index.docx
+    - python scripts/fix_docx.py _output/index.docx
 
 notebook-links: false
 
