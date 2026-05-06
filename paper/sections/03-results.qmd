@@ -183,13 +183,13 @@ ft <- flextable(tbl1_disp) %>%
     rIIV = "rIIV [95% CI]"
   ) %>%
   merge_v(j = "Category") %>%
-  theme_booktabs() %>%
+  theme_box() %>%
   align(j = "Variable", align = "left",   part = "body") %>%
   align(j = c("R","CVi","CVP","rIIV"), align = "center", part = "body") %>%
   align(align = "center", part = "header") %>%
   valign(j = "Category", valign = "top", part = "body") %>%
   bold(j = "Category", part = "body") %>%
-  bg(bg = "#6E8B3D", part = "header") %>%
+  bg(bg = "#2F4F4F", part = "header") %>%
   color(color = "white", part = "header") %>%
   bold(part = "header")
 
@@ -260,6 +260,10 @@ We applied PCA with varimax rotation to the intercepts (average individual cow's
 ```
 :::
 
+```{=latex}
+\newpage
+```
+
 **Table 3.** Varimax-rotated PCA loadings for the 8 Behavior Cluster-1 intercept variables.
 
 ```{r echo=FALSE}
@@ -272,11 +276,9 @@ loadings_tbl <- load_m3 %>%
 
 flextable(loadings_tbl) %>%
   colformat_double(j = c("RC1","RC2","RC3"), digits = 2) %>%
-  theme_booktabs() %>%
-  align(j = "Variable", align = "left",  part = "body") %>%
-  align(j = c("RC1","RC2","RC3"), align = "right", part = "body") %>%
-  align(align = "center", part = "header") %>%
-  bg(bg = "#1F3A93", part = "header") %>%
+  theme_box() %>%
+  align(align = "center", part = "all") %>%
+  bg(bg = "#8B7355", part = "header") %>%
   color(color = "white", part = "header") %>%
   bold(part = "header") %>%
   fontsize(size = 10, part = "all") %>%
