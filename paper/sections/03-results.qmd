@@ -225,7 +225,7 @@ ft
 #| label: fig-rep-cvp-scatter
 #| fig-cap: "Between- and within-individual variation in the 16 behavioral variables. (A) Repeatability (R) vs coefficient of individual variation (CVi). (B) Coefficient of variation of predictability (CVP) vs CVi. Each point is a behavioral variable; ellipses show 95% credible intervals on both axes. Points are coloured by the 3-cluster k-means solution of Section 4.3 (Cluster 1 = high R, high CVi; Cluster 2 = high R, low CVi; Cluster 3 = low R, low CVi). Point shape distinguishes the likelihood family used for the mixed model."
 
-knitr::include_graphics("results/14_individual_traits/ellipse_scatter_grid_AB.png")
+knitr::include_graphics(.p("results/14_individual_traits/ellipse_scatter_grid_AB.png"))
 ```
 
 ::: {.content-visible when-format="docx"}
@@ -298,8 +298,8 @@ flextable(loadings_tbl) %>%
 #|   - "RC1 vs RC3"
 #| layout-ncol: 2
 
-knitr::include_graphics("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc2.png")
-knitr::include_graphics("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc3.png")
+knitr::include_graphics(.p("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc2.png"))
+  knitr::include_graphics(.p("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc3.png"))
 ```
 
 ::: {.content-visible when-format="docx"}
@@ -312,8 +312,8 @@ K-means clustering on the `r m3_ncomp` retained rotated components after PCA, wi
 
 ```{r cow-cluster-biology, include=FALSE}
 # ── Load per-cow cluster assignments and per-cow intercept estimates ─────────
-cow_clust <- read.csv("results/15_pca_clustering/pca_M3_c1_int_cow_clusters.csv")
-cow_int   <- read.csv("results/14_individual_traits/cow_intercepts_wide.csv")
+cow_clust <- read.csv(.p("results/15_pca_clustering/pca_M3_c1_int_cow_clusters.csv"))
+cow_int   <- read.csv(.p("results/14_individual_traits/cow_intercepts_wide.csv"))
 
 # Per-cluster mean RC scores and sizes (sorted by size, largest to smallest)
 clust_summary <- cow_clust %>%
