@@ -1,0 +1,2050 @@
+% Options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+  \setmainfont[]{Times New Roman}
+  \setmathfont[]{Times New Roman}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+
+
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+ 
+
+
+\usepackage{fontspec}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{colortbl}
+\usepackage{ulem}
+\usepackage{hhline}
+\newlength\Oldarrayrulewidth
+\newlength\Oldtabcolsep
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{wrapfig}
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Decoding individual dairy cow feeding behaviour narratives using data streams collected from an automatic feeding system},
+  pdfauthor={Kehan Sheng1, Borbala Foris1,2, Daniel M. Weary1, Marina A.G. von Keyserlingk1},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Decoding individual dairy cow feeding behaviour narratives using
+data streams collected from an automatic feeding system}
+\author{Kehan Sheng\textsuperscript{1}, Borbala
+Foris\textsuperscript{1,2}, Daniel M. Weary\textsuperscript{1}, Marina
+A.G. von Keyserlingk\textsuperscript{1}}
+\date{}
+\begin{document}
+\maketitle
+
+
+\textsuperscript{1}Animal Welfare Program, Faculty of Land and Food
+Systems, The University of British Columbia, 2357 Main Mall, Vancouver,
+BC, V6T 1Z6, Canada
+
+\textsuperscript{2}Animal Welfare Science Unit, University of Veterinary
+Medicine, Veterinärpl. 1, Vienna, 1210, Austria
+
+\textbf{Corresponding author email:} marina.vonkeyserlingk@ubc.ca
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Abstract}\label{abstract}
+
+Individual animals living in the same environment differ consistently in
+how they feed, drink, and compete for resources, yet most data analysis
+still relies on group-level comparisons that obscure meaningful
+individual differences. Electronic feeding and drinking systems make it
+possible to characterize individual behavioral strategies within their
+natural social groups, without isolating animals for personality
+testing, reducing time and labor costs. Using 107 lactating Holstein
+dairy cows tracked over 207 days, we extracted 16 behavioral variables
+from electronic feed bin and water trough data, capturing conventional
+metrics (feeding and drinking intake, duration and meal frequency)
+alongside exploratory behavior (non-nutritive visits), social
+competition (agonistic replacement events), and indicators of feed
+quality upon access (e.g., proportion of fresh feed remaining upon
+arrival). Bayesian mixed-effects models quantified repeatability
+(between-individual variation in average behavioral expression) and
+predictability (between-individual variation in within-individual
+consistency). Variables capturing exploratory behavior, social
+competition, and water drinking duration showed the greatest and most
+consistent among-individual variation, while daily feed intake was among
+the least discriminating, suggesting individuals converge to similar
+intakes through strikingly different strategies. Principal component
+analysis with varimax rotation followed by k-means clustering on the
+eight variables with the highest repeatability and among-individual
+variation identified four behavioral profiles: ``typical'' cows (the
+unremarkable majority, frequently displaced at the bins), ``dominant''
+cows (initiating many replacements with efficient, uninterrupted meals),
+``heavy drinkers'' (many long drinking visits spread across the day),
+and ``fragmented, restless feeders'' (many short, interrupted visits
+with frequent agonistic interactions). These results show that data
+streams from electronic feeders and drinkers can be used to build
+individual behavioral profiles that would be largely invisible when
+using generic group-level analyses. This framework may help future
+research in identifing which cows are most susceptible to negative
+impacts in competitive feeding environments. To make this approach
+reproducible and accessible across species and systems, we developed
+moo4feed (https://www.skysheng.io/moo4feed/), an open-source R package
+designed to extract individual behavioral variables from raw electronic
+feeder and drinker data.
+
+\textbf{Keywords:} repeatability, reproducibility, precision livestock
+farming, behavioral monitoring, individual differences
+
+\section{1. Introduction}\label{introduction}
+
+That animals vary in their personalities has long been accepted
+(\citeproc{ref-Slater1981}{Slater, 1981}), and this concept has gained
+traction in farmed animals (\citeproc{ref-finkemeier2018}{Finkemeier et
+al., 2018}) alongside a renewed emphasis on consistent individual
+differences in animal welfare research
+(\citeproc{ref-Richter2019}{Richter and Hintze, 2019}). This shift in
+focus from the group to the individual recognizes that identical
+environments can affect animals within a group differently (pigs:
+\citeproc{ref-lawrence1991individual}{Lawrence et al., 1991}; beef
+cattle: \citeproc{ref-creamer2024consistent}{Creamer and Horback, 2024};
+dairy cattle: \citeproc{ref-Brasier2023}{Brasier et al., 2023}). In most
+dairy production systems in the Northern hemisphere, lactating cows are
+housed intensively, managed in groups, and fed a total mixed ration
+(TMR) distributed once or twice daily
+(\citeproc{ref-DeVries2003}{DeVries et al., 2003}). Although farms aim
+to maximize milk production through precision feeding and improved dry
+matter intake (DMI), the DMI of group-housed cows is shaped by the
+feeding behavior of individuals within the group, which is in turn
+modulated by environment, management, health, and social interactions
+(\citeproc{ref-grant1995feeding}{Grant and Albright, 1995}). Cattle
+exhibit personality-related variability in feeding behavior (reviewed in
+\citeproc{ref-neave2018personality}{Neave et al., 2018}) and develop
+different strategies to cope with social and environmental challenges
+(\citeproc{ref-Foris2021}{Foris et al., 2021}).
+
+Personality has been defined as consistent responses in the behavior of
+individual animals across contexts and over time
+(\citeproc{ref-reale2007}{Réale et al., 2007}). Most traditional
+personality tests work by isolating animals to assess their choices and
+motivations (\citeproc{ref-dawkins2021}{Dawkins, 2021}). The problem is
+that how an animal expresses its personality can look quite different
+depending on whether it's alone or in a social group (see review by
+\citeproc{ref-webster2011personality}{Webster and Ward, 2011}). This has
+led to growing criticism of traditional personality testing approaches:
+not only because they may fail to capture how animals actually behave in
+social settings (\citeproc{ref-biro2012}{Biro, 2012}), but also because
+the measures themselves tend to be inconsistent
+(\citeproc{ref-finkemeier2018}{Finkemeier et al., 2018}). The same
+limitations apply to studies of social competition at the feed bunk,
+which have historically relied on live observation or video coding
+(\citeproc{ref-faerevik2010effect}{Færevik et al., 2010};
+\citeproc{ref-Huzzey2012}{Huzzey et al., 2012}; e.g.,
+\citeproc{ref-phillips2001effects}{Phillips and Rind, 2001}). Both
+approaches are labor-intensive and require extensive training to achieve
+acceptable intra- and inter-observer reliability
+(\citeproc{ref-huzzey2014automatic}{Huzzey et al., 2014}). In contrast,
+data-driven approaches using longitudinal sensor-derived measurements
+allow researchers to characterize behavior by observing animals in their
+home pens with herd mates (\citeproc{ref-carslake2022a}{Carslake et al.,
+2022a}; \citeproc{ref-setser2024b}{Setser et al., 2024}). It has been
+argued that incorporating these continuous data streams could automate
+and revolutionize personality assessment in farm animals
+(\citeproc{ref-setser2024b}{Setser et al., 2024}).
+
+Electronic feeding systems are well-suited to this approach. The
+Insentec Roughage Intake Control (RIC) system (Hokofarm Group,
+Marknesse, The Netherlands) has been validated
+(\citeproc{ref-chapinal2007validation}{Chapinal et al., 2007}) and is
+used at research facilities worldwide (New Zealand:
+\citeproc{ref-biswas2022methane}{Biswas et al., 2022}; United States:
+\citeproc{ref-allwardt2017technical}{Allwardt et al., 2017}; Canada:
+\citeproc{ref-huzzey2014automatic}{Huzzey et al., 2014}; Germany:
+\citeproc{ref-Foris2021}{Foris et al., 2021}). While the primary purpose
+of these systems is to monitor feed intake, each visit is also
+automatically logged with its location, start time, and duration
+(\citeproc{ref-neave2018personality}{Neave et al., 2018}). From these
+basic data streams, researchers have derived additional behavioral
+measures, including replacements at the feed bunk
+(\citeproc{ref-huzzey2014automatic}{Huzzey et al., 2014}), dominance
+relationships (\citeproc{ref-sheng2024redefining}{Sheng et al., 2024}),
+and synchronous feeding (\citeproc{ref-Foris2021}{Foris et al., 2021}).
+
+Recent work has begun to apply multi-level modeling to these
+longitudinal data streams (\citeproc{ref-hertel2020}{Hertel et al.,
+2020}) to quantify behavioral type (an individual's average expression
+of a behavior), repeatability (consistent among-individual differences),
+and predictability (individual differences in within-individual
+consistency) (dairy cows: \citeproc{ref-thomas2024}{Thomas et al.,
+2024}; dairy calves: \citeproc{ref-carslake2022b}{Carslake et al.,
+2022b}; \citeproc{ref-occhiuto2022}{Occhiuto et al., 2022}). However,
+most of this research has prioritized simple metrics such as daily
+feeding duration captured from neck-mounted sensors (e.g.,
+\citeproc{ref-thomas2024}{Thomas et al., 2024}). The raw data from
+electronic feeders contain considerably more information: how feed
+availability along the bunk evolves through the day, when and where a
+cow chooses to eat relative to that availability, whether she visits the
+feeding area without consuming feed (non-nutritive visits), and how
+often she switches bins within a meal. These higher-resolution measures
+may capture aspects of individual feeding and social strategies that
+daily summaries cannot.
+
+To date, however, no comprehensive and accessible framework exists for
+extracting these higher-resolution behavioral variables from raw
+electronic feeder data. Data cleaning rules also differ across labs and
+are rarely shared in a reusable form, which limits both reproducibility
+across studies and the routine application of these measures in dairy
+research. A framework that automates this extraction would allow
+individual animals to be characterized routinely within groups,
+including those who may be more susceptible to distress due to
+maladaptive feeding or social strategies.
+
+The primary aim of this study was to quantify individual-level
+behavioral consistency and among-individual differences in dairy cattle
+feeding and social behaviors captured from an electronic feeding system,
+using repeatability and predictability to identify which behaviors are
+most informative for characterizing individual differences. A secondary
+aim was to identify distinct behavioral profiles based on the most
+consistent among-individual differences, to demonstrate how these
+measures can be used to characterize the diversity of feeding and social
+strategies present within a herd. To make these analyses reproducible
+and to enable broader application of the approach across species and
+researchers with varying technical backgrounds, we developed moo4feed
+(https://www.skysheng.io/moo4feed/), an easy-to-use open-source R
+package that processes raw electronic feeder and drinker data, extracts
+both standard and higher-resolution behavioral variables.
+
+\section{3. Methods}\label{methods}
+
+\subsection{3.1 Animals, Housing, and Data
+Collection}\label{animals-housing-and-data-collection}
+
+Data were collected as part of a larger study described in detail by
+Sheng et al. (\citeproc{ref-sheng2024redefining}{2024}). Briefly, 159
+lactating Holstein dairy cows (12 primiparous, 147 multiparous; parity =
+3.0 ± 1.1; mean ± SD) were enrolled over a 10-month period (July 2020 to
+May 2021) at The University of British Columbia (UBC) Dairy Education
+and Research Centre in Agassiz, BC, Canada. All procedures were approved
+by the UBC Animal Ethics Committee (protocol A19-0299). Cows were housed
+in a dynamic group of 48 in a pen equipped with 48 sand-bedded lying
+stalls, 30 electronic feed bins, and 5 electronic water bins (Insentec,
+Hokofarm, Emmeloord, the Netherlands). The electronic bins identified
+individual cows via radio frequency identification and recorded the cow
+identification, bin number, visit start and end times, and start and end
+weight of the feed or water in the bin for each visit
+(\citeproc{ref-chapinal2007validation}{Chapinal et al., 2007}). Cows
+were milked twice daily and total mixed ration was delivered twice daily
+while cows were away for milking. On average, every 16 ± 3 d, 6 ± 2 cows
+were removed from the pen and replaced with new animals (i.e.,
+regrouping event); individual cows remained in the trial for an average
+of 86 ± 54 d.~Farm staff performed daily health checks, and a trained
+observer scored locomotion weekly using a 5-level scale
+(\citeproc{ref-flower2006effect}{Flower and Weary, 2006}) to identify
+lame cows. A portion of the data gathered in this research was
+previously published at Sheng et al.
+(\citeproc{ref-sheng2024redefining}{2024}).
+
+\subsection{3.2 Data Cleaning and
+Filtering}\label{data-cleaning-and-filtering}
+
+All data preparation and analysis were conducted using R (version 4.3.1;
+R Core Team (\citeproc{ref-R-base}{2025})). To ensure that the data we
+analyze reflect the behavioural baseline patterns of cows when they are
+healthy and not in estrus, we applied stricter data cleaning and
+filtering criteria that extended beyond the data cleaning procedure
+described in our previous work (\citeproc{ref-sheng2024redefining}{Sheng
+et al., 2024}). Starting from 14,728 cow-days across 159 cows and 306 d,
+exclusions were applied at two levels. At the individual level, data
+were removed for specific cows on days affected by:
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\item
+  health events, including illness episodes when cows were moved to the
+  sick pen and when cows received veterinary treatment while remaining
+  in the pen (e.g., mastitis, fever, injury), with a buffer period
+  around each event (7 days before and 7 days after the recorded events)
+  to account for potential behavioural changes during the prodromal and
+  recovery periods (16 cows across 120 days, 197 cow-days).
+\item
+  lameness, defined as two consecutive weekly locomotion scores
+  \textgreater= 3 (\citeproc{ref-eriksson2020effects}{Eriksson et al.,
+  2020}; \citeproc{ref-flower2006effect}{Flower and Weary, 2006}), with
+  all days during the lame period removed until the cow was scored as
+  sound again, plus a 7-d buffer before lameness onset (48 cows across
+  227 days, 679 cow-days).
+\item
+  the first and last day each cow was present in the group, as data on
+  these days would be incomplete (159 cows across 43 days, 285
+  cow-days).
+\item
+  days when farm staff recorded interference with individual cows due to
+  lose of ear tags, hoof trimming or other routine husbandry procedures,
+  as these events may temporarily alter behaviour through handling
+  stress or cows being away from the electronic feed and water bins for
+  extended period of times (9 cows across 22 days, 24 cow-days).
+\item
+  days when cows were not confirmed pregnant, as reproductive status
+  (e.g., bred, fresh, open) may influence behaviour through oestrous
+  cycling and associated hormonal fluctuations; only cow-days where the
+  reproductive status was recorded as pregnant were retained (87 cows
+  across 207 days, 2,695 cow-days removed).
+\end{enumerate}
+
+At the herd level, data were removed for all cows on days affected by:
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\item
+  estrus events, as any cow in heat potentially disturb the behaviour of
+  all other cows in the group (55 estrus events, 2,381 cow-days).
+\item
+  technical disruptions to the electronic feeders and drinkers,
+  including equipment breakdowns, compressor failures, power outages,
+  missing data, and severe weather events that compromised bin function
+  (28 d, 1,281 cow-days).
+\item
+  regrouping events when the herd dynamics is destabilized (16 events,
+  674 cow-days).
+\end{enumerate}
+
+After filtering, 107 cows with sufficient data across 207 days (10-130
+days of observation per cow), 6226 unique cow-days were retained.
+
+\subsection{3.3 Behavioral Variable
+Extraction}\label{behavioral-variable-extraction}
+
+To process the raw feeding and drinking data and extract meaningful
+behavioral variables, we developed an open-source R package, `moo4feed'
+(https://www.skysheng.io/moo4feed/), which provides a standardized,
+customizable workflow for handling electronic feed and water bin data.
+The package supports five areas of analysis used in this study: (1) data
+processing, configuration, and quality control; (2) agonistic
+replacement detection; (3) non-nutritive visit detection; (4) feed
+availability estimation; and (5) meal clustering. All thresholds and
+processing parameters described below are user-configurable to cater to
+different farm setups; the values reported here are those used in the
+present study. Full documentation, including additional functionalities
+not used here (e.g., pairwise synchronicity analysis), please refer to
+the package website.
+
+\global\setlength{\Oldarrayrulewidth}{\arrayrulewidth}
+
+\global\setlength{\Oldtabcolsep}{\tabcolsep}
+
+\setlength{\tabcolsep}{2pt}
+
+\renewcommand*{\arraystretch}{1.5}
+
+
+
+\providecommand{\ascline}[3]{\noalign{\global\arrayrulewidth #1}\arrayrulecolor[HTML]{#2}\cline{#3}}
+
+\begin{longtable}[c]{|p{2.07in}|p{8.12in}|p{1.18in}|p{1.24in}|p{1.22in}}
+
+\caption{\label{tbl-qc-checks}Automated quality control checks applied
+to raw visit data from electronic feed and water bins. Dashes (---)
+indicate that threshold id data-driven, no hard-coded numerical
+threshold applies. Action: Flag = abnormal record is retained and marked
+for researchers to review in the daily quality control report; Correct =
+the record is automatically corrected; Remove = the record is deleted
+from the dataset. For negative weight corrections, intake is
+recalculated from the corrected weights (start weight − end weight); if
+the recalculated intake remains negative, the record is removed. All
+flagged records are retained in the final dataset; the flagging
+procedure functions as a warning system rather than a data filter.}
+
+\tabularnewline
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}
+
+\multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Check}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Description}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Feed\ threshold}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Water\ threshold}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Action}}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}\endfirsthead 
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}
+
+\multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Check}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Description}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Feed\ threshold}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Water\ threshold}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Action}}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}\endhead
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Expected\ cow\ count}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Fewer\ cows\ detected\ than\ expected,\ indicating\ potential\ lost\ ear\ tags}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Flag}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Double\ detections}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Same\ cow\ recorded\ at\ two\ bins\ simultaneously,\ or\ multiple\ cows\ recorded\ at\ the\ same\ bin\ simultaneously,\ indicating\ potential\ bin\ malfunction}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Flag\ and\ correct}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Negative\ duration\ or\ intake}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Visit\ records\ with\ negative\ duration\ or\ intake\ values}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Flag\ and\ remove}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Negative\ weight}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Negative\ start\ or\ end\ weight\ measurements\ in\ the\ bin}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Correct\ to\ 0}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Large\ single-visit\ intake}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Unrealistically\ large\ intake\ per\ visit}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{>8\ kg}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{>30\ L}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Flag}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{No\ afternoon\ feeding\ or\ drinking}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Cow\ did\ not\ feed\ or\ drink\ after\ noon,\ potentially\ due\ to\ a\ lost\ ear\ tag\ or\ illness}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Flag}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Low\ or\ no\ bin\ traffic}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Bins\ with\ unusually\ low\ traffic\ or\ no\ visits,\ indicating\ potential\ equipment\ malfunction}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{—}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Flag}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Long\ visit\ duration}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Implausibly\ long\ visit\ duration}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{>2,000\ s}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{>1,800\ s}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Flag}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{High\ intake\ rate}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Excessively\ high\ intake\ rate\ per\ visit}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{>0.008\ kg/s}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{>0.35\ L/s}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Flag}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Low\ daily\ visit\ count}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Fewer\ than\ 10\ visits\ recorded,\ suggesting\ a\ potentially\ incomplete\ day}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{<10\ visits}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{<10\ visits}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Flag}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.07in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Abnormal\ daily\ intake}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 8.12in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Abnormally\ low\ or\ high\ total\ daily\ intake}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{<35\ or\ >75\ kg/d}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.24in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{<60\ or\ >180\ L/d}}}} & \multicolumn{1}{>{\centering}m{\dimexpr 1.22in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Flag}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}
+
+
+\end{longtable}
+
+\arrayrulecolor[HTML]{000000}
+
+\global\setlength{\arrayrulewidth}{\Oldarrayrulewidth}
+
+\global\setlength{\tabcolsep}{\Oldtabcolsep}
+
+\renewcommand*{\arraystretch}{1}
+
+\textbf{Data Processing, Configuration and Quality Control.} Raw visit
+data were converted into a standardized format, with each record
+capturing the cow's identity, the bin number, visit start and end times,
+and the start and end weights of feed or water in the bin. Only days for
+which both feeder and drinker data files were available were retained.
+Daylight saving time transitions were detected and corrected
+automatically based on the timezone. During fall-back transitions (when
+clocks move back one hour, causing chronological order of visits within
+the repeated hour to be ambiguous), we removed all visits from the
+duplicated hour, since it is not possible to determine the true
+chronological order, and adjusts subsequent timestamps accordingly.
+During spring-forward transitions (when clocks move forward by one
+hour), visit timestamps are shifted forward by one hour for the
+remainder of the day. Records were then passed through a sequence of
+automated quality control checks, summarized in
+Table~\ref{tbl-qc-checks}.
+
+Flagged records were compiled into a daily report and sent to the
+researchers and students working on the farm at the time of data
+collection, alerting them to inspect the electronic bins and record any
+abnormal events (manually noted events are listed in Section 3.2).
+Following these initial checks, multivariate outlier detection was
+performed using a k-nearest neighbor (KNN) algorithm
+(\citeproc{ref-malini2017analysis}{Malini and Pushpa, 2017}) applied to
+scaled visit duration, intake, and intake rate. Unlike rectangular
+cutoffs based on standard deviations of each variable independently, the
+KNN approach operates in multidimensional space and flags visits that
+are unusual in combination even when plausible on any single dimension.
+In this study, k = 50, and the flagging thresholds were set such that
+0.04\% of feed visits and 0.1\% of water visits were identified as
+outliers.
+
+After cleaning, feed and water datasets were combined, and six
+conventional daily behavioral variables were calculated per cow: total
+daily feed intake (kg), total daily feeding duration (s), total feeding
+visits, total daily water intake (L), total daily drinking duration (s),
+and total drinking visits.
+
+\textbf{Agonistic Replacement Detection.} Replacements at the feed bins
+were identified using a validated algorithm following the method
+described by Huzzey et al. (\citeproc{ref-huzzey2014automatic}{2014})
+and Foris et al. (\citeproc{ref-foris2019automatic}{2019}). A
+replacement was recorded when one cow (the actor) entered a feed bin
+within 26 seconds of another cow (the reactor) leaving that same bin,
+serving as a proxy for the actor physically pushing the reactor away
+from the bin. Replacement events were discarded if the presumed actor
+was already feeding at a different bin at the time the reactor exited,
+as this would indicate that the reactor likely left voluntarily rather
+than being displaced (\citeproc{ref-foris2019automatic}{Foris et al.,
+2019}). Daily agonistic behavior was summarized into two variables:
+(vii) total number of times the focal cow acted as the actor (displacing
+another cow from a bin) per day, and (viii) total number of times the
+focal cow acted as the reactor (being displaced from a bin) per day.
+
+\textbf{Non-nutritive Visit Detection.} A visit was classified as
+non-nutritive if the cow's measured intake did not exceed the
+calibration error of the electronic feeders and drinkers (0.5 kg),
+meaning the cow visited a bin that contained feed but did not eat
+anything. This yielded one daily-level variable: (ix) total number of
+non-nutritive feed visits per cow per day.
+
+\textbf{Feed Availability Estimation.} Feed delivery events were
+automatically identified when at least three bins showed a start-weight
+increase of ≥5 kg within a one-hour window (deliveries on our farm never
+exceeded one hour). The 5 kg threshold filtered out small spurious
+weight increases from occasional bin malfunctions or human disturbance
+(e.g., start-weight increase due to someone leaning on a bin), and
+requiring at least three bins to increase concurrently further reduced
+false positives, since these artifacts rarely affect multiple bins at
+once. All detected delivery times were manually verified by the
+researchers to confirm accuracy. This allowed us to summarize the
+frequency of feed deliveries throughout the day and the amount of feed
+added to each bin during each delivery. By combining delivery records
+with visit-level bin weight data, we then estimated how much feed
+remained in each bin at the moment a cow arrived. This produced one
+variable: (x) median proportion of feed remaining in the bin at visit
+start (\%), calculated as the daily median across all of a cow's feed
+bin visits. The median was used in place of the mean because the
+underlying distributions are often skewed and do not meet normality
+assumptions. This variable indicates whether a cow consistently arrived
+at bins with ample fresh feed or tended to access nearly depleted bins,
+helping flag individuals that may be socially disadvantaged and forced
+to eat leftover feed.
+
+\textbf{Meal Clustering and Analysis.} Individual feed bin visits were
+grouped into meals using a density-based clustering algorithm: DBSCAN
+(\citeproc{ref-khan2014dbscan}{Khan et al., 2014}), which identifies
+clusters of temporally close visits based on two parameters: a maximum
+time gap between consecutive visits within a meal (the meal criterion),
+and a minimum number of visits required to form a meal. The meal
+criterion was determined in a data-driven manner rather than using a
+fixed interval (e.g., 60 or 90 minutes), which may not account for
+differences among farms, data collection methods, and individual
+animals' differences.
+
+To derive the meal criterion, we first extracted all inter-visit
+intervals (i.e., the time gaps between consecutive feed bin visits from
+the same animal) pooled across all animals and days. Because these gap
+times are highly right-skewed (most gaps are short, but a few are very
+long), a log transformation was applied before fitting a two-component
+Gaussian Mixture Model (GMM) (\citeproc{ref-tolkamp1998satiety}{Tolkamp
+et al., 1998}). The two components naturally capture two distinct
+populations of gaps: short within-meal pauses and longer between-meal
+gaps. The meal criterion was then set to the point where the two fitted
+distributions intersect. In this study, a single meal criterion was
+derived based on the inter-visit intervals distribution for all animals
+and days; the package supports finer granularity (animal-specific or
+animal-day-specific meal thresholds) and alternative gap-distribution
+methods, but these were not used here. Meals were required to contain a
+minimum of two visits. The DBSCAN algorithm then assigned each visit to
+a meal cluster or flagged it as an isolated, unclustered visit. Timeline
+visualizations of the resulting meal clusters were generated and
+visually inspected for each animal-day to confirm clustering quality
+(example:
+https://www.skysheng.io/moo4feed/articles/meal\_clustering.html).
+
+Once visits were grouped into meals, meal-level variables were computed
+by aggregating visit-level data within each meal and then summarizing
+across all meals within each cow-day. This step yielded six meal-level
+variables: (xi) total number of meals per day, (xii) median meal
+duration (s), (xiii) median number of visits per meal, (xiv) median feed
+intake per meal (kg), (xv) median percentage of time spent feeding per
+meal, calculated as the proportion of the meal's total duration during
+which the cow was actively occupying a feed bin (total visit time ÷ meal
+duration × 100\%), and (xvi) median number of non-nutritive visits per
+meal.
+
+In total, 16 behavioral variables were included in the statistical
+analyses described in Section 3.4: six basic daily feeding and drinking
+variables (i--vi), two daily agonistic variables (vii--viii), one
+non-nutritive visit variable (ix), one feed availability variable (x),
+and six meal-level variables (xi--xvi). These variables were selected
+because they capture biologically meaningful aspects of individual
+feeding, drinking, exploration and social strategies. We do not claim
+that this set is exhaustive; other variables could be derived from the
+same data streams. The `moo4feed' package and the analytical framework
+described in Section 3.4 are designed to accommodate additional
+variables, and we encourage future researchers to extend this set and
+evaluate which further metrics may be informative for individual
+profiling.
+
+\subsection{3.4 Statistical Analysis}\label{statistical-analysis}
+
+We used Bayesian mixed-effects models to quantify repeatability and
+predictability. All models were fitted using the brms R package
+(\citeproc{ref-burkner2017brms}{Bürkner, 2017}), which implements
+Bayesian regression models via the Stan programming language.
+
+\textbf{Variable distribution assessment.} Before fitting any models, we
+examined the distribution of each behavioral variable by plotting
+histograms on both the raw and log-transformed scale. For each variable,
+we computed skewness, the proportion of zero values, and conducted
+Shapiro-Wilk normality test. This informed the likelihood family
+selected for each Bayesian model: variables with approximately symmetric
+distributions were modeled using a Gaussian likelihood (feed intake,
+feeding duration, water intake, median percentage of time spent feeding
+per meal, median proportion of feed remaining when cow starts feeding),
+while strongly right-skewed variables were modeled using a lognormal
+likelihood (number of feeding visits, drinking duration, number of
+drinking visits, total meals, median meal duration, median visits per
+meal, median feed intake per meal, number of non-nutritive visits,
+median non-nutritive visits per meal, total actor events, and total
+reactor events). Three variables modeled with a lognormal likelihood
+(median non-nutritive visits per meal, total actor events, and total
+reactor events) were shifted by adding a constant of 1 prior to model
+fitting, given that the lognormal distribution requires strictly
+positive values and each of these variables contained zero values.
+Posterior estimates for these variables were shifted back to the
+original scale for interpretation.
+
+\textbf{Repeatability.} For each of the 16 behavioral variables, a
+Bayesian mixed model was fitted:
+
+\[
+\text{response} \sim \text{DIM} + \text{parity} + \text{THI}_{\text{mean}} + \text{poly}(\text{month},\, 2) + (1 \mid \text{cow})
+\]
+
+where DIM (days in milk), parity, and mean daily THI were fixed effects
+controlling for changes in physiological state and thermal environment,
+a second-degree polynomial of calendar month captured seasonal trends,
+and cow identity was a random intercept. Default brms priors were used.
+MCMC sampling used 4 chains with 1,000 warmup iterations; total
+iterations ranged from 6,000 to 17,000 per variable to ensure
+convergence.
+
+Among-individual variation was quantified using two metrics derived from
+posterior draws: repeatability \textbf{(R)} and the coefficient of
+individual variation \textbf{(CVi)} (\citeproc{ref-hertel2020}{Hertel et
+al., 2020}). R is the proportion of total variance attributable to
+between-cow differences:
+
+\[
+R = \frac{\text{var.cow}}{\text{var.cow} + \text{var.res}}
+\]
+
+where \(\text{var.cow}\) is the posterior variance of the cow-level
+random intercept and \(\text{var.res}\) is the residual variance. R is
+thus confounded by the within-individual variance. A high value of R
+could mean cows differ a lot from each other, or simply mean that each
+cow is very consistent within herself. To resolve this ambiguity, we
+also computed CVi, which calculates among-individual spread relative to
+the population mean, independently of within-individual consistency:
+
+\[
+\text{CVi} = \frac{\sqrt{\text{var.cow}}}{\bar{y}}
+\]
+
+where \(\bar{y}\) is the mean of the response variable. For lognormal
+models, CVi was instead computed as
+
+\[
+\sqrt{\exp(\text{var.cow}) - 1}
+\]
+
+to place the estimate on the original data scale. CVi is interpretable
+across behaviors with different units and facilitates comparison across
+studies. Model convergence was assessed via R-hat (\textless{} 1.01),
+Bulk- and Tail-Effective Sample Size (ESS), trace plots, and posterior
+predictive checks (\citeproc{ref-gabry2019visualization}{Gabry et al.,
+2019}; \citeproc{ref-vehtari2021rank}{Vehtari et al., 2021}).
+Individual-level posterior distributions were visualized using ridge
+plots ordered by each cow's posterior mean
+(\citeproc{ref-hertel2020}{Hertel et al., 2020}).
+
+\textbf{Predictability.} Within-individual variance was quantified using
+a double hierarchical generalized linear model (DHGLM) implemented in
+brms. In addition to modeling the mean response, brms allows a variance
+structure to also be imposed on the residual variance (i.e.,
+within-individual variance). Each DHGLM extended the repeatability model
+by adding a cow-level random effect to the residual variance,
+partitioning it per individual so that cows with high residual variance
+are identified as more unpredictable than cows with low residual
+variance:
+
+\[
+\text{sigma} \sim (1 \mid \text{cow})
+\]
+
+Population-level predictability was summarized using two metrics derived
+from the posterior SD of the cow-level random effect in the sigma
+sub-model (\(\text{sd.sigma.cow}\)). The residual intra-individual
+variability \textbf{(rIIV)} captures how much cows differ from one
+another in their within-individual consistency
+(\citeproc{ref-hertel2020}{Hertel et al., 2020}):
+
+\[
+\text{rIIV} = \exp(\text{sd.sigma.cow})^2
+\]
+
+We also computed the coefficient of variation of predictability
+\textbf{(CVP)}, which can be used to compare predictability across
+different behavioural traits and studies, independent of the scale of
+the trait:
+
+\[
+\text{CVP} = \sqrt{\exp(\text{sd.sigma.cow}^2) - 1}
+\]
+
+Both rIIV and CVP are monotonic transformations of the same parameter
+(\(\text{sd.sigma.cow}\)). We report both because rIIV has a direct
+biological interpretation as a fold-ratio in residual SD across
+individuals, whereas CVP provides a standardized, scale-free quantity
+for comparison across traits and studies. MCMC sampling settings were
+identical to those used for the repeatability models.
+
+A high CVP value means that cows differ considerably from each other in
+how consistent their day-to-day behavior is: for example, some cows may
+eat nearly the same amount of feed every day, while others fluctuate
+substantially. A low CVP value means that cows are similar to each other
+in their predictability: whether that means all cows are highly
+consistent, or all cows are highly variable, there is little difference
+between individuals in their within-individual consistency.
+
+\textbf{Behavioral variable clustering.} To organize the 16 behavioral
+variables by how informative they are for individual profiling, we
+applied k-means clustering (k = 3, 50 random starts) to the posterior
+mean CVi and R values for each variable, after scaling both dimensions.
+All variables have low predictaibility values, thus measures of
+predictability were not used in behavioral variable clustering. The
+number of clusters (k = 3) was determined by researcher judgment based
+on visual inspection of the CVi and R distributions. The three clusters
+were labeled by descending R and CVi: Cluster 1 (high R, high CVi:
+traits in which cows differ substantially in their individual average
+behavioral expression relative to the herd mean, and those individual
+differences are consistent over time); Cluster 2 (high R, low CVi:
+traits in which individual differences are consistent over time, but the
+variation among cows is small relative to the herd mean); and Cluster 3
+(low R, low CVi: traits in which cows show little variation relative to
+the herd mean, and what little variation exists is not consistent over
+time). We used only the variables in Cluster 1 for the downstream cow
+clustering, as they were deemed as the most informative for individual
+cow profiling.
+
+\textbf{Individual-level behavioral profiles.} For each cow and each
+behavioral variable in Cluster 1, we extracted the individual intercept
+from the posterior distribution: the population intercept plus each
+cow's random effect (back-transformed to the original scale for
+lognormal models). This represents a cow's average behavioral type
+(i.e., a cow's typical expression of their behavior). For example, for
+daily feed intake modeled with a Gaussian likelihood, if the population
+intercept is 50 kg and cow A's random effect is 20 kg, cow A's
+individual intercept would be 70 kg, representing her typical daily feed
+intake after accounting for DIM, parity, THI, and seasonal effects.
+
+\textbf{PCA and cow clustering using k-means.} To synthesize the
+multi-dimensional behavioral profiles into a small number of
+interpretable dimensions and identify distinct cow types, we applied
+principal component analysis (PCA) with varimax rotation
+(\citeproc{ref-budaev2010using}{Budaev, 2010}) to the matrix of
+individual intercepts for the Cluster 1 variables (one row per cow, one
+column per variable). For example, if Cluster 1 contained 8 variables
+and the study retained 107 cows, the PCA input would be a 107 × 8 matrix
+where each entry is the individual intercept (extracted as described
+above) for one cow on one behavioral variable. The number of components
+retained was chosen to explain at least 80\% of the cumulative variance
+(\citeproc{ref-cangelosi2007component}{Cangelosi and Goriely, 2007}).
+
+Following PCA, cows were grouped into behavioral types by applying
+k-means clustering to the retained rotated component scores. The optimal
+number of clusters \(k\) was determined using the silhouette method
+(\citeproc{ref-rousseeuw1987silhouettes}{Rousseeuw, 1987}), evaluated
+across 100 independent runs with different random seeds, each using 100
+random centroid initializations for stability. For each run, the value
+of \(k\) yielding the highest mean silhouette score was selected, and
+the \(k\) chosen most frequently across all seeds was used for the final
+clustering. The mean silhouette score \(\bar{s}\) across all cows serves
+as an overall measure of cluster quality, reflecting both within-cluster
+cohesion and between-cluster separation. The resulting clusters were
+visualized using component score biplots and an interactive 3D scatter
+plot for exploration of cow clusters across three principal components.
+
+\subsection{3.5 Reproducible Data Science Workflow and
+Software}\label{reproducible-data-science-workflow-and-software}
+
+To support full transparency and reproducibility, all data processing,
+variable extraction, and analytical steps were implemented in the
+moo4feed R package \url{https://www.skysheng.io/moo4feed/}, which is
+publicly available with detailed tutorials. The functions implemented in
+this R package have been thoroughly tested with 96\% code coverage (code
+coverage report: \url{https://app.codecov.io/gh/skysheng7/moo4feed}).
+This R package enables researchers to replicate our variable extraction
+pipeline on their own datasets and to extend the approach to additional
+behavioral measures. The source code and example data included in the R
+package is hosted on GitHub:
+\url{https://github.com/skysheng7/moo4feed.git}. We used the newly
+developed R package to extract the behavioral variables described in
+Section 3.3 and conduct all statistical analyses described in Section
+3.4, data and code for all the data analysis are available at:
+\url{https://github.com/skysheng7/competition_dominance_analysis.git}.
+We have also used Borealis to archive the R package at:
+\url{https://doi.org/10.5683/SP3/LF4DRO} and data analysis code at:
+\url{https://doi.org/10.5683/SP3/K6J350}.
+
+\section{4. Results}\label{results}
+
+Throughout this section, all repeatability and predictability measures
+(R, CVi, CVP, and rIIV) are reported as posterior means followed by
+their 95\% credible intervals (CrIs) in square brackets.
+
+\subsection{4.1 Among-Individual Variation: Repeatability and
+CVi}\label{among-individual-variation-repeatability-and-cvi}
+
+Because R is confounded by within-individual variance (Section 3.4), we
+use the coefficient of individual variation (CVi) as the primary metric
+for comparing the magnitude of among-individual differences across the
+16 behavioral variables, and we report R alongside CVi as a reference
+for how reliably those differences persist from day to day (Table 1,
+Figure~\ref{fig-rep-cvp-scatter}).
+
+Among all variables, the total number of non-nutritive visits showed the
+largest relative among-individual variation (CVi = 0.53 {[}0.45,
+0.61{]}), meaning that on average, cows differ from one another by more
+than half the population mean in how often they visit a feed bin without
+eating. The total number of actor events (CVi = 0.47 {[}0.40, 0.54{]})
+and the median number of non-nutritive visits per meal (CVi = 0.44
+{[}0.38, 0.51{]}) were also highly variable across individuals,
+indicating that agonistic and non-nutritive visiting frequencies are the
+most individually distinguishing behaviors in this herd among all
+variables we evalauted. At the other end of the spectrum, the percentage
+of meal time spent actively feeding (CVi = 0.09 {[}0.08, 0.10{]}) and
+daily feed intake (CVi = 0.10 {[}0.08, 0.11{]}) showed the smallest
+relative variation, meaning cows are nearly indistinguishable from one
+another on these dimensions.
+
+Repeatability (R) provides complementary but not redundant information.
+Daily water drinking duration had the highest R (0.74 {[}0.69, 0.79{]}),
+followed by daily feeding visits (R = 0.68 {[}0.62, 0.74{]}) and the
+total number of non-nutritive visits (R = 0.64 {[}0.58, 0.70{]}). The
+lowest R values were observed for the median proportion of feed
+remaining when a cow arrived at a bin (R = 0.21 {[}0.16, 0.26{]}),
+median feed intake per meal (R = 0.29 {[}0.23, 0.36{]}), and median meal
+duration (R = 0.31 {[}0.25, 0.38{]}).
+
+As articulated in Section 3.4, R and CVi do not always rank traits the
+same way. The clearest example is the median percentage of meal time
+spent feeding, which has a moderately high R (0.59 {[}0.53, 0.66{]}) but
+the lowest CVi of all 16 variables (0.09 {[}0.08, 0.10{]}). The high R
+values are not driven by high among-individual variation, instead it is
+driven by the low within-individual variance. In other words, each cow
+is very consistent within themselves from day to day, so R
+(\(R = \frac{\text{var.cow}}{\text{var.cow} + \text{var.res}}\)) is
+inflated by low residual (within-individual) variance rather than by
+high among-individual variance. Variables ranked near the top on both R
+and CVi (e.g., the total number of non-nutritive visits, water drinking
+duration), represent the most useful candidates for individual
+profiling, since cows both differ meaningfully from one another and
+behave consistently enough for those differences to be detectable from
+repeated observations.
+
+\textbf{Table 1.} Repeatability (R), coefficient of individual variation
+(CVi), coefficient of variation of predictability (CVP), and residual
+intra-individual variability (rIIV) for the 16 behavioral variables.
+Values are posterior means with 95\% credible intervals in brackets.
+Cell color encodes the posterior mean within each metric (darker =
+higher). Rows are grouped by behavioral category.
+
+\global\setlength{\Oldarrayrulewidth}{\arrayrulewidth}
+
+\global\setlength{\Oldtabcolsep}{\tabcolsep}
+
+\setlength{\tabcolsep}{2pt}
+
+\renewcommand*{\arraystretch}{1.5}
+
+
+
+\providecommand{\ascline}[3]{\noalign{\global\arrayrulewidth #1}\arrayrulecolor[HTML]{#2}\cline{#3}}
+
+\begin{longtable*}[c]{|p{1.62in}|p{1.94in}|p{1.19in}|p{1.19in}|p{1.19in}|p{1.19in}}
+
+
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}
+
+\multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.62in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Category}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Variable}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{R\ [95\%\ CI]}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{CVi\ [95\%\ CI]}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{CVP\ [95\%\ CI]}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{rIIV\ [95\%\ CI]}}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}\endfirsthead 
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}
+
+\multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.62in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Category}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Variable}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{R\ [95\%\ CI]}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{CVi\ [95\%\ CI]}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{CVP\ [95\%\ CI]}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{rIIV\ [95\%\ CI]}}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}\endhead
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Feeding}}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Daily\ feed\ intake}}}} & \multicolumn{1}{>{\cellcolor[HTML]{A3C0A1}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.39\ [0.32,\ 0.46]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{E0E5F3}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.10\ [0.08,\ 0.11]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{BF360C}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.22\ [0.18,\ 0.26]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{4A148C}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.55\ [1.44,\ 1.68]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Daily\ feeding\ duration}}}} & \multicolumn{1}{>{\cellcolor[HTML]{628F60}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.56\ [0.49,\ 0.63]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{CFD1E8}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.14\ [0.12,\ 0.15]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{DF7D57}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.17\ [0.14,\ 0.21]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{8F65B5}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.41\ [1.32,\ 1.50]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Daily\ feeding\ visits}}}} & \multicolumn{1}{>{\cellcolor[HTML]{376F37}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.68\ [0.62,\ 0.74]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{8D86BD}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.29\ [0.25,\ 0.34]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{DF7E57}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.17\ [0.14,\ 0.20]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{8F65B5}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.41\ [1.32,\ 1.50]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Median\ \%\ feed\ remaining}}}} & \multicolumn{1}{>{\cellcolor[HTML]{E8F5E9}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.21\ [0.16,\ 0.26]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D3D6EB}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.13\ [0.11,\ 0.15]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{E07F59}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.17\ [0.14,\ 0.20]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{9067B6}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.40\ [1.31,\ 1.50]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Drinking}}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Daily\ water\ intake}}}} & \multicolumn{1}{>{\cellcolor[HTML]{669263}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.55\ [0.48,\ 0.62]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{CFD1E8}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.14\ [0.12,\ 0.15]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{DD7851}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.18\ [0.14,\ 0.21]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{8A5FB2}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.42\ [1.33,\ 1.51]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Daily\ drinking\ duration}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1B5E20}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.74\ [0.69,\ 0.79]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{6159A2}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.39\ [0.34,\ 0.45]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D15D34}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.20\ [0.16,\ 0.23]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{7041A2}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.48\ [1.38,\ 1.58]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Daily\ drinking\ visits}}}} & \multicolumn{1}{>{\cellcolor[HTML]{669263}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.55\ [0.48,\ 0.62]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{918AC0}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.28\ [0.24,\ 0.32]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{E1825C}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.17\ [0.14,\ 0.20]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{936AB7}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.40\ [1.31,\ 1.49]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Meal\ patterns}}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Total\ meals}}}} & \multicolumn{1}{>{\cellcolor[HTML]{A4C1A2}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.38\ [0.32,\ 0.45]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{C8C9E4}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.15\ [0.13,\ 0.17]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{F0AD8C}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.14\ [0.10,\ 0.17]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{BA99D0}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.31\ [1.23,\ 1.40]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Median\ meal\ duration}}}} & \multicolumn{1}{>{\cellcolor[HTML]{BED5BD}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.31\ [0.25,\ 0.38]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{BBB9DB}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.18\ [0.16,\ 0.21]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FAD2B9}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.11\ [0.07,\ 0.14]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9C3E4}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.23\ [1.16,\ 1.31]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Median\ visits\ per\ meal}}}} & \multicolumn{1}{>{\cellcolor[HTML]{729B6F}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.52\ [0.45,\ 0.59]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{7D75B3}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.33\ [0.28,\ 0.38]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FCDDC5}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.10\ [0.07,\ 0.12]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{E2CEEA}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.21\ [1.15,\ 1.28]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Median\ intake\ per\ meal}}}} & \multicolumn{1}{>{\cellcolor[HTML]{C7DCC6}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.29\ [0.23,\ 0.36]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{BDBCDC}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.18\ [0.15,\ 0.21]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{C84B22}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.21\ [0.17,\ 0.25]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{5E2C97}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.51\ [1.40,\ 1.63]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Median\ feeding\ \%\ per\ meal}}}} & \multicolumn{1}{>{\cellcolor[HTML]{568654}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.59\ [0.53,\ 0.66]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{E3E8F5}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.09\ [0.08,\ 0.10]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{C84921}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.21\ [0.17,\ 0.25]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{5D2A96}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.52\ [1.40,\ 1.63]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Non-nutritive\ behavior}}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Non-nutritive\ visits}}}} & \multicolumn{1}{>{\cellcolor[HTML]{447943}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.64\ [0.58,\ 0.70]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1A237E}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.53\ [0.45,\ 0.61]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{CA4F26}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.21\ [0.17,\ 0.24]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{62319A}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.51\ [1.40,\ 1.62]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Median\ non-nutritive\ per\ meal}}}} & \multicolumn{1}{>{\cellcolor[HTML]{649161}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.56\ [0.49,\ 0.62]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{4A4495}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.44\ [0.38,\ 0.51]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFF3E0}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.08\ [0.05,\ 0.11]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{F3E5F5}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.17\ [1.11,\ 1.24]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{\textbf{Social\ dominance}}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Total\ actor\ events}}}} & \multicolumn{1}{>{\cellcolor[HTML]{79A076}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.50\ [0.43,\ 0.57]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{3F3B8E}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.47\ [0.40,\ 0.54]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{C44219}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.22\ [0.18,\ 0.25]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{562292}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.53\ [1.42,\ 1.65]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}p{\dimexpr 1.62in+0\tabcolsep}}{} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{Total\ reactor\ events}}}} & \multicolumn{1}{>{\cellcolor[HTML]{90B28D}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.44\ [0.37,\ 0.51]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{6961A7}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.38\ [0.32,\ 0.43]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{E99673}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{0.15\ [0.12,\ 0.19]}}}} & \multicolumn{1}{>{\cellcolor[HTML]{A681C3}\centering}m{\dimexpr 1.19in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{9}{9}\selectfont{\global\setmainfont{Arial}{1.35\ [1.27,\ 1.44]}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}
+
+
+
+\end{longtable*}
+
+
+
+\arrayrulecolor[HTML]{000000}
+
+\global\setlength{\arrayrulewidth}{\Oldarrayrulewidth}
+
+\global\setlength{\tabcolsep}{\Oldtabcolsep}
+
+\renewcommand*{\arraystretch}{1}
+
+\phantomsection\label{cell-fig-rep-cvp-scatter}
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{results/14_individual_traits/ellipse_scatter_grid_AB.png}}
+
+}
+
+\caption{\label{fig-rep-cvp-scatter}Between- and within-individual
+variation in the 16 behavioral variables. (A) Repeatability (R) vs
+coefficient of individual variation (CVi). (B) Coefficient of variation
+of predictability (CVP) vs CVi. Each point is a behavioral variable;
+ellipses show 95\% credible intervals on both axes. Points are coloured
+by the 3-cluster k-means solution of Section 4.3 (Cluster 1 = high R,
+high CVi; Cluster 2 = high R, low CVi; Cluster 3 = low R, low CVi).
+Point shape distinguishes the likelihood family used for the mixed
+model.}
+
+\end{figure}%
+
+\subsection{4.2 Within-Individual Variation:
+Predictability}\label{within-individual-variation-predictability}
+
+We use the coefficient of variation of predictability (CVP) as the
+primary metric for cross-trait comparisons of predictability, and report
+rIIV alongside to provide a biological anchor for these values: it
+expresses how many times more variable the least-predictable cows are
+compared to the most-predictable cows.
+
+Variables related to meal-patterns were the most predictable. The median
+number of non-nutritive visits per meal (CVP = 0.08 {[}0.05, 0.11{]};
+rIIV = 1.17 {[}1.11, 1.24{]}), median visits per meal (CVP = 0.10
+{[}0.07, 0.12{]}; rIIV = 1.21 {[}1.15, 1.28{]}), and median meal
+duration (CVP = 0.11 {[}0.07, 0.14{]}; rIIV = 1.23 {[}1.16, 1.31{]}) had
+the lowest CVP values, meaning individual cows expressed these behaviors
+at a similar level of behvioral consistency within themselves aross
+different days, and cows differed little from one another in how
+predictable they were. The corresponding rIIV values indicate that the
+least-predictable cows showed only about 1.2 times more variable than
+most-predictable cows for these behaviors. In contrast, daily feed
+intake (CVP = 0.22 {[}0.18, 0.26{]}; rIIV = 1.55 {[}1.44, 1.68{]}),
+total number of actor events (CVP = 0.22 {[}0.18, 0.25{]}; rIIV = 1.53
+{[}1.42, 1.65{]}), and the median percentage of meal time spent feeding
+(CVP = 0.21 {[}0.17, 0.25{]}; rIIV = 1.52 {[}1.40, 1.63{]}) had the
+highest CVP, indicating moderately higher individual variation in
+within-individual behaviour consistency: some cows were more consistent
+than others in these behaviors, with the least-predictable cows being
+roughly 1.5 times as more variable than the most-predictable cows.
+Nevertheless, all 16 variables displayed relatively low CVP and rIIV
+values overall. As shown in Figure~\ref{fig-rep-cvp-scatter} B,
+distinguishing among the 16 variables based on CVP alone is difficult,
+as they cluster within a narrow range of CVP ≤ 0.22.
+
+\subsection{4.3 Classifying Behavioral
+Variables}\label{classifying-behavioral-variables}
+
+We grouped the 16 variables into 3 clusters based on their R and CVi
+values using K-means (Figure~\ref{fig-rep-cvp-scatter} A).
+
+\textbf{Behavior Cluster 1 --- high R, high CVi} contained 8 variables:
+number of non nutritive visits, total actor, median non nutritive per
+meal, water duration, total reactor, median visit per meal, feed visits,
+water visits. Cows in this cluster differed widely from one another in
+their average behavioral expression, and these differences remained
+stable over time. In other words, each cow had a distinctive and
+repeatable behavioural signature. These variables are the most useful
+for characterising individual behavioural profiles.
+
+\textbf{Behavior Cluster 2 --- high R, low CVi} contained 3 variables:
+feed duration, water intake, median feeding pct per meal. Individual
+differences were again consistent over time, but the spread of
+individual differences across the herd was narrow relative to the herd
+mean.
+
+\textbf{Behavior Cluster 3 --- low R, low CVi} contained 5 variables:
+median meal duration, median intake per meal, total meals, median pct
+feed remaining, feed intake. Cows showed little variation from one
+another in these behaviours, and what variation did exist was
+inconsistent across days. This pattern suggests these behaviours are
+driven more by day-to-day environmental conditions (e.g., feed
+availability, group dynamics) than by stable individual tendencies.
+
+\subsection{4.4 Identifying Cow Types via
+PCA}\label{identifying-cow-types-via-pca}
+
+We applied PCA with varimax rotation to the intercepts (average
+individual cow's behaviour expression) of the 8 Behavior Cluster 1
+variables. 3 components were retained to meet the ≥80\%
+cumulative-variance criterion
+(\citeproc{ref-cangelosi2007component}{Cangelosi and Goriely, 2007}),
+together explaining 86.1\% of the total variance (Table 2,
+Figure~\ref{fig-pca-biplots}). Rotated Component (RC) 1 explained the
+largest share of variance (51.6\%), driven primarily by non-nutritive
+behavior and feeding patterns. RC2 explained 21.3\% of variance and was
+most strongly associated with drinking patterns. RC3 captured the
+remaining variance, primarily related to agonistic behavior (actor and
+reactor events).
+
+\textbf{Table 2.} Varimax-rotated PCA loadings for the 8 Behavior
+Cluster-1 intercept variables.
+
+\global\setlength{\Oldarrayrulewidth}{\arrayrulewidth}
+
+\global\setlength{\Oldtabcolsep}{\tabcolsep}
+
+\setlength{\tabcolsep}{2pt}
+
+\renewcommand*{\arraystretch}{1.5}
+
+
+
+\providecommand{\ascline}[3]{\noalign{\global\arrayrulewidth #1}\arrayrulecolor[HTML]{#2}\cline{#3}}
+
+\begin{longtable*}[c]{|p{2.11in}|p{0.60in}|p{0.60in}|p{0.60in}}
+
+
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}
+
+\multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 2.11in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{\textbf{Variable}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{\textbf{RC1}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{\textbf{RC2}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{\textbf{RC3}}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}\endfirsthead 
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}
+
+\multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 2.11in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{\textbf{Variable}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{\textbf{RC1}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{\textbf{RC2}}}}} & \multicolumn{1}{>{\cellcolor[HTML]{1F3A93}\centering}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{FFFFFF}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{\textbf{RC3}}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}\endhead
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.11in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{number\ of\ non\ nutritive\ visits}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.96}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.02}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.06}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.11in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{total\ actor}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.51}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.30}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{-0.57}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.11in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{median\ non\ nutritive\ per\ meal}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.97}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{-0.01}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.07}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.11in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{water\ duration}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{-0.08}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.89}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{-0.17}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.11in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{total\ reactor}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.36}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.16}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.82}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.11in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{median\ visit\ per\ meal}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.94}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{-0.04}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.08}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.11in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{feed\ visits}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.96}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.05}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.07}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 2.11in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{water\ visits}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.08}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.91}}}} & \multicolumn{1}{>{\raggedleft}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{10}{10}\selectfont{\global\setmainfont{Arial}{0.21}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}
+
+
+
+\end{longtable*}
+
+
+
+\arrayrulecolor[HTML]{000000}
+
+\global\setlength{\arrayrulewidth}{\Oldarrayrulewidth}
+
+\global\setlength{\tabcolsep}{\Oldtabcolsep}
+
+\renewcommand*{\arraystretch}{1}
+
+\begin{figure}
+
+\begin{minipage}{0.50\linewidth}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc2.png}}
+
+}
+
+\subcaption{\label{fig-pca-biplots-1}RC1 vs RC2}
+
+\end{minipage}%
+%
+\begin{minipage}{0.50\linewidth}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_rc1_rc3.png}}
+
+}
+
+\subcaption{\label{fig-pca-biplots-2}RC1 vs RC3}
+
+\end{minipage}%
+
+\caption{\label{fig-pca-biplots}PCA biplots using the intercepts of
+Cluster-1 variables. Left: Rotated Component (RC)1 vs RC2. Right: RC1 vs
+RC3. Each point is a cow, coloured by k-means cluster assignment; arrows
+represent variable loadings scaled to the score space. Ellipses show
+95\% confidence regions around each cluster centroid.}
+
+\end{figure}%
+
+K-means clustering on the 3 retained rotated components after PCA, with
+\(k\) selected by the silhouette method, identified k = 4 as the optimal
+number of cow clusters. The mean silhouette width of the final
+clustering was 0.30, indicating reasonably well-defined groupings. An
+interactive visualization of the 4 clusters of cows in the 3D space,
+colored by cluster assignment, is available at
+\url{https://www.skysheng.io/moo4feed_decoding_animal/}.
+
+\textbf{Cow Cluster 1 --- ``typical subordinate'' cows (n = 55,
+\textasciitilde51\% of the herd, the largest group).} Cows in this
+cluster sit near the herd average on RC1 (mean score = -0.21) and
+slightly below average on RC2 (-0.41), but score noticeably high on RC3
+(0.58). These cows are replaced from feed bins (reactor events) more
+often than they replaced others (actor events), and have slightly low
+drinking activity (Figure~\ref{fig-pca-biplots} A). Cows in this cluster
+are the unremarkable majority of the herd: they feed, drink, and take
+their meals within typical ranges, but routinely yield the bin to more
+dominant penmates.
+
+\textbf{Cow Cluster 2 --- ``heavy drinkers'' (n = 13,
+\textasciitilde12\%).} Cows in this cluster are distinguished by a very
+high RC2 score (1.91), driven by both long daily drinking duration and
+more drinking visits per day, while showing slightly lower than herd
+average RC1 (-0.39) and slightly higher than herd average RC3 (0.46)
+(Figure~\ref{fig-pca-biplots} A). These cows express substantially high
+drinking activity even after we controled for DIM and THI. They have
+relatively low feeding activity, and get replaced slightly more often
+than they replace others.
+
+\textbf{Cow Cluster 3 --- ``fragmented, restless feeders'' (n = 5,
+\textasciitilde5\%, the smallest group).} This small group of extreme
+individuals scores very high on RC1 (3.09), driven by a combination of
+many feed visits per day, many non-nutritive visits, and highly
+fragmented meals (many short visits per meal, with repeated
+head-in/head-out events rather than sustained feeding). RC2 (-0.43) is
+slightly below average, and RC3 (0.03) score is very close to the herd
+average. These cows have relatively low drinking activity, repeatedly
+switch among bins in search of preferred feed, even though there is feed
+remaining in the bins they visited. This cluster contains only a handful
+of cows, it captures the behavioral tail of the distribution rather than
+a common type.
+
+\textbf{Cow Cluster 4 --- ``dominant'' cows (n = 34,
+\textasciitilde32\%, the second-largest group).} These cows show average
+RC1 (0.03) and RC2 (0.00) scores but a strongly negative RC3 score
+(-1.12), meaning they initiate many more replacement events than they
+receive (Figure~\ref{fig-pca-biplots} B). Their feeding, drinking
+behaviors, and meal patterns are otherwise unremarkable. This cluster
+represents the socially dominant cows of the herd. These cows likely
+benefit from preferential access to feed bins.
+
+\subsection{4.6 Individual Cow Stories}\label{individual-cow-stories}
+
+We selected one cow from each of the 4 clusters (cows 7068, 7150, 5042,
+5120) and describe their individual stories through their average
+behavioral expression compared to the herd. All behavioral values
+reported below are posterior means of each cow's behavioral type (i.e.,
+her individual intercept from the mixed models in Section 4.1), so they
+represent the cow's typical day-to-day expression after accounting for
+DIM and THI. Percentiles are calculated within the herd on those same
+posterior means.
+
+\textbf{Cow 7068 --- a ``typical subordinate'' (Cluster 1).} Cow 7068 is
+almost never the one replacing others at the feed bin (daily actor
+events: 9.12, 4th percentile of the herd) but is very frequently
+replaced by others (daily reactor events: 52.56, 90th percentile).
+Despite routinely being replaced at the bin, she still achieves one of
+the highest daily feed intakes in the herd (daily feed intake: 71.01,
+91th percentile). She did not maintain the high feed intake through
+visiting the feed bins more often. Her feeding visits per day (78.85,
+29th percentile) are actually below the herd median. She maintained high
+feed intake through a highly efficient feeding strategy. When she does
+enter a bin, she stays for a long time feeding. Her daily feeding
+duration is long (388.2 min, 87th percentile), and a very high fraction
+of her meal time is spent with her head down actually feeding rather
+than waiting next to the bin (median percentage of time spent feeding
+per meal: 90.45\%, 92th percentile). This is combined with a high median
+intake per meal (9.55 kg, 84th percentile). Consistent with this feeding
+style, her non-nutritive behavior is low (daily non-nutritive visits:
+31.82, 31th percentile) and her drinking profile is unremarkable (daily
+drinking duration: 11.2 min, 52th percentile; daily drinking visits:
+7.71, 36th percentile). In short, cow 7068 rarely wins social
+encounters, but she compensates by making each meal count and spending
+more time feeding.
+
+\textbf{Cow 7150 --- a ``heavy drinker'' (Cluster 2).} Cow 7150's daily
+drinking duration (35.0 min, 100th percentile) and daily drinking visits
+(22.27, 100th percentile) are the highest in the herd, which are several
+times higher than the herd mean. Although she visits the water bins
+often and for extended period of time, her daily water intake (50.89 kg,
+25th percentile) is actually below the herd median. She simply keep
+returning to the drinkers throughout the day in many short bouts. Her
+feeding-related variables are within the normal range (feeding visits
+per day: 98.08, 57th percentile; median visits per meal: 10.67, 37th
+percentile). Similar to her drinking style, when she visits the feed
+bins, only a small fraction of meal time is spent actually feeding
+(median percentage of time spend feeding per meal: 76.15\%, 16th
+percentile) and her median intake per meal is considerably low (6.81 kg,
+13th percentile). Her non-nutritive behavior (daily non-nutritive
+visits: 45.95, 60th percentile; median non-nutritive per meal: 4.77,
+46th percentile) is close to the herd average. Socially she initiates
+somewhat more replacements than the typical cow (daily actor events:
+33.79, 78th percentile) while being replaced at a near-average rate
+(daily reactor events: 36.61, 57th percentile). Her daily feed intake
+(65.17 kg, 50th percentile) sits right at the herd median, consistent
+with her overall-average feeding profile. What places her in this
+cluster is her distinctive drinking style: many long drinking visits
+spread across the day.
+
+\textbf{Cow 5042 --- a ``fragmented, restless feeder'' (Cluster 3).} Cow
+5042 is the most extreme individual in the herd on nearly every RC1
+variable, and illustrates the fragmented-feeder profile. Her feeding
+visits per day (205.63, 100th percentile), median visits per meal
+(30.54, 100th percentile), daily non-nutritive visits (161.71, 100th
+percentile), and median non-nutritive visits per meal (22.32, 100th
+percentile) are all at or near the herd maximum. She visits bins
+constantly and pulls her head in and out of bins many times per meal.
+Although her meals are unusually long (median meal duration: 92.0 min,
+98th percentile), only a tiny fraction of that time is actually spent
+feeding (median feeding \% per meal: 57.21\%, 1th percentile,
+essentially the lowest in the herd), meaning that on average, she spent
+about half of her meal time standing and waiting next to the feed bins
+instead of actually occupying a feed bin. Her cumulative daily feeding
+duration ends up low (310.5 min, 8th percentile). Surprisingly, her
+daily feed intake is still high (72.50 kg, 94th percentile), and her
+median intake per meal is near the top of the herd (10.43 kg, 97th
+percentile), meaning that even during brief head-down moments she
+managed to consume a lot of feed. She is also highly socially active,
+appearing as both an actor (48.73, 98th percentile) and a reactor
+(62.67, 99th percentile) far more often than typical, suggesting that
+her fragmented feeding style is accompanied by (and possibly driven by)
+frequent agonistic interactions at the feeding area. Her drinking
+behavior is within the normal range. Her daily drinking duration (13.7
+min, 76th percentile) is modestly above the herd median, and she has
+relatively more drinking visits per day than average cow (11.87, 88th
+percentile). Cow 5042's time at the feeding area is made up of many
+short, interrupted visits rather than sustained feeding. But when she
+manage to occupy a feed bin, she eats fast.
+
+\textbf{Cow 5120 --- a ``dominant'' cow (Cluster 4).} Cow 5120
+frequently replaces herdmates from feed bins (daily actor events: 37.80,
+90th percentile) and is almost never replaced herself (daily reactor
+events: 12.53, only the 3rd percentile). Her meal structure reflects the
+feeding style of a cow that does not have to compete for access: she
+takes a typical number of feeding visits per day (89.57, 40th
+percentile) and spreads them into a typical number of meals (median
+visits per meal: 12.49, 53th percentile). Each of her meal is efficient,
+a moderately high fraction of meal time is spent actually occupying a
+feed bin (median percentage of time spent feeding per meal: 84.94\%,
+65th percentile), yielding an above-average median intake per meal (9.55
+kg, 85th percentile) and a high daily feed intake (69.60, 81th
+percentile). Her non-nutritive behavior is on the lower side (daily
+non-nutritive visits: 33.50, 35th percentile; median non-nutritive per
+meal: 4.24, 38th percentile), and her drinking profile is unremarkable
+(daily drinking duration: 12.4 min, 66th percentile; daily drinking
+visits: 9.00, 56th percentile). Cow 5120 is straightforward and
+efficient. When she wants to feed, she goes directly to the bin she
+wants, replacing whoever is there. Her feeding time is largely
+uninterrupted by other cows.
+
+\section{4. Discussion}\label{discussion}
+
+\subsection{Interpretation of Results}\label{interpretation-of-results}
+
+{[}What do your results mean? Connect back to research questions{]}
+
+\subsubsection{{[}Research Question 1{]}: {[}Restate
+question{]}}\label{research-question-1-restate-question}
+
+{[}Discuss what your results tell us about this question{]}
+
+\subsubsection{{[}Research Question 2{]}: {[}Restate
+question{]}}\label{research-question-2-restate-question}
+
+{[}Continue for each research question{]}
+
+\subsection{Implications}\label{implications}
+
+\subsubsection{Theoretical Implications}\label{theoretical-implications}
+
+{[}How your findings contribute to theory{]}
+
+\subsubsection{Practical Implications}\label{practical-implications}
+
+{[}How your findings can be applied in practice{]}
+
+\subsubsection{Methodological
+Implications}\label{methodological-implications}
+
+{[}What your work means for how research should be conducted{]}
+
+\subsection{Comparison with Prior
+Work}\label{comparison-with-prior-work}
+
+{[}How your results relate to existing literature{]}
+
+\subsubsection{Confirmatory Findings}\label{confirmatory-findings}
+
+{[}Where your results support existing work{]}
+
+\subsubsection{Novel Contributions}\label{novel-contributions}
+
+{[}Where your results extend or challenge existing knowledge{]}
+
+\subsection{Limitations}\label{limitations}
+
+{[}Honest assessment of study limitations{]}
+
+\subsubsection{Methodological
+Limitations}\label{methodological-limitations}
+
+{[}Limitations in your approach{]}
+
+\subsubsection{Scope Limitations}\label{scope-limitations}
+
+{[}Boundaries of your findings{]}
+
+\subsubsection{Data Limitations}\label{data-limitations}
+
+{[}If applicable{]}
+
+\subsection{Threats to Validity}\label{threats-to-validity}
+
+{[}Potential issues that could affect your conclusions{]}
+
+\subsubsection{Internal Validity}\label{internal-validity}
+
+{[}Issues within your study{]}
+
+\subsubsection{External Validity}\label{external-validity}
+
+{[}Generalizability concerns{]}
+
+\subsection{Future Research
+Directions}\label{future-research-directions}
+
+{[}What should be done next{]}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{{[}Direction 1{]}}: {[}Description and rationale{]}
+\item
+  \textbf{{[}Direction 2{]}}: {[}Description and rationale{]}
+\item
+  \textbf{{[}Direction 3{]}}: {[}Description and rationale{]}
+\end{enumerate}
+
+\section{5. Conclusion}\label{conclusion}
+
+In this study, we show that data streams collected from automatic
+feeding and drinking systems contain rich biological information that
+can be used to decode individual behavioral narratives. Using dairy cows
+as an example, we demonstrate that animals living in the same
+environment differ consistently and substantially from one another
+across feeding, drinking, and social behaviors. Variables capturing
+exploratory behavior, social competition at the feed bunk, and water
+drinking duration showed the greatest and most consistent
+among-individual variation. Daily feed intake was among the least
+discriminating, suggesting that individuals converge to similar daily
+intakes through strikingly different strategies. Using behaviors showing
+consistent among-individual differences, we identified four distinct
+behavioral profiles that would be largely invisible to analyses relying
+on basic measures such as daily feed intake and feeding duration alone.
+The open-source \texttt{moo4feed} R package provides a standardized and
+reproducible pipeline for extracting these variables from electronic
+feeder and drinker data already collected across many production
+systems, enabling individual-level behavioral profiling as a practical
+foundation for disease and distress monitoring in farm animals and
+beyond.
+
+\section{6. Acknowledgements}\label{acknowledgements}
+
+This project is funded by a Natural Sciences and Engineering Research
+Council (NSERC) Discovery Grant (RGPIN-2021-02848; Ottawa, ON, Canada)
+awarded to MvK. KS also received funding from the Pei-Huang Tung and
+Tan-Wen Tung Graduate Fellowship (Vancouver, BC, Canada), Elizabeth R.
+Howland Fellowship (Vancouver, BC, Canada), Wilson Henderson Fellowship
+(Vancouver, BC, Canada), Hugo E Meilicke Memorial Fellowship (Vancouver,
+BC, Canada), and Mary and David Macaree Fellowship (Vancouver, BC,
+Canada). We extend our gratitude to the members of the UBC Animal
+Welfare Program, with special mention of Mohammad W. Sahar for his data
+collection efforts during this trial, and Kratika Rathi, Nicole Lopez,
+Colombe Tolokin for their invaluable contribution to the R package
+development. We thank Dr.~Tiffany Timbers for her guidance and support
+throughout the R package development, the development of the project
+follows the best practices outlined in the book: \emph{Reproducible and
+Trustworthy Workflows for Data Science} by Tiffany Timbers, Joel
+Ostblom, and Florencia D'Andrea. We also thank the team of students and
+staff at the UBC Dairy Education and Research Centre in Agassiz, BC,
+Canada. Data collection and experimental procedures were approved by the
+UBC Animal Ethics Committee (protocol number A19-0299).
+
+\section{7. Declaration of Generative AI and AI-assisted technologies in
+the writing
+process.}\label{declaration-of-generative-ai-and-ai-assisted-technologies-in-the-writing-process.}
+
+During the preparation of this work the first author used Anthropic
+Claude to rephrase portions of the manuscript. After using this
+tool/service, all authors reviewed and edited the content as needed.
+Collectively all authors take full responsibility for the content of the
+publication.
+
+\section{8. CRediT authorship contribution
+statement}\label{credit-authorship-contribution-statement}
+
+Kehan Sheng: Writing -- original draft, Visualization, Validation,
+Supervision, Software, Project administration, Methodology,
+Investigation, Formal analysis, Data curation, Conceptualization.
+Borbala Foris: Writing -- review \& editing, Supervision, Project
+administration, Methodology, Conceptualization. Daniel M. Weary: Writing
+-- review \& editing, Supervision, Project administration, Methodology,
+Funding acquisition, Conceptualization. Marina A.G. von Keyserlingk:
+Writing -- review \& editing, Supervision, Project administration,
+Methodology, Funding acquisition, Conceptualization.
+
+\section{9. Declaration of competing
+interest}\label{declaration-of-competing-interest}
+
+The authors declare that they have no known competing financial
+interests or personal relationships that could have appeared to
+influence the work reported in this paper.
+
+\subsection{References}\label{references}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-allwardt2017technical}
+Allwardt, K., Ahlberg, C., Broocks, A., Bruno, K., Taylor, A., Place,
+S., Richards, C., Krehbiel, C., Calvo-Lorenzo, M., DeSilva, U.,
+VanOverbeke, D., Mateescu, R., Goad, C., Rolf, M.M., 2017. Technical
+note: Validation of an automated system for monitoring and restricting
+water intake in group-housed beef steers1,2. Journal of Animal Science
+95, 4213--4219. \url{https://doi.org/10.2527/jas.2017.1593}
+
+\bibitem[\citeproctext]{ref-biro2012}
+Biro, P.A., 2012. Do rapid assays predict repeatability in labile
+(behavioural) traits? Animal Behaviour 83, 1295--1300.
+
+\bibitem[\citeproctext]{ref-biswas2022methane}
+Biswas, A., Khan, A., Luo, D., Jonker, A., 2022. Methane emissions in
+growing heifers while eating from a feed bin compared with 24-hour
+emissions and relationship with feeding behavior. JDS Communications 3,
+255--259. \url{https://doi.org/10.3168/jdsc.2021-0184}
+
+\bibitem[\citeproctext]{ref-Brasier2023}
+Brasier, J.E., Schwanke, A.J., DeVries, T.J., 2023. Effects of dairy
+cows' personality traits on their adaptation to an automated milking
+system following parturition. Journal of Dairy Science 106, 7191--7202.
+\url{https://doi.org/10.3168/jds.2022-23176}
+
+\bibitem[\citeproctext]{ref-budaev2010using}
+Budaev, S.V., 2010. Using principal components and factor analysis in
+animal behaviour research: Caveats and guidelines. Ethology 116,
+472--480.
+
+\bibitem[\citeproctext]{ref-burkner2017brms}
+Bürkner, P.-C., 2017. Brms: An r package for bayesian multilevel models
+using stan. Journal of statistical software 80, 1--28.
+
+\bibitem[\citeproctext]{ref-cangelosi2007component}
+Cangelosi, R., Goriely, A., 2007. Component retention in principal
+component analysis with application to cDNA microarray data. Biology
+direct 2, 2. \url{https://doi.org/10.1186/1745-6150-2-2}
+
+\bibitem[\citeproctext]{ref-carslake2022a}
+Carslake, C., Occhiuto, F., Vázquez-Diosdado, J.A., Kaler, J., 2022a.
+Indication of a personality trait in dairy calves and its link to weight
+gain through automatically collected feeding behaviours. Scientific
+Reports 12, 19425.
+
+\bibitem[\citeproctext]{ref-carslake2022b}
+Carslake, C., Occhiuto, F., Vázquez-Diosdado, J.A., Kaler, J., 2022b.
+Repeatability and predictability of calf feeding behaviors---quantifying
+between-and within-individual variation for precision livestock farming.
+Frontiers in Veterinary Science 9, 827124.
+
+\bibitem[\citeproctext]{ref-chapinal2007validation}
+Chapinal, N., Veira, D., Weary, D., Von Keyserlingk, M., 2007.
+Validation of a system for monitoring individual feeding and drinking
+behavior and intake in group-housed cattle. Journal of dairy science 90,
+5732--5736.
+
+\bibitem[\citeproctext]{ref-creamer2024consistent}
+Creamer, M., Horback, K., 2024. Consistent individual differences in
+behavior among beef cattle in handling contexts and social-feed
+preference testing. Applied Animal Behaviour Science 276, 106315.
+\url{https://doi.org/10.1016/j.applanim.2024.106315}
+
+\bibitem[\citeproctext]{ref-dawkins2021}
+Dawkins, M.S., 2021. The science of animal welfare: Understanding what
+animals want. Oxford University Press.
+
+\bibitem[\citeproctext]{ref-DeVries2003}
+DeVries, T.J., Keyserlingk, M.A.G. von, Beauchemin, K.A., 2003. Short
+communication: Diurnal feeding pattern of lactating dairy cows. Journal
+of Dairy Science 86, 4079--4082.
+\url{https://doi.org/10.3168/JDS.S0022-0302(03)74020-X}
+
+\bibitem[\citeproctext]{ref-eriksson2020effects}
+Eriksson, H.K., Daros, R.R., Keyserlingk, M.A. von, Weary, D.M., 2020.
+Effects of case definition and assessment frequency on lameness
+incidence estimates. Journal of dairy science 103, 638--648.
+
+\bibitem[\citeproctext]{ref-faerevik2010effect}
+Færevik, G., Jensen, M.B., Bøe, K.E., 2010. The effect of group
+composition and age on social behavior and competition in groups of
+weaned dairy calves. Journal of Dairy Science 93, 4274--4279.
+\url{https://doi.org/10.3168/jds.2010-3147}
+
+\bibitem[\citeproctext]{ref-finkemeier2018}
+Finkemeier, M.-A., Langbein, J., Puppe, B., 2018. Personality research
+in mammalian farm animals: Concepts, measures, and relationship to
+welfare. Frontiers in veterinary science 5, 131.
+
+\bibitem[\citeproctext]{ref-flower2006effect}
+Flower, F., Weary, D., 2006. Effect of hoof pathologies on subjective
+assessments of dairy cow gait. Journal of dairy science 89, 139--146.
+
+\bibitem[\citeproctext]{ref-Foris2021}
+Foris, B., Haas, H.G., Langbein, J., Melzer, N., 2021. Familiarity
+influences social networks in dairy cows after regrouping. Journal of
+Dairy Science 104, 3485--3494.
+\url{https://doi.org/10.3168/jds.2020-18896}
+
+\bibitem[\citeproctext]{ref-foris2019automatic}
+Foris, B., Thompson, A., Von Keyserlingk, M., Melzer, N., Weary, D.,
+2019. Automatic detection of feeding-and drinking-related agonistic
+behavior and dominance in dairy cows. Journal of dairy science 102,
+9176--9186.
+
+\bibitem[\citeproctext]{ref-gabry2019visualization}
+Gabry, J., Simpson, D., Vehtari, A., Betancourt, M., Gelman, A., 2019.
+Visualization in {Bayesian} workflow. Journal of the Royal Statistical
+Society: Series A (Statistics in Society) 182, 389--402.
+\url{https://doi.org/10.1111/rssa.12378}
+
+\bibitem[\citeproctext]{ref-grant1995feeding}
+Grant, R.J., Albright, J.L., 1995. Feeding behavior and management
+factors during the transition period in dairy cattle. Journal of Animal
+Science 73, 2791--2803. \url{https://doi.org/10.2527/1995.7392791x}
+
+\bibitem[\citeproctext]{ref-hertel2020}
+Hertel, A.G., Niemelä, P.T., Dingemanse, N.J., Mueller, T., 2020. A
+guide for studying among-individual behavioral variation from movement
+data in the wild. Movement ecology 8, 30.
+
+\bibitem[\citeproctext]{ref-Huzzey2012}
+Huzzey, J.M., Grant, R.J., Overton, T.R., 2012. Short communication:
+Relationship between competitive success during displacements at an
+overstocked feed bunk and measures of physiology and behavior in
+holstein dairy cattle. Journal of Dairy Science 95, 4434--4441.
+\url{https://doi.org/10.3168/jds.2011-5038}
+
+\bibitem[\citeproctext]{ref-huzzey2014automatic}
+Huzzey, J., Weary, D., Tiau, B., Von Keyserlingk, M., 2014. Automatic
+detection of social competition using an electronic feeding system.
+Journal of dairy science 97, 2953--2958.
+
+\bibitem[\citeproctext]{ref-khan2014dbscan}
+Khan, K., Rehman, S.U., Aziz, K., Fong, S., Sarasvady, S., 2014. DBSCAN:
+Past, present and future, in: The Fifth International Conference on the
+Applications of Digital Information and Web Technologies (ICADIWT 2014).
+IEEE, pp. 232--238.
+
+\bibitem[\citeproctext]{ref-lawrence1991individual}
+Lawrence, A.B., Terlouw, E.M.C., Illius, A.W., 1991. Individual
+differences in behavioural responses of pigs exposed to non-social and
+social challenges. Applied Animal Behaviour Science 30, 73--86.
+\url{https://doi.org/10.1016/0168-1591(91)90086-D}
+
+\bibitem[\citeproctext]{ref-malini2017analysis}
+Malini, N., Pushpa, M., 2017. Analysis on credit card fraud
+identification techniques based on KNN and outlier detection, in: 2017
+Third International Conference on Advances in Electrical, Electronics,
+Information, Communication and Bio-Informatics (AEEICB). IEEE, pp.
+255--258.
+
+\bibitem[\citeproctext]{ref-neave2018personality}
+Neave, H.W., Costa, J.H.C., Weary, D.M., von Keyserlingk, M.A.G., 2018.
+Personality is associated with feeding behavior and performance in dairy
+calves. Journal of Dairy Science 101, 7437--7449.
+\url{https://doi.org/10.3168/jds.2017-14248}
+
+\bibitem[\citeproctext]{ref-occhiuto2022}
+Occhiuto, F., Vázquez-Diosdado, J.A., Carslake, C., Kaler, J., 2022.
+Personality and predictability in farmed calves using movement and
+space-use behaviours quantified by ultra-wideband sensors. Royal Society
+Open Science 9, 212019.
+
+\bibitem[\citeproctext]{ref-phillips2001effects}
+Phillips, C.J.C., Rind, M.I., 2001. The effects on production and
+behavior of mixing uniparous and multiparous cows. Journal of Dairy
+Science 84, 2424--2429.
+\url{https://doi.org/10.3168/jds.S0022-0302(01)74692-9}
+
+\bibitem[\citeproctext]{ref-R-base}
+R Core Team, 2025. \href{https://www.R-project.org/}{R: A language and
+environment for statistical computing}. R Foundation for Statistical
+Computing, Vienna, Austria.
+
+\bibitem[\citeproctext]{ref-reale2007}
+Réale, D., Reader, S.M., Sol, D., McDougall, P.T., Dingemanse, N.J.,
+2007. Integrating animal temperament within ecology and evolution.
+Biological reviews 82, 291--318.
+
+\bibitem[\citeproctext]{ref-Richter2019}
+Richter, S.H., Hintze, S., 2019. From the individual to the population
+-- and back again? Emphasising the role of the individual in animal
+welfare science. Applied Animal Behaviour Science 212, 1--8.
+\url{https://doi.org/10.1016/j.applanim.2018.12.012}
+
+\bibitem[\citeproctext]{ref-rousseeuw1987silhouettes}
+Rousseeuw, P.J., 1987. Silhouettes: A graphical aid to the
+interpretation and validation of cluster analysis. Journal of
+computational and applied mathematics 20, 53--65.
+\url{https://doi.org/10.1016/0377-0427(87)90125-7}
+
+\bibitem[\citeproctext]{ref-setser2024b}
+Setser, M.W., Neave, H., Costa, J., 2024. Individuality of calves:
+Linking personality traits to feeding and activity daily patterns
+measured by precision livestock technology. Journal of Dairy Science
+107, 3235--3251.
+
+\bibitem[\citeproctext]{ref-sheng2024redefining}
+Sheng, K., Foris, B., Krahn, J., Weary, D.M., Keyserlingk, M.A. von,
+2024. Redefining dominance calculation: Increased competition flattens
+the dominance hierarchy in dairy cows. Journal of Dairy Science 107,
+7286--7298.
+
+\bibitem[\citeproctext]{ref-Slater1981}
+Slater, P.J.B., 1981. Individual differences in animal behavior, in:
+Bateson, P.P.G., Klopfer, P.H. (Eds.), Perspectives in Ethology: Volume
+4 Advantages of Diversity. Springer US, Boston, MA, pp. 35--49.
+\url{https://doi.org/10.1007/978-1-4615-7575-7_2}
+
+\bibitem[\citeproctext]{ref-thomas2024}
+Thomas, M., Occhiuto, F., Green, M., Vázquez-Diosdado, J.A., Kaler, J.,
+2024. Repeatability and predictability of lying and feeding behaviours
+in dairy cattle. Preventive Veterinary Medicine 233, 106357.
+
+\bibitem[\citeproctext]{ref-tolkamp1998satiety}
+Tolkamp, B., Allcroft, D., Austin, E., Nielsen, B.L., Kyriazakis, I.,
+1998. Satiety splits feeding behaviour into bouts. Journal of
+Theoretical Biology 194, 235--250.
+
+\bibitem[\citeproctext]{ref-vehtari2021rank}
+Vehtari, A., Gelman, A., Simpson, D., Carpenter, B., Bürkner, P.-C.,
+2021. Rank-normalization, folding, and localization: An improved
+\(\widehat{R}\) for assessing convergence of {MCMC} (with discussion).
+Bayesian Analysis 16, 667--718. \url{https://doi.org/10.1214/20-BA1221}
+
+\bibitem[\citeproctext]{ref-webster2011personality}
+Webster, M.M., Ward, A.J., 2011. Personality and social context.
+Biological reviews 86, 759--773.
+\url{https://doi.org/10.1111/j.1469-185X.2010.00169.x}
+
+\end{CSLReferences}
+
+
+
+
+\end{document}
