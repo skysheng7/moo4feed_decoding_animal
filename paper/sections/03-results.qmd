@@ -86,7 +86,7 @@ Throughout this section, all repeatability and predictability measures (R, CVi, 
 ## 4.1 Among-Individual Variation: Repeatability and CVi
 
 
-Because R is confounded by within-individual variance (Section 3.4), we use the coefficient of individual variation (CVi) as the primary metric for comparing the magnitude of among-individual differences across the 16 behavioral variables, and we report R alongside CVi as a reference for how reliably those differences persist from day to day (Table 1, @fig-rep-cvp-scatter).
+Because R is confounded by within-individual variance (Section 3.4), we use the coefficient of individual variation (CVi) as the primary metric for comparing the magnitude of among-individual differences across the 16 behavioral variables, and we report R alongside CVi as a reference for how reliably those differences persist from day to day (Table 2, @fig-rep-cvp-scatter).
 
 Among all variables, the total number of non-nutritive visits showed the largest relative among-individual variation (CVi = `r cvi_val("number_of_non_nutritive_visits")` `r cvi_ci("number_of_non_nutritive_visits")`), meaning that on average, cows differ from one another by more than half the population mean in how often they visit a feed bin without eating. The total number of actor events (CVi = `r cvi_val("total_actor")` `r cvi_ci("total_actor")`) and the median number of non-nutritive visits per meal (CVi = `r cvi_val("median_non_nutritive_per_meal")` `r cvi_ci("median_non_nutritive_per_meal")`) were also highly variable across individuals, indicating that agonistic and non-nutritive visiting frequencies are the most individually distinguishing behaviors in this herd among all variables we evalauted. At the other end of the spectrum, the percentage of meal time spent actively feeding (CVi = `r cvi_val("median_feeding_pct_per_meal")` `r cvi_ci("median_feeding_pct_per_meal")`) and daily feed intake (CVi = `r cvi_val("feed_intake")` `r cvi_ci("feed_intake")`) showed the smallest relative variation, meaning cows are nearly indistinguishable from one another on these dimensions.
 
@@ -101,7 +101,7 @@ As articulated in Section 3.4, R and CVi do not always rank traits the same way.
 ```
 :::
 
-**Table 1.** Repeatability (R), coefficient of individual variation (CVi), coefficient of variation of predictability (CVP), and residual intra-individual variability (rIIV) for the 16 behavioral variables. Values are posterior means with 95% credible intervals in brackets. Cell color encodes the posterior mean within each metric (darker = higher). Rows are grouped by behavioral category.
+**Table 2.** Repeatability (R), coefficient of individual variation (CVi), coefficient of variation of predictability (CVP), and residual intra-individual variability (rIIV) for the 16 behavioral variables. Values are posterior means with 95% credible intervals in brackets. Cell color encodes the posterior mean within each metric (darker = higher). Rows are grouped by behavioral category.
 
 ```{r echo=FALSE}
 # Pretty variable labels and category grouping. Note: "Median % feed remaining"
@@ -252,7 +252,7 @@ We grouped the 16 variables into 3 clusters based on their R and CVi values usin
 
 ## 4.4 Identifying Cow Types via PCA
 
-We applied PCA with varimax rotation to the intercepts (average individual cow's behaviour expression) of the `r length(c1_vars)` Behavior Cluster 1 variables. `r m3_ncomp` components were retained to meet the ≥80% cumulative-variance criterion [@cangelosi2007component], together explaining `r m3_cumvar`% of the total variance (Table 2, @fig-pca-biplots). Rotated Component (RC) 1 explained the largest share of variance (`r m3_rc1`%), driven primarily by non-nutritive behavior and feeding patterns. RC2 explained `r m3_rc2`% of variance and was most strongly associated with drinking patterns. RC3 captured the remaining variance, primarily related to agonistic behavior (actor and reactor events).
+We applied PCA with varimax rotation to the intercepts (average individual cow's behaviour expression) of the `r length(c1_vars)` Behavior Cluster 1 variables. `r m3_ncomp` components were retained to meet the ≥80% cumulative-variance criterion [@cangelosi2007component], together explaining `r m3_cumvar`% of the total variance (Table 3, @fig-pca-biplots). Rotated Component (RC) 1 explained the largest share of variance (`r m3_rc1`%), driven primarily by non-nutritive behavior and feeding patterns. RC2 explained `r m3_rc2`% of variance and was most strongly associated with drinking patterns. RC3 captured the remaining variance, primarily related to agonistic behavior (actor and reactor events).
 
 ::: {.content-visible when-format="docx"}
 ```{=openxml}
@@ -260,7 +260,7 @@ We applied PCA with varimax rotation to the intercepts (average individual cow's
 ```
 :::
 
-**Table 2.** Varimax-rotated PCA loadings for the 8 Behavior Cluster-1 intercept variables.
+**Table 3.** Varimax-rotated PCA loadings for the 8 Behavior Cluster-1 intercept variables.
 
 ```{r echo=FALSE}
 loadings_tbl <- load_m3 %>%
