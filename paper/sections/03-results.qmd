@@ -4,14 +4,28 @@ library(knitr)
 library(flextable)
 library(scales)
 
-# Paths below are relative to the project root (set via `execute: dir: project`
-# in _quarto.yml), so this chunk works whether rendered standalone or via index.qmd.
-rep     <- read.csv("results/11_repeatability/repeatability_summary.csv")
-pred    <- read.csv("results/12_predictability/predictability_summary.csv")
-clust   <- read.csv("results/14_individual_traits/behaviour_clusters.csv")
-mcomp   <- read.csv("results/15_pca_clustering/method_comparison.csv")
-k_m3    <- read.csv("results/15_pca_clustering/pca_M3_c1_int_k_stability.csv")
-load_m3 <- read.csv("results/15_pca_clustering/pca_M3_c1_int_loadings.csv")
+# Resolve the project root whether this file is rendered standalone or via the
+# full project (where _quarto.yml sets `execute: dir: project`).
+# When rendered standalone, getwd() returns the file's own directory; we walk
+# up until we find _quarto.yml to locate the actual project root.
+.find_root <- function(start = getwd()) {
+  path <- normalizePath(start, winslash = "/")
+  while (!file.exists(file.path(path, "_quarto.yml"))) {
+    parent <- normalizePath(dirname(path), winslash = "/")
+    if (parent == path) stop("Could not find project root (_quarto.yml)")
+    path <- parent
+  }
+  path
+}
+.root <- .find_root()
+.p <- function(...) file.path(.root, ...)
+
+rep     <- read.csv(.p("results/11_repeatability/repeatability_summary.csv"))
+pred    <- read.csv(.p("results/12_predictability/predictability_summary.csv"))
+clust   <- read.csv(.p("results/14_individual_traits/behaviour_clusters.csv"))
+mcomp   <- read.csv(.p("results/15_pca_clustering/method_comparison.csv"))
+k_m3    <- read.csv(.p("results/15_pca_clustering/pca_M3_c1_int_k_stability.csv"))
+load_m3 <- read.csv(.p("results/15_pca_clustering/pca_M3_c1_int_loadings.csv"))
 
 # ── Format helpers ─────────────────────────────────────────────────────────────
 fmt <- function(x, digits = 2) formatC(round(x, digits), format = "f", digits = digits)
