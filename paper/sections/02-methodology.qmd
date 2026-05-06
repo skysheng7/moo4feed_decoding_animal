@@ -71,7 +71,7 @@ flextable(qc_tbl) |>
         align = "center", part = "body") |>
   align(j = "Description", align = "left", part = "body") |>
   align(align = "center", part = "header") |>
-  bg(bg = "#B0E2FF", part = "header") |>
+  bg(bg = "#6E8B3D", part = "header") |>
   color(color = "white", part = "header") |>
   bold(part = "header") |>
   fontsize(size = 9, part = "all") |>
