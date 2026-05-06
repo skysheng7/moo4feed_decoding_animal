@@ -66,13 +66,12 @@ flextable(qc_tbl) |>
     `Water threshold` = "Water threshold",
     Action = "Action"
   ) |>
-  theme_booktabs() |>
-  align(j = "Check",           align = "left",   part = "body") |>
-  align(j = "Description",     align = "left",   part = "body") |>
-  align(j = c("Feed threshold", "Water threshold", "Action"),
+  theme_box() |>
+  align(j = c("Check", "Feed threshold", "Water threshold", "Action"),
         align = "center", part = "body") |>
+  align(j = "Description", align = "left", part = "body") |>
   align(align = "center", part = "header") |>
-  bg(bg = "#1F3A93", part = "header") |>
+  bg(bg = "#B0E2FF", part = "header") |>
   color(color = "white", part = "header") |>
   bold(part = "header") |>
   fontsize(size = 9, part = "all") |>
