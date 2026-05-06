@@ -76,7 +76,12 @@ flextable(qc_tbl) |>
   color(color = "white", part = "header") |>
   bold(part = "header") |>
   fontsize(size = 9, part = "all") |>
-  autofit()
+  width(j = "Check",             width = 1.2) |>
+  width(j = "Description",       width = 2.6) |>
+  width(j = "Feed threshold",    width = 0.8) |>
+  width(j = "Water threshold",   width = 0.8) |>
+  width(j = "Action",            width = 0.8) |>
+  set_table_properties(layout = "fixed", width = 1)
 ```
 
 **Data Processing, Configuration and Quality Control.** Raw visit data were converted into a standardized format, with each record capturing the cow's identity, the bin number, visit start and end times, and the start and end weights of feed or water in the bin. Only days for which both feeder and drinker data files were available were retained. Daylight saving time transitions were detected and corrected automatically based on the timezone. During fall-back transitions (when clocks move back one hour, causing chronological order of visits within the repeated hour to be ambiguous), we removed all visits from the duplicated hour, since it is not possible to determine the true chronological order, and adjusts subsequent timestamps accordingly. During spring-forward transitions (when clocks move forward by one hour), visit timestamps are shifted forward by one hour for the remainder of the day. Records were then passed through a sequence of automated quality control checks, summarized in @tbl-qc-checks.
