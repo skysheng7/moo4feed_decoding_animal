@@ -31,7 +31,7 @@ format:
 
 {{< include paper/sections/03-results.qmd >}}
 
-{{< include paper/sections/04-discussion.md >}}
+{{< include paper/sections/04-discussion.qmd >}}
 
 {{< include paper/sections/05-conclusion.md >}}
 
