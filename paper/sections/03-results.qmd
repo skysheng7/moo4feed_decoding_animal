@@ -79,14 +79,14 @@ m3_k_wins  <- k_m3$wins[k_m3$k == m3_k]
 m3_k_total <- sum(k_m3$wins)
 ```
 
-# 4. Results
+# 3. Results
 
 Throughout this section, all repeatability and predictability measures (R, CVi, CVP, and rIIV) are reported as posterior means followed by their 95% credible intervals (CrIs) in square brackets.
 
-## 4.1 Among-Individual Variation: Repeatability and CVi
+## 3.1 Among-Individual Variation: Repeatability and CVi
 
 
-Because R is confounded by within-individual variance (Section 3.4), we use the coefficient of individual variation (CVi) as the primary metric for comparing the magnitude of among-individual differences across the 16 behavioral variables, and we report R alongside CVi as a reference for how reliably those differences persist from day to day (Table 2, @fig-rep-cvp-scatter A).
+Because R is confounded by within-individual variance (Section 2.4), we use the coefficient of individual variation (CVi) as the primary metric for comparing the magnitude of among-individual differences across the 16 behavioral variables, and we report R alongside CVi as a reference for how reliably those differences persist from day to day (Table 2, @fig-rep-cvp-scatter A).
 
 
 ::: {.content-visible when-format="docx"}
@@ -220,12 +220,12 @@ Among all variables, the total number of non-nutritive visits showed the largest
 
 Repeatability (R) provides complementary but not redundant information. Daily water drinking duration had the highest R (`r r_val("water_duration")` `r r_ci("water_duration")`), followed by the number of daily feeding visits (R = `r r_val("feed_visits")` `r r_ci("feed_visits")`) and the total number of non-nutritive visits (R = `r r_val("number_of_non_nutritive_visits")` `r r_ci("number_of_non_nutritive_visits")`). The lowest R values were observed for the median proportion of feed remaining when a cow arrived at a bin (R = `r r_val("median_pct_feed_remaining")` `r r_ci("median_pct_feed_remaining")`), median feed intake per meal (R = `r r_val("median_intake_per_meal")` `r r_ci("median_intake_per_meal")`), and median meal duration (R = `r r_val("median_meal_duration")` `r r_ci("median_meal_duration")`).
 
-As articulated in Section 3.4, R and CVi do not always rank traits the same way. The clearest example is the median percentage of meal time spent feeding, which has a moderately high R (`r r_val("median_feeding_pct_per_meal")` `r r_ci("median_feeding_pct_per_meal")`) but the lowest CVi of all 16 variables (`r cvi_val("median_feeding_pct_per_meal")` `r cvi_ci("median_feeding_pct_per_meal")`). The high R values are not driven by high among-individual variation, instead it is driven by the low within-individual variance. In other words, each cow is very consistent within themselves from day to day, so R is inflated by low residual (within-individual) variance rather than by high among-individual variance. Variables ranked near the top on both R and CVi (e.g., the total number of non-nutritive visits, water drinking duration), represent the most useful candidates for individual profiling, since cows both differ meaningfully from one another and behave consistently enough for those differences to be detectable from repeated observations.
+As articulated in Section 2.4, R and CVi do not always rank traits the same way. The clearest example is the median percentage of meal time spent feeding, which has a moderately high R (`r r_val("median_feeding_pct_per_meal")` `r r_ci("median_feeding_pct_per_meal")`) but the lowest CVi of all 16 variables (`r cvi_val("median_feeding_pct_per_meal")` `r cvi_ci("median_feeding_pct_per_meal")`). The high R values are not driven by high among-individual variation, instead it is driven by the low within-individual variance. In other words, each cow is very consistent within themselves from day to day, so R is inflated by low residual (within-individual) variance rather than by high among-individual variance. Variables ranked near the top on both R and CVi (e.g., the total number of non-nutritive visits, water drinking duration), represent the most useful candidates for individual profiling, since cows both differ meaningfully from one another and behave consistently enough for those differences to be detectable from repeated observations.
 
 
 ```{r echo=FALSE}
 #| label: fig-rep-cvp-scatter
-#| fig-cap: "Between- and within-individual variation in the 16 behavioral variables. (A) Repeatability (R) vs coefficient of individual variation (CVi). (B) Coefficient of variation of predictability (CVP) vs CVi. Each point is a behavioral variable; ellipses show 95% credible intervals on both axes. Points are coloured by the 3-cluster k-means solution of Section 4.3 (Cluster 1 = high R, high CVi; Cluster 2 = high R, low CVi; Cluster 3 = low R, low CVi). Point shape distinguishes the likelihood family used for the mixed model."
+#| fig-cap: "Between- and within-individual variation in the 16 behavioral variables. (A) Repeatability (R) vs coefficient of individual variation (CVi). (B) Coefficient of variation of predictability (CVP) vs CVi. Each point is a behavioral variable; ellipses show 95% credible intervals on both axes. Points are coloured by the 3-cluster k-means solution of Section 3.3 (Cluster 1 = high R, high CVi; Cluster 2 = high R, low CVi; Cluster 3 = low R, low CVi). Point shape distinguishes the likelihood family used for the mixed model."
 
 knitr::include_graphics(.p("results/14_individual_traits/ellipse_scatter_grid_AB.png"))
 ```
@@ -236,13 +236,13 @@ knitr::include_graphics(.p("results/14_individual_traits/ellipse_scatter_grid_AB
 ```
 :::
 
-## 4.2 Within-Individual Variation: Predictability
+## 3.2 Within-Individual Variation: Predictability
 
 We use the coefficient of variation of predictability (CVP) as the primary metric for cross-trait comparisons of predictability, and report rIIV alongside to provide a biological anchor for these values: it expresses how many times more variable the least-predictable cows are compared to the most-predictable cows.
 
 Variables related to meal-patterns were the most predictable. The median number of non-nutritive visits per meal (CVP = `r cvp_val("median_non_nutritive_per_meal")` `r cvp_ci("median_non_nutritive_per_meal")`; rIIV = `r riiv_val("median_non_nutritive_per_meal")` `r riiv_ci("median_non_nutritive_per_meal")`), median visits per meal (CVP = `r cvp_val("median_visit_per_meal")` `r cvp_ci("median_visit_per_meal")`; rIIV = `r riiv_val("median_visit_per_meal")` `r riiv_ci("median_visit_per_meal")`), and median meal duration (CVP = `r cvp_val("median_meal_duration")` `r cvp_ci("median_meal_duration")`; rIIV = `r riiv_val("median_meal_duration")` `r riiv_ci("median_meal_duration")`) had the lowest CVP values, meaning individual cows expressed these behaviors at a similar level of behvioral consistency within themselves aross different days, and cows differed little from one another in how predictable they were. The corresponding rIIV values indicate that the least-predictable cows showed only about 1.2 times more variable than most-predictable cows for these behaviors. In contrast, daily feed intake (CVP = `r cvp_val("feed_intake")` `r cvp_ci("feed_intake")`; rIIV = `r riiv_val("feed_intake")` `r riiv_ci("feed_intake")`), total number of actor events (CVP = `r cvp_val("total_actor")` `r cvp_ci("total_actor")`; rIIV = `r riiv_val("total_actor")` `r riiv_ci("total_actor")`), and the median percentage of meal time spent feeding (CVP = `r cvp_val("median_feeding_pct_per_meal")` `r cvp_ci("median_feeding_pct_per_meal")`; rIIV = `r riiv_val("median_feeding_pct_per_meal")` `r riiv_ci("median_feeding_pct_per_meal")`) had the highest CVP, indicating moderately higher individual variation in within-individual behaviour consistency: some cows were more consistent than others in these behaviors, with the least-predictable cows being roughly 1.5 times as more variable than the most-predictable cows. Nevertheless, all 16 variables displayed relatively low CVP and rIIV values overall. As shown in @fig-rep-cvp-scatter B, distinguishing among the 16 variables based on CVP alone is difficult, as they cluster within a narrow range of CVP ≤ 0.22.
 
-## 4.3 Classifying Behavioral Variables
+## 3.3 Classifying Behavioral Variables
 
 We grouped the 16 variables into 3 clusters based on their R and CVi values using K-means (@fig-rep-cvp-scatter A).
 
@@ -252,7 +252,7 @@ We grouped the 16 variables into 3 clusters based on their R and CVi values usin
 
 **Behavior Cluster 3 — low R, low CVi** contained `r length(c3_vars)` variables: `r paste(clean_label(c3_vars), collapse = ", ")`. Cows showed little variation from one another in these behaviours, and what variation did exist was inconsistent across days. This pattern suggests these behaviours are driven more by day-to-day environmental conditions (e.g., feed availability, group dynamics) than by stable individual tendencies.
 
-## 4.4 Identifying Cow Types via PCA
+## 3.4 Identifying Cow Types via PCA
 
 We applied PCA with varimax rotation to the intercepts (average individual cow's behaviour expression) of the `r length(c1_vars)` Behavior Cluster 1 variables. `r m3_ncomp` components were retained to meet the ≥80% cumulative-variance criterion [@cangelosi2007component], together explaining `r m3_cumvar`% of the total variance (Table 3, @fig-pca-biplots). Rotated Component (RC) 1 explained the largest share of variance (`r m3_rc1`%), driven primarily by non-nutritive behavior and feeding patterns. RC2 explained `r m3_rc2`% of variance and was most strongly associated with drinking patterns. RC3 captured the remaining variance, primarily related to agonistic behavior (actor and reactor events).
 
@@ -355,9 +355,9 @@ cid_frag    <- rank_to_cid[4]                  # smallest = fragmented feeders
 
 **Cow Cluster `r cid_dom` — "contest-winning" cows (n = `r clust_summary$n[2]`, ~`r m3_pct(2)`%, the second-largest group).** These cows show average RC1 (`r fmt(clust_summary$RC1[2])`) and RC2 (`r fmt(clust_summary$RC2[2])`) scores but a strongly negative RC3 score (`r fmt(clust_summary$RC3[2])`), meaning they rarely get replaced at the feeders and instead tend to be the ones initiating replacements against others (@fig-pca-biplots B). Their feeding, drinking behaviors, and meal patterns are otherwise unremarkable. These cows likely benefit from preferential access to feed bins.
 
-## 4.6 Individual Cow Stories
+## 3.5 Individual Cow Stories
 
-We selected one cow from each of the 4 clusters and describe their individual stories through their average behavioral expression compared to the herd. All behavioral values reported below are posterior means of each cow's behavioral type (i.e., her individual intercept from the mixed models in Section 4.1), so they represent the cow's typical day-to-day expression after accounting for DIM and THI. Percentiles are calculated within the herd on those same posterior means.
+We selected one cow from each of the 4 clusters and describe their individual stories through their average behavioral expression compared to the herd. All behavioral values reported below are posterior means of each cow's behavioral type (i.e., her individual intercept from the mixed models in Section 3.1), so they represent the cow's typical day-to-day expression after accounting for DIM and THI. Percentiles are calculated within the herd on those same posterior means.
 
 **Cow 7068 — a "typical, frequently replaced" cow (Cluster `r cow_clu(7068)`).** Cow 7068 is almost never the one replacing others at the feed bin (daily actor events: `r fmt(cow_val(7068, "int_total_actor"))`, `r cow_pct(7068, "int_total_actor")`th percentile of the herd) but is very frequently replaced by others (daily reactor events: `r fmt(cow_val(7068, "int_total_reactor"))`, `r cow_pct(7068, "int_total_reactor")`th percentile). Despite routinely being replaced at the bin, she still achieves one of the highest daily feed intakes in the herd (daily feed intake: `r fmt(cow_val(7068, "int_feed_intake"))`, `r cow_pct(7068, "int_feed_intake")`th percentile). She did not maintain the high feed intake through visiting the feed bins more often. Her feeding visits per day (`r fmt(cow_val(7068, "int_feed_visits"))`, `r cow_pct(7068, "int_feed_visits")`th percentile) are actually below the herd median. She maintained high feed intake through a highly efficient feeding strategy. When she does enter a bin, she stays for a long time feeding. Being frequently replaced does not contradict a long feeding duration: it means she is eventually displaced after a sustained bout, not immediately. Her daily feeding duration is long (`r fmt(cow_val(7068, "int_feed_duration")/60, 1)` min, `r cow_pct(7068, "int_feed_duration")`th percentile), and a very high fraction of her meal time is spent with her head down actually feeding rather than waiting next to the bin (median percentage of time spent feeding per meal: `r fmt(cow_val(7068, "int_median_feeding_pct_per_meal"))`%, `r cow_pct(7068, "int_median_feeding_pct_per_meal")`th percentile). This is combined with a high median intake per meal (`r fmt(cow_val(7068, "int_median_intake_per_meal"))` kg, `r cow_pct(7068, "int_median_intake_per_meal")`th percentile). Consistent with this feeding style, her non-nutritive behavior is low (daily non-nutritive visits: `r fmt(cow_val(7068, "int_number_of_non_nutritive_visits"))`, `r cow_pct(7068, "int_number_of_non_nutritive_visits")`th percentile) and her drinking profile is unremarkable (daily drinking duration: `r fmt(cow_val(7068, "int_water_duration")/60, 1)` min, `r cow_pct(7068, "int_water_duration")`th percentile; daily drinking visits: `r fmt(cow_val(7068, "int_water_visits"))`, `r cow_pct(7068, "int_water_visits")`th percentile). In short, cow 7068 rarely wins social encounters, but she compensates by making each meal count and spending more time feeding.
 
