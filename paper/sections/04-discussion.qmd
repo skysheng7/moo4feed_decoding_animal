@@ -1,0 +1,99 @@
+```{r discussion-setup, include=FALSE}
+library(dplyr)
+
+# Resolve the project root
+.find_root <- function(start = getwd()) {
+  path <- normalizePath(start, winslash = "/")
+  while (!file.exists(file.path(path, "_quarto.yml"))) {
+    parent <- normalizePath(dirname(path), winslash = "/")
+    if (parent == path) stop("Could not find project root (_quarto.yml)")
+    path <- parent
+  }
+  path
+}
+.root <- .find_root()
+.p <- function(...) file.path(.root, ...)
+
+rep   <- read.csv(.p("results/11_repeatability/repeatability_summary.csv"))
+pred  <- read.csv(.p("results/12_predictability/predictability_summary.csv"))
+clust <- read.csv(.p("results/14_individual_traits/behaviour_clusters.csv"))
+
+# ── Format helpers ─────────────────────────────────────────────────────────────
+fmt <- function(x, digits = 2) formatC(round(x, digits), format = "f", digits = digits)
+
+# Repeatability
+r_val  <- function(v) fmt(rep$R_cow_mean[rep$variable == v])
+r_ci   <- function(v) paste0("[", fmt(rep$R_cow_lower[rep$variable == v]), ", ",
+                                   fmt(rep$R_cow_upper[rep$variable == v]), "]")
+
+# CVi
+cvi_val <- function(v) fmt(rep$CVi_mean[rep$variable == v])
+cvi_ci  <- function(v) paste0("[", fmt(rep$CVi_lower[rep$variable == v]), ", ",
+                                    fmt(rep$CVi_upper[rep$variable == v]), "]")
+
+# CVP
+cvp_val <- function(v) fmt(pred$CVP_mean[pred$variable == v])
+cvp_ci  <- function(v) paste0("[", fmt(pred$CVP_lower[pred$variable == v]), ", ",
+                                    fmt(pred$CVP_upper[pred$variable == v]), "]")
+
+# Derived summaries
+r_min_var  <- rep$variable[which.min(rep$R_cow_mean)]
+r_min_val  <- fmt(min(rep$R_cow_mean))
+r_max_var  <- rep$variable[which.max(rep$R_cow_mean)]
+r_max_val  <- fmt(max(rep$R_cow_mean))
+
+cvp_min_val <- fmt(min(pred$CVP_mean))
+cvp_max_val <- fmt(max(pred$CVP_mean))
+
+cvi_max_var <- rep$variable[which.max(rep$CVi_mean)]
+cvi_max_val <- fmt(max(rep$CVi_mean))
+
+c1_vars <- clust$variable[clust$cluster == 1]
+n_c1    <- length(c1_vars)
+```
+
+# 4. Discussion
+
+This study demonstrates that existing data streams from electronic feeders and drinkers contain far richer behavioral information than is typically extracted. By developing the `moo4feed` R package, we introduced a standardized and reproducible pipeline for processing raw electronic feeder and drinker data and extracting behavioral variables that go beyond basic daily intake and visit counts. Using 16 variables spanning feeding, drinking, meal patterns, non-nutritive behavior, and social competition, we quantified repeatability and predictability for each variable, identified behaviors most informative for individual profiling, and used those behaviors to characterize four distinct cow types within the herd.
+
+## 4.1 Repeatability and predictability in previous literature
+
+A meta-analysis of 759 repeatability estimates across 114 animal behavior studies, 98 species, reported a mean R of 0.37 [@bell2009]. Our repeatability values ranged from `r r_min_val` (`r gsub("_", " ", r_min_var)`) to `r r_max_val` (`r gsub("_", " ", r_max_var)`), with most variables falling between 0.30 and 0.68. This places the majority of our behavioral variables at or above the cross-species average, indicating that the behaviors captured from electronic feeders and drinkers reflect genuine, stable individual differences.
+
+Compared to previous studies using similar methodology in cattle, our results are broadly consistent. Carslake et al. [-@carslake2022b] reported R = 0.50 [0.32, 0.68] for feeding rate, R = 0.42 [0.30, 0.55] for total meals in pre-weaned calves, and R = 0.03 [0.00, 0.06] for meal size. Occhiuto et al. [-@occhiuto2022] reported R = 0.80 [0.77, 0.83] for core area used, R = 0.78 [0.74, 0.81] for total area used, R = 0.35 [0.30, 0.40] for total distance travelled, R = 0.33 [0.28, 0.38] for time spent in the feeder area, and R = 0.22 [0.18, 0.27] for site fidelity in farmed calves (n = 60). Thomas et al. [-@thomas2024], the only other study to quantify repeatability and predictability in adult dairy cows, reported for feeding behavior (N = 2584 cows, 46 herds): R = 0.38 [0.35, 0.40] for daily feeding time, R = 0.22 [0.21, 0.24] for mean feeding bout duration, and R = 0.22 [0.20, 0.24] for maximum feeding bout duration; and for lying behavior (N = 2183 cows, 41 herds): R = 0.34 [0.33, 0.35] for daily lying time, R = 0.31 [0.30, 0.31] for mean lying bout duration, and R = 0.21 [0.20, 0.21] for maximum lying bout duration. Our highest R values (water drinking duration: `r r_val("water_duration")`; daily feeding visits: `r r_val("feed_visits")`; non-nutritive visits: `r r_val("number_of_non_nutritive_visits")`) substantially exceed both the calf feeding repeatabilities reported by Carslake et al. [-@carslake2022b] and the adult cow values reported by Thomas et al. [-@thomas2024]. This likely reflects the higher resolution of electronic feeder data compared to neck-mounted accelerometers (which estimate feeding time but cannot distinguish individual visits or bins), as well as the behavioral richness of our novel variables.
+
+Even our lowest R value (`r gsub("_", " ", r_min_var)`: `r r_min_val`) likely still reflects meaningful repeatability in the broader context. Bell et al. [-@bell2009] showed that many well-established personality traits in wild populations have R values in the range of 0.20 to 0.40, and such values are considered biologically meaningful when derived from long observation periods under naturalistic conditions. Thomas et al. [-@thomas2024] reported their lowest R at 0.21 [0.20, 0.21] for maximum lying bout duration and interpreted even this value as evidence of consistent individual differences. In our study, even the lowest R variables were estimated from many repeated observations per cow (median 56 cow-days), which gives these estimates high precision despite their modest magnitude.
+
+For predictability, our CVP values ranged from `r cvp_min_val` to `r cvp_max_val` across all 16 variables. This is notably lower than the cross-species mean CVP of 0.27 [0.22, 0.33] reported across 64 estimates from 39 datasets in a meta-analysis of behavioral and physiological traits [@mitchell2020]. Our values are also lower than those reported in the cattle literature: Carslake et al. [-@carslake2022b] found CVP = 0.27 [0.21, 0.37] for feeding rate and CVP = 0.13 [0.06, 0.21] for total meals in calves, Occhiuto et al. [-@occhiuto2022] reported CVP = 0.49 [0.35, 0.62] for core area used, CVP = 0.42 [0.30, 0.55] for total area used, and lower values for other behaviors (total distance travelled: CVP = 0.18 [0.07, 0.27]; time in feeder area: CVP = 0.22 [0.13, 0.34]; site fidelity: CVP = 0.14 [0.01, 0.24]) in farmed calves, and Thomas et al. [-@thomas2024] observed for lying behavior: CVP = 0.46 [0.44, 0.48] for mean lying bout duration, CVP = 0.40 [0.38, 0.42] for maximum lying bout duration, and CVP = 0.23 [0.22, 0.24] for daily lying time; and for feeding behavior: CVP = 0.29 [0.28, 0.30] for mean feeding bout duration, CVP = 0.29 [0.28, 0.30] for maximum feeding bout duration, and CVP = 0.19 [0.18, 0.20] for daily feeding time. Even within Thomas et al.'s results, daily feeding time (the variable most comparable to our daily-level feeding metrics) had a CVP of 0.19, which is close to our range. Their higher CVP values came from bout-level metrics, which are inherently more variable because a single interruption can substantially alter bout duration on a given day.
+
+The uniformly low CVP values in our study likely reflect our strict data filtering approach. We excluded days affected by illness (with a 7-day buffer), lameness, estrus, regrouping, and technical disruptions, and retained only confirmed-pregnant cow-days. This effectively removed the conditions most likely to generate elevated within-individual variability, restricting our analyses to a stable behavioral baseline. In contrast, studies reporting higher CVP values typically included data spanning periods of environmental or physiological perturbation. This is a practically useful finding: within our clean baseline dataset, cows did not differ meaningfully from one another in how predictable they were, meaning that individual baseline monitoring algorithms would not need to apply different variability thresholds for different personality types. Whether this holds during periods of health challenge is an important question for future work.
+
+## 4.2 Novel behavioral variables and compensatory feeding strategies
+
+A key contribution of this study is showing that electronic feeders capture information well beyond what is typically reported. Standard analyses focus on daily feed and water intake, visit counts, and duration. By applying the `moo4feed` pipeline, we additionally derived variables capturing exploratory behavior (non-nutritive visits), social competition (actor and reactor replacement events), feeding efficiency (median percentage of meal time spent actively eating), feed access disadvantage (proportion of feed remaining at visit start), and meal fragmentation (median visits per meal). These variables have rarely been considered in the repeatability and predictability literature, which has focused primarily on simple daily aggregates of feeding time and lying time [e.g., @thomas2024; @carslake2022b; @occhiuto2022].
+
+Among all variables, non-nutritive visits showed the largest CVi (`r cvi_val("number_of_non_nutritive_visits")` `r cvi_ci("number_of_non_nutritive_visits")`), meaning cows differ from one another by more than half the population mean in how often they visit feed bins without eating. Actor events (CVi = `r cvi_val("total_actor")` `r cvi_ci("total_actor")`) and reactor events (CVi = `r cvi_val("total_reactor")` `r cvi_ci("total_reactor")`) also showed high among-individual variation. In contrast, daily feed intake (CVi = `r cvi_val("feed_intake")` `r cvi_ci("feed_intake")`) and the percentage of meal time spent feeding (CVi = `r cvi_val("median_feeding_pct_per_meal")` `r cvi_ci("median_feeding_pct_per_meal")`) showed the smallest relative variation. The finding that cows are nearly indistinguishable from one another in daily feed intake, despite exhibiting dramatically different feeding strategies, suggests compensatory feeding: cows converge to similar intakes through different behavioral pathways. Cow 7068 (frequently replaced, but efficient and sustained feeder) and cow 5042 (fragmented, restless, but fast eater) both achieved high daily feed intakes through opposite strategies. This echoes Thomas et al. [-@thomas2024], who found high repeatability for total daily feeding time and interpreted it as cows compensating disrupted bouts by adjusting other feeding aspects.
+
+## 4.3 Behavioral profiles and cow types
+
+By applying PCA with varimax rotation to the `r n_c1` Cluster 1 variables (those with both high R and high CVi), we identified three principal components explaining over 80% of variance. K-means clustering on these component scores identified four cow types: a frequently replaced herd majority, contest-winning cows, water lovers, and fragmented restless feeders.
+
+The existence of a stable social hierarchy where some cows consistently replace others is well established in dairy cattle [@huzzey2014automatic], and our data-driven approach recovers this structure without any direct behavioral test or video observation. The "water lovers" cluster is particularly noteworthy because these cows had many long drinking visits but below-median actual water intake, suggesting the behavior serves a function beyond hydration. The "fragmented, restless feeders" cluster captures the behavioral tail of the distribution rather than a common type, but its members are among the most behaviorally distinctive animals in the herd.
+
+## 4.4 Limitations
+
+Several limitations warrant acknowledgment. Data were collected at a single research farm using Holstein dairy cows under specific management conditions, which limits direct generalizability to commercial herds with different pen designs, stocking densities, or feeding management. The dynamic group composition (approximately six cows entering and leaving the pen every 16 days) introduced ongoing social instability. Retaining only cow-days confirmed as pregnant was necessary to control for estrous cycling effects but substantially reduced the dataset.
+
+For the total meals variable, we used a lognormal model (log transformation) because the raw distribution was strongly right-skewed. Although total meals is technically a count variable and could in principle be modeled with a Poisson or negative binomial distribution, we chose the lognormal approach for two reasons. First, the primary goal was to compare repeatability and predictability across all 16 variables on a common scale. Using a different distributional family (e.g., Poisson) for one variable would have required simulation-based methods to extract comparable R and CVi estimates, making direct comparison across variables much more complex. Second, the same issue applies to feeding rate and drinking rate, which we excluded from the current analysis entirely because their distributions could not be adequately normalized even after log transformation. Fitting these variables with appropriate non-Gaussian families and deriving comparable repeatability metrics through simulation is beyond the scope of this paper but represents a worthwhile extension for future work.
+
+## 4.5 Future directions
+
+Several directions emerge from this work. First, the `moo4feed` R package should be applied to other species and study systems (e.g., goats, poultry) to evaluate whether the behavioral extraction pipeline and the analytical framework generalize beyond dairy cattle. The package was designed with flexibility in mind, and testing its applicability across diverse farm settings would strengthen its utility as a general tool for behavioral phenotyping.
+
+Second, future research should go deeper into the temporal and spatial dimensions of feeding behavior. Our analyses characterized what cows do on average across the day, but not when or where they choose to compete. During feed delivery, we observed that certain "popular" bins received fresh feed first and attracted disproportionately high competition, even though fresh feed was delivered to all bins. Cows likely differ in their temporal strategies: some may head straight to the most popular bins during peak competition times (arguably a risky, costly approach), while others may access fresh feed at the same high-competition time but choose less popular bins that still have fresh feed yet are more isolated from herd traffic. Understanding whether individual cows consistently adopt one temporal strategy over another would add a new dimension to behavioral profiling.
+
+Third, future work should investigate social relationships between specific cows. Are there stable bonds within the herd, pairs that always feed together or next to each other? Are there strong antagonisms where particular individuals always replace each other? Understanding these dyadic patterns could reveal social network structure that shapes individual feeding strategies.
+
+Fourth, changes in these behaviors over time, and especially changes in a cow's predictability (a highly consistent cow suddenly showing large variation in her behavior), could serve as early indicators of disease or distress. The personality-dependent sickness behavior documented by Setser et al. [-@setser2024a] in calves, where fearful and active calves changed their lying behavior in opposite directions when sick, suggests that the four cow types identified here may respond to illness differently. Prospective validation of whether individual behavioral profiles predict the nature, direction, and timing of health-related behavioral changes would be the critical translational step toward individualized health monitoring.
+
+Finally, while the `moo4feed` package currently takes in data from electronic feeders and drinkers, it was designed in a modular and flexible way. If computer vision systems or other technologies become available that can record which cow eats where and when, the package can accommodate these alternative data sources as long as they output the same fundamental information: individual identity, location, timing, and intake.
