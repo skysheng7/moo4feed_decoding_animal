@@ -276,7 +276,7 @@ We grouped the 16 variables into 3 clusters based on their R and CVi values usin
 
 ## 3.4 Identifying Cow Types via PCA
 
-We applied PCA with varimax rotation to the intercepts (average individual cow's behavioural expression) of the `r length(c1_vars)` behavioral variables in Cluster 1. Three components were retained to meet the ≥80% cumulative-variance criterion [@cangelosi2007component], together explaining `r m3_cumvar`% of the total variance (Table 3, @fig-pca-biplots). Rotated Component (RC) 1 explained the largest share of variance (`r m3_rc1`%), driven primarily by non-nutritive behaviour and feeding patterns. RC2 explained `r m3_rc2`% of variance and was most strongly associated with drinking patterns. RC3 captured the remaining variance, primarily related to agonistic behaviour (actor and reactor events).
+We applied PCA with varimax rotation to the intercepts (average individual cow's behavioural expression) of the `r length(c1_vars)` behavioural variables in Cluster 1. Three components were retained to meet the ≥80% cumulative-variance criterion [@cangelosi2007component], together explaining `r m3_cumvar`% of the total variance (Table 3, @fig-pca-biplots). Rotated Component (RC) 1 explained the largest share of variance (`r m3_rc1`%), driven primarily by non-nutritive behaviour and feeding patterns. RC2 explained `r m3_rc2`% of variance and was most strongly associated with drinking patterns. RC3 captured the remaining variance, primarily related to agonistic behaviour (actor and reactor events).
 
 ::: {.content-visible when-format="docx"}
 ```{=openxml}

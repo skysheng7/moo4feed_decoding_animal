@@ -100,7 +100,7 @@ A key contribution of this study is showing that electronic feeders capture info
 
 Among all variables, non-nutritive visits showed the largest CVi (`r cvi_val("number_of_non_nutritive_visits")` `r cvi_ci("number_of_non_nutritive_visits")`), meaning cows differ from one another by more than half the population mean in how often they visit feed bins without eating. Actor events (CVi = `r cvi_val("total_actor")` `r cvi_ci("total_actor")`) and reactor events (CVi = `r cvi_val("total_reactor")` `r cvi_ci("total_reactor")`) also showed high among-individual variation. In contrast, daily feed intake (CVi = `r cvi_val("feed_intake")` `r cvi_ci("feed_intake")`) showed the smallest relative variation. The finding that cows are nearly indistinguishable from one another in daily feed intake, despite exhibiting different feeding profiles, suggests compensatory feeding: cows converge to similar intakes through different behavioural pathways. Cow 7068 (frequently replaced, but efficient and sustained feeder) and cow 5042 (fragmented, restless, but fast eater) both achieved high daily feed intakes through opposite strategies. This echoes Thomas et al. [-@thomas2024], who found high repeatability for total daily feeding time and interpreted it as cows compensating disrupted bouts by adjusting other feeding aspects.
 
-## 4.3 Behavioral profiles and cow types
+## 4.3 Behavioural profiles and cow types
 
 By applying PCA with varimax rotation to the variables with both high R and high CVi, we identified three principal components explaining over 80% of variance. K-means clustering on these component scores identified four cow types: a frequently replaced herd majority, contest-winning cows, water lovers, and fragmented restless feeders.
 
