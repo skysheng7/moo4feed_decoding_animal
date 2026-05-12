@@ -31,6 +31,33 @@ output_dir <- "results/15_pca_clustering"
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 ###################################################################################################
+################################## Canonical variable labels (shared with paper) #################
+###################################################################################################
+var_labels <- c(
+  "feed_intake"                    = "Daily feed intake",
+  "feed_duration"                  = "Daily feeding duration",
+  "feed_visits"                    = "Daily feeding visits",
+  "water_intake"                   = "Daily water intake",
+  "water_duration"                 = "Daily drinking duration",
+  "water_visits"                   = "Daily drinking visits",
+  "total_actor"                    = "Daily actor events",
+  "total_reactor"                  = "Daily reactor events",
+  "number_of_non_nutritive_visits" = "Daily non-nutritive visits",
+  "median_pct_feed_remaining"      = "Median % of feed remaining",
+  "total_meals"                    = "Daily meals",
+  "median_meal_duration"           = "Median meal duration",
+  "median_visit_per_meal"          = "Median visits per meal",
+  "median_intake_per_meal"         = "Median intake per meal",
+  "median_feeding_pct_per_meal"    = "Median % of time spent feeding per meal",
+  "median_non_nutritive_per_meal"  = "Median non-nutritive per meal"
+)
+label_var <- function(v) {
+  # Strip int_/slp_ prefix produced by PCA column names, then look up canonical label
+  v_clean <- sub("^(int_|slp_)", "", v)
+  ifelse(v_clean %in% names(var_labels), var_labels[v_clean], gsub("_", " ", v_clean))
+}
+
+###################################################################################################
 ################################## Load data from script 14 #######################################
 ###################################################################################################
 cow_traits   <- read.csv("results/14_individual_traits/cow_traits_wide.csv",
@@ -323,7 +350,7 @@ draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y,
   load2 <- data.frame(
     ld1      = ld_mat[, idx_x],
     ld2      = ld_mat[, idx_y],
-    variable = gsub("_", " ", rownames(ld_mat))
+    variable = label_var(rownames(ld_mat))
   )
   load2$xend <- load2$ld1 * global_sf
   load2$yend <- load2$ld2 * global_sf

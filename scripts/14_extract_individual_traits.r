@@ -247,9 +247,34 @@ write.csv(behaviour_clusters,
           row.names = FALSE)
 
 ###################################################################################################
+################################## Canonical variable labels (shared with paper) #################
+###################################################################################################
+var_labels <- c(
+  "feed_intake"                    = "Daily feed intake",
+  "feed_duration"                  = "Daily feeding duration",
+  "feed_visits"                    = "Daily feeding visits",
+  "water_intake"                   = "Daily water intake",
+  "water_duration"                 = "Daily drinking duration",
+  "water_visits"                   = "Daily drinking visits",
+  "total_actor"                    = "Daily actor events",
+  "total_reactor"                  = "Daily reactor events",
+  "number_of_non_nutritive_visits" = "Daily non-nutritive visits",
+  "median_pct_feed_remaining"      = "Median % of feed remaining",
+  "total_meals"                    = "Daily meals",
+  "median_meal_duration"           = "Median meal duration",
+  "median_visit_per_meal"          = "Median visits per meal",
+  "median_intake_per_meal"         = "Median intake per meal",
+  "median_feeding_pct_per_meal"    = "Median % of time spent feeding per meal",
+  "median_non_nutritive_per_meal"  = "Median non-nutritive per meal"
+)
+label_var <- function(v) {
+  ifelse(v %in% names(var_labels), var_labels[v], gsub("_", " ", v))
+}
+
+###################################################################################################
 ################################## Visualise behaviour clusters ###################################
 ###################################################################################################
-behaviour_clusters$label <- gsub("_", " ", behaviour_clusters$variable)
+behaviour_clusters$label <- label_var(behaviour_clusters$variable)
 behaviour_clusters$cluster_label <- paste("Cluster", behaviour_clusters$cluster)
 
 cluster_colours <- c("Cluster 1" = "#F28E2B",
@@ -321,11 +346,10 @@ rep_summary_c <- rep_summary %>%
   dplyr::mutate(
     a     = (R_cow_upper - R_cow_lower) / 2,
     b     = (CVi_upper   - CVi_lower)   / 2,
-    label = gsub("_", " ", variable)
+    label = label_var(variable)
   )
 
-x_max_r <- max(rep_summary_c$R_cow_upper, na.rm = TRUE) * 1.1
-y_max_r <- max(rep_summary_c$CVi_upper,   na.rm = TRUE) * 1.1
+axis_lim <- c(0, 0.8)
 
 rep_scatter_c <- ggplot(rep_summary_c,
                         aes(x0 = R_cow_mean, y0 = CVi_mean,
@@ -355,8 +379,8 @@ rep_scatter_c <- ggplot(rep_summary_c,
     show.legend        = FALSE,
     inherit.aes        = FALSE
   ) +
-  scale_x_continuous(limits = c(0, x_max_r), expand = expansion(mult = c(0.02, 0.05))) +
-  scale_y_continuous(limits = c(0, y_max_r), expand = expansion(mult = c(0.02, 0.05))) +
+  scale_x_continuous(limits = axis_lim, expand = expansion(mult = c(0.02, 0.02))) +
+  scale_y_continuous(limits = axis_lim, expand = expansion(mult = c(0.02, 0.02))) +
   scale_fill_manual(values   = cluster_colours, name = "Cluster") +
   scale_colour_manual(values = cluster_colours, name = "Cluster") +
   scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17)) +
@@ -393,7 +417,7 @@ combined_c <- rep_summary %>%
   dplyr::mutate(
     a     = (CVP_upper - CVP_lower) / 2,
     b     = (CVi_upper - CVi_lower) / 2,
-    label = gsub("_", " ", variable)
+    label = label_var(variable)
   )
 
 cvp_cvi_c <- ggplot(combined_c,
@@ -424,8 +448,8 @@ cvp_cvi_c <- ggplot(combined_c,
     show.legend        = FALSE,
     inherit.aes        = FALSE
   ) +
-  scale_x_continuous(limits = c(0, 0.65), expand = expansion(mult = c(0.02, 0.02))) +
-  scale_y_continuous(limits = c(0, 0.65), expand = expansion(mult = c(0.02, 0.02))) +
+  scale_x_continuous(limits = axis_lim, expand = expansion(mult = c(0.02, 0.02))) +
+  scale_y_continuous(limits = axis_lim, expand = expansion(mult = c(0.02, 0.02))) +
   scale_fill_manual(values   = cluster_colours, name = "Cluster") +
   scale_colour_manual(values = cluster_colours, name = "Cluster") +
   scale_shape_manual(values = c("gaussian" = 16, "lognormal" = 17)) +
