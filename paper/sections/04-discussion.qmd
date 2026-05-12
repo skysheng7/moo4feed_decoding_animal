@@ -52,17 +52,17 @@ c1_vars <- clust$variable[clust$cluster == 1]
 n_c1    <- length(c1_vars)
 
 var_labels <- c(
-  "feed_intake"                    = "total feed intake",
-  "feed_duration"                  = "total feeding duration",
-  "feed_visits"                    = "total feeding visits",
-  "water_intake"                   = "total water intake",
-  "water_duration"                 = "total drinking duration",
-  "water_visits"                   = "total drinking visits",
-  "total_actor"                    = "total actor events",
-  "total_reactor"                  = "total reactor events",
-  "number_of_non_nutritive_visits" = "total non-nutritive feed visits",
+  "feed_intake"                    = "daily feed intake",
+  "feed_duration"                  = "daily feeding duration",
+  "feed_visits"                    = "daily feeding visits",
+  "water_intake"                   = "daily water intake",
+  "water_duration"                 = "daily drinking duration",
+  "water_visits"                   = "daily drinking visits",
+  "total_actor"                    = "daily actor events",
+  "total_reactor"                  = "daily reactor events",
+  "number_of_non_nutritive_visits" = "daily non-nutritive visits",
   "median_pct_feed_remaining"      = "median proportion of feed remaining at visit start",
-  "total_meals"                    = "total meals per day",
+  "total_meals"                    = "daily meals",
   "median_meal_duration"           = "median meal duration",
   "median_visit_per_meal"          = "median visits per meal",
   "median_intake_per_meal"         = "median feed intake per meal",
@@ -88,7 +88,7 @@ Two methodological points are worth noting when comparing our results to prior c
 
 For the variables directly comparable to Thomas et al. [-@thomas2024], our estimates are similar or higher. Our R for daily feeding duration (`r r_val("feed_duration")` `r r_ci("feed_duration")`) exceeds their R = 0.38 [0.35, 0.40] for daily feeding time in 2584 adult cows across 46 herds. This difference likely reflects methodological differences rather than a true biological divergence: Thomas et al. used neck-mounted sensors and aggregated data across diverse commercial herds, whereas our study used automated feeders with strict data filtering, removing days affected by illness, lameness, estrus, and other disruptions. These design choices reduce within-individual noise and would be expected to yield higher repeatability estimates. 
 
-Many of our highest-R variables (water drinking duration: `r r_val("water_duration")`; daily feeding visits: `r r_val("feed_visits")`; non-nutritive visits: `r r_val("number_of_non_nutritive_visits")`) capture behaviours that have never been assessed for repeatability before, and have no published comparison. Even our lowest R value (`r clean_label(r_min_var)`: `r r_min_val`) is likely still biologically meaningful. Bell et al. [-@Bell2009] showed that many well-established personality traits in wild populations have R values between 0.20 and 0.40, and Thomas et al. [-@thomas2024] reported their lowest R at 0.21 [0.20, 0.21] for maximum lying bout duration yet interpreted it as evidence of consistent individual differences. For behaviours measured in the broader cattle literature but not in our study (e.g., lying bouts, space use), prior work reports R values ranging from 0.03 to 0.80 in calves and 0.21 to 0.38 in adult cows [@thomas2024; @carslake2022b; @occhiuto2022]. 
+Many of our highest-R variables (daily drinking duration: `r r_val("water_duration")`; daily feeding visits: `r r_val("feed_visits")`; daily non-nutritive visits: `r r_val("number_of_non_nutritive_visits")`) capture behaviours that have never been assessed for repeatability before, and have no published comparison. Even our lowest R value (`r clean_label(r_min_var)`: `r r_min_val`) is likely still biologically meaningful. Bell et al. [-@Bell2009] showed that many well-established personality traits in wild populations have R values between 0.20 and 0.40, and Thomas et al. [-@thomas2024] reported their lowest R at 0.21 [0.20, 0.21] for maximum lying bout duration yet interpreted it as evidence of consistent individual differences. For behaviours measured in the broader cattle literature but not in our study (e.g., lying bouts, space use), prior work reports R values ranging from 0.03 to 0.80 in calves and 0.21 to 0.38 in adult cows [@thomas2024; @carslake2022b; @occhiuto2022]. 
 
 For predictability, our CVP values ranged from `r cvp_min_val` to `r cvp_max_val` across all 16 variables. This is notably lower than the cross-species mean CVP of 0.27 [0.22, 0.33] reported across 64 estimates from 39 datasets in a meta-analysis of behavioural and physiological traits [@mitchell2020]. For dairy calves, CVP values in the literature ranged from 0.13 [0.06, 0.21] (total meals; @carslake2022b) to 0.49 [0.35, 0.62] (core area used; @occhiuto2022). For adult dairy cows, Thomas et al. [-@thomas2024] reported CVP values ranging from 0.19 [0.18, 0.20] (daily feeding time) to 0.46 [0.44, 0.48] (mean lying bout duration), with higher values coming from bout-level metrics that are inherently more liabile than daily aggregates. Our corresponding CVP for daily feeding duration was `r cvp_val("feed_duration")` `r cvp_ci("feed_duration")`, which is close to Thomas et al.'s daily feeding time estimate and confirms that our daily-level metrics fall at the lower end of the adult cow range.
 
@@ -98,7 +98,7 @@ The uniformly low CVP values in our study likely reflect the same strict data fi
 
 A key contribution of this study is showing that electronic feeders capture information well beyond what is typically reported. Standard analyses focus on daily feed and water intake, visit counts, and duration. By applying the `moo4feed` pipeline, we additionally derived variables capturing exploratory behaviour (non-nutritive visits), social competition (actor and reactor replacement events), feeding efficiency (median percentage of meal time spent actively eating), feed access disadvantage (proportion of feed remaining at visit start), and meal fragmentation (median visits per meal). These variables have rarely been considered in the repeatability and predictability literature, which has focused primarily on daily aggregates of feeding and lying behaviours [@thomas2024; @carslake2022b; @occhiuto2022].
 
-Among all variables, non-nutritive visits showed the largest CVi (`r cvi_val("number_of_non_nutritive_visits")` `r cvi_ci("number_of_non_nutritive_visits")`), meaning cows differ from one another by more than half the population mean in how often they visit feed bins without eating. Actor events (CVi = `r cvi_val("total_actor")` `r cvi_ci("total_actor")`) and reactor events (CVi = `r cvi_val("total_reactor")` `r cvi_ci("total_reactor")`) also showed high among-individual variation. In contrast, daily feed intake (CVi = `r cvi_val("feed_intake")` `r cvi_ci("feed_intake")`) showed the smallest relative variation. The finding that cows are nearly indistinguishable from one another in daily feed intake, despite exhibiting different feeding profiles, suggests compensatory feeding: cows converge to similar intakes through different behavioural pathways. Cow 7068 (frequently replaced, but efficient and sustained feeder) and cow 5042 (fragmented, restless, but fast eater) both achieved high daily feed intakes through opposite strategies. This echoes Thomas et al. [-@thomas2024], who found high repeatability for total daily feeding time and interpreted it as cows compensating disrupted bouts by adjusting other feeding aspects.
+Among all variables, non-nutritive visits showed the largest CVi (`r cvi_val("number_of_non_nutritive_visits")` `r cvi_ci("number_of_non_nutritive_visits")`), meaning cows differ from one another by more than half the population mean in how often they visit feed bins without eating. Daily actor events (CVi = `r cvi_val("total_actor")` `r cvi_ci("total_actor")`) and daily reactor events (CVi = `r cvi_val("total_reactor")` `r cvi_ci("total_reactor")`) also showed high among-individual variation. In contrast, daily feed intake (CVi = `r cvi_val("feed_intake")` `r cvi_ci("feed_intake")`) showed the smallest relative variation. The finding that cows are nearly indistinguishable from one another in daily feed intake, despite exhibiting different feeding profiles, suggests compensatory feeding: cows converge to similar intakes through different behavioural pathways. Cow 7068 (frequently replaced, but efficient and sustained feeder) and cow 5042 (fragmented, restless, but fast eater) both achieved high daily feed intakes through opposite strategies. This echoes Thomas et al. [-@thomas2024], who found high repeatability for total daily feeding time and interpreted it as cows compensating disrupted bouts by adjusting other feeding aspects.
 
 ## 4.3 Behavioural profiles and cow types
 
