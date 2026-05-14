@@ -11,7 +11,7 @@ Data were collected as part of a previous study described in detail by Sheng et 
 
 ## 2.2 Data Cleaning and Filtering
 
-All data preparation and analysis were conducted using R (version 4.3.1; @R-base). To ensure that the data we analyzed reflected the behavioural baseline patterns of cows when they are healthy not lame and not in estrus, we applied stricter data cleaning and filtering criteria that extended beyond the data cleaning procedure described in our previous work [@sheng2024redefining]. Starting from 14,728 cow-days across 159 cows and 306 d, exclusions were applied at two levels. At the individual level, data were removed for specific cows on days affected by:
+All data preparation and analysis were conducted using R [version 4.3.1; @R-base]. To ensure that the data we analyzed reflected the behavioural baseline patterns of cows when they are healthy not lame and not in estrus, we applied stricter data cleaning and filtering criteria that extended beyond the data cleaning procedure described in our previous work [@sheng2024redefining]. Starting from 14,728 cow-days across 159 cows and 306 d, exclusions were applied at two levels. At the individual level, data were removed for specific cows on days affected by:
 
 (1) health events, including illness episodes when cows were moved to the sick pen and when cows received veterinary treatment while remaining in the pen (e.g., mastitis, fever, injury), with a buffer period around each event (7 days before and 7 days after the recorded events) to account for potential behavioural changes during the prodromal and recovery periods (16 cows across 120 days, 197 cow-days).
 
