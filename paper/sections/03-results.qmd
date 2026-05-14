@@ -118,7 +118,7 @@ Because R is confounded by within-individual variance (Section 2.4), we use the 
 ```
 :::
 
-**Table 2.** Repeatability (R), coefficient of individual variation (CVi), coefficient of variation of predictability (CVP), and residual intra-individual variability (rIIV) for the 16 behavioural variables. Values are posterior means with 95% credible intervals in brackets. Cell color encodes the posterior mean within each metric (darker = higher). Rows are grouped by behavioural category.
+**Table 2.** Repeatability (R), coefficient of individual variation (CVi), coefficient of variation of predictability (CVP), and residual intra-individual variability (rIIV) for the 16 behavioural variables. Values are posterior means with 95% credible intervals in brackets. Cell colour encodes the posterior mean within each metric (darker = higher). Rows are grouped by behavioural category.
 
 ```{r echo=FALSE}
 # Pretty variable labels and category grouping. Note: "Median % feed remaining"
@@ -305,7 +305,7 @@ flextable(loadings_tbl) %>%
   autofit()
 ```
 
-K-means clustering on the `r m3_ncomp` retained rotated components after PCA, with $k$ selected by the silhouette method, identified k = `r m3_k` as the optimal number of cow clusters. The mean silhouette width of the final clustering was `r m3_sil`, indicating reasonably well-defined groupings. An interactive visualization of the `r m3_k` clusters of cows in the 3D space, colored by cluster assignment, is available at <https://www.skysheng.io/moo4feed_decoding_animal/>.
+K-means clustering on the `r m3_ncomp` retained rotated components after PCA, with $k$ selected by the silhouette method, identified k = `r m3_k` as the optimal number of cow clusters. The mean silhouette width of the final clustering was `r m3_sil`, indicating reasonably well-defined groupings. An interactive visualization of the `r m3_k` clusters of cows in the 3D space, coloured by cluster assignment, is available at <https://www.skysheng.io/moo4feed_decoding_animal/>.
 
 
 ::: {.content-visible when-format="docx"}
