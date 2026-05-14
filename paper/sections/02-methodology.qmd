@@ -25,11 +25,11 @@ All data preparation and analysis were conducted using R (version 4.3.1; @R-base
 
 At the herd level, data were removed for all cows on days affected by:
 
-(1) estrus events, as any cow in heat can potentially disturb the behaviour of all other cows in the group (55 estrus events, 2,381 cow-days).
+(1) estrus events, as any cow in heat can potentially disturb the behaviour of all other cows in the group (55 estrus events, 2,381 cow-days) [@reith2018behavioral].
 
 (2) technical disruptions to the electronic feeders and drinkers, including equipment breakdowns, compressor failures, power outages, missing data, and severe weather events that compromised bin function (28 d, 1,281 cow-days).
 
-(3) regrouping events when the herd dynamics is destabilized (16 events, 674 cow-days).
+(3) regrouping events when the herd dynamics is destabilized (16 events, 674 cow-days) [@von2008acute].
 
 After filtering, 107 cows contributed data across 207 days (10-130 days of observation per cow), resulting in the retention of 6226 unique cow-days were retained.
 
@@ -119,7 +119,7 @@ $$
 \text{response} \sim \text{DIM} + \text{parity} + \text{THI}_{\text{mean}} + \text{poly}(\text{month},\, 2) + (1 \mid \text{cow})
 $$
 
-where DIM (days in milk), parity, and mean daily THI were fixed effects controlling for changes in physiological state and thermal environment, a second-degree polynomial of calendar month captured seasonal trends, and cow identity was a random intercept. Default brms priors were used. MCMC sampling used 4 chains with 1,000 warmup iterations; total iterations ranged from 6,000 to 17,000 per variable to ensure convergence. Among-individual variation was quantified using two metrics derived from posterior draws: repeatability **(R)** and the coefficient of individual variation **(CVi)** [@hertel2020]. R is the proportion of total variance attributable to between-cow differences:
+where DIM (days in milk), parity, and mean daily temperature-humidity index (THI) were fixed effects controlling for changes in physiological state and thermal environment, a second-degree polynomial of calendar month captured seasonal trends, and cow identity was a random intercept. Default brms priors were used. MCMC sampling used 4 chains with 1,000 warmup iterations; total iterations ranged from 6,000 to 17,000 per variable to ensure convergence. Among-individual variation was quantified using two metrics derived from posterior draws: repeatability **(R)** and the coefficient of individual variation **(CVi)** [@hertel2020]. R is the proportion of total variance attributable to between-cow differences:
 
 $$
 R = \frac{\text{var.cow}}{\text{var.cow} + \text{var.res}}
