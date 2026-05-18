@@ -80,7 +80,7 @@ clean_label <- function(v) {
 
 This study demonstrates that existing data streams from electronic feeders and drinkers contain far richer behavioural information than is typically extracted. By developing the `moo4feed` R package, we introduced a standardized and reproducible pipeline for processing raw electronic feeder and drinker data and extracting behavioural variables that go beyond basic daily intake and visit counts. Using 16 variables spanning feeding, drinking, meal patterns, non-nutritive behaviour, and social competition, we quantified repeatability and predictability for each variable, identified behaviours most informative for individual profiling, and used those behaviours to characterize four distinct cow types within the herd.
 
-## 4.1 Repeatability and predictability in context
+## 4.1 Repeatability and Predictability in Context
 
 A meta-analysis of 759 repeatability estimates across 114 studies and 98 species reported a mean R of 0.37 [@Bell2009]. Our repeatability values ranged from `r r_min_val` (`r clean_label(r_min_var)`) to `r r_max_val` (`r clean_label(r_max_var)`), with most variables falling between 0.38 and 0.64. This places the majority of our behavioural variables above the cross-species average, indicating that the behaviours captured from electronic feeders and drinkers likely reflect stable individual differences.
 
@@ -94,13 +94,13 @@ For predictability, our CVP values ranged from `r cvp_min_val` to `r cvp_max_val
 
 The uniformly low CVP values in our study likely reflect the same strict data filtering that inflated our R estimates relative to previous work: by removing days disrupted by illness, lameness, estrus, and regrouping, we restricted our analyses to a stable behavioural baseline. This is a practically useful finding in its own right: under clean baseline conditions, CVP values were consistently low across all variables, and the variation in predictability across cows was modest. Whether individual cow types (e.g., the "fragmented restless feeders" identified in Section 3.3) show systematically higher within-individual variability during periods of health challenge, or whether predictability is better understood as a property of physiological state than of personality, is an important question for future work.
 
-## 4.2 Novel behavioural variables and compensatory feeding strategies
+## 4.2 Novel Behavioural Variables and Compensatory Feeding Strategies
 
 A key contribution of this study is showing that electronic feeders capture information well beyond what is typically reported. Standard analyses focus on daily feed and water intake, visit counts, and duration. By applying the `moo4feed` pipeline, we additionally derived variables capturing exploratory behaviour (non-nutritive visits), social competition (actor and reactor replacement events), feeding efficiency (median percentage of meal time spent actively eating), feed access disadvantage (proportion of feed remaining at visit start), and meal fragmentation (median visits per meal). These variables have rarely been considered in the repeatability and predictability literature, which has focused primarily on daily aggregates of feeding and lying behaviours [@thomas2024; @carslake2022b; @occhiuto2022].
 
 Among all variables, non-nutritive visits showed the largest CVi (`r cvi_val("number_of_non_nutritive_visits")` `r cvi_ci("number_of_non_nutritive_visits")`), meaning cows differ from one another by more than half the population mean in how often they visit feed bins without eating. Daily actor events (CVi = `r cvi_val("total_actor")` `r cvi_ci("total_actor")`) and daily reactor events (CVi = `r cvi_val("total_reactor")` `r cvi_ci("total_reactor")`) also showed high among-individual variation. In contrast, daily feed intake (CVi = `r cvi_val("feed_intake")` `r cvi_ci("feed_intake")`) showed the smallest relative variation. The finding that cows are nearly indistinguishable from one another in daily feed intake, despite exhibiting different feeding profiles, suggests compensatory feeding: cows converge to similar intakes through different behavioural pathways. Cow 7068 (frequently replaced, but efficient and sustained feeder) and cow 5042 (fragmented, restless, but fast eater) both achieved high daily feed intakes through opposite strategies. This echoes Thomas et al. [-@thomas2024], who found high repeatability for total daily feeding time and interpreted it as cows compensating disrupted bouts by adjusting other feeding aspects.
 
-## 4.3 Behavioural profiles and cow types
+## 4.3 Behavioural Profiles and Cow Types
 
 By applying PCA with varimax rotation to the variables with both high R and high CVi, we identified three principal components explaining over 80% of variance. K-means clustering on these component scores identified four cow types: a frequently replaced herd majority, contest-winning cows, water lovers, and fragmented restless feeders.
 
@@ -118,7 +118,7 @@ A methodological strength of our study relative to previous work is the explicit
 
 For the total meals variable, we used a lognormal model (log transformation) because the raw distribution was strongly right-skewed. Although total meals is technically a count variable and could in principle be modeled with a negative binomial distribution, we chose the lognormal approach for two reasons. First, the primary goal was to compare repeatability and predictability across all 16 variables on a common scale. Using a different distributional family for one variable would have required simulation-based methods to extract comparable R and CVi estimates, making direct comparison across variables much more complex. Second, the same issue applies to feeding rate and drinking rate, which we excluded from the current analysis entirely because their distributions could not be adequately normalized even after log transformation. Fitting these variables with appropriate non-Gaussian families and deriving comparable repeatability metrics through simulation is beyond the scope of this paper but represents a worthwhile extension for future work.
 
-## 4.5 Future directions
+## 4.5 Future Directions
 
 Several new directions could be explored based on this work. First, the `moo4feed` R package should be applied to other species and study systems (e.g., goats, birds) to evaluate whether the behavioural extraction pipeline and the analytical framework is generalizable beyond dairy cattle. The package was designed with flexibility in mind, and testing its applicability across diverse farm settings would strengthen its utility as a general tool for behavioural phenotyping.
 
