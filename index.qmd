@@ -1,5 +1,5 @@
 ---
-title: "Decoding individual dairy cow behavioural profiles through electronic feeder and drinker data"
+title: "Decoding individual dairy cow behavioral profiles through electronic feeder and drinker data"
 author: "Kehan Sheng^1^, Borbala Foris^1,2^, Daniel M. Weary^1^, Marina A.G. von Keyserlingk^1^" 
 # Override project defaults for the main document
 format: 
