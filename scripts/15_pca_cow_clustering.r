@@ -371,7 +371,7 @@ draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y,
       aes(x = xend, y = yend, label = variable),
       colour          = "sienna",
       fontface        = "bold",
-      size            = 5.5,
+      size            = 6,
       box.padding     = unit(0.5, "lines"),
       point.padding   = unit(0.3, "lines"),
       force           = 50,
@@ -392,14 +392,14 @@ draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y,
       colour = "Cluster",
       fill   = "Cluster"
     ) +
-    theme_classic(base_size = 20) +
+    theme_classic(base_size = 25) +
     theme(
       legend.position  = "bottom",
       legend.box       = "horizontal",
-      legend.text      = element_text(size = 18),
-      legend.title     = element_text(size = 20),
-      axis.title       = element_text(size = 22),
-      axis.text        = element_text(size = 18)
+      legend.text      = element_text(size = 20),
+      legend.title     = element_text(size = 23),
+      axis.title       = element_text(size = 24),
+      axis.text        = element_text(size = 20)
     )
   p
 }
