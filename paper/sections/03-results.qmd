@@ -317,7 +317,7 @@ K-means clustering on the `r m3_ncomp` retained rotated components after PCA, wi
 
 ```{r echo=FALSE}
 #| label: fig-pca-biplots
-#| fig-cap: "PCA biplots using the intercepts of Cluster-1 variables (i.e., variables with the highest CVi and R in repeatability). (A) RC1 vs RC2. (B) RC1 vs RC3. Each point is a cow, colored by k-means cluster assignment (coral orange for Cluster 1, pink for Cluster 2, purple for Cluster 3, and blue for Cluster 4); arrows represent variable loadings scaled to the score space. Ellipses show 95% confidence regions around each cluster centroid."
+#| fig-cap: "PCA biplots using the intercepts of Cluster-1 variables (i.e., variables with the highest CVi and R in repeatability). (A) RC1 vs RC2. (B) RC1 vs RC3. Each point is a cow, colored by k-means cluster assignment (coral orange for Cluster 1, olive green for Cluster 2, yellow for Cluster 3, and blue for Cluster 4); arrows represent variable loadings scaled to the score space. Ellipses show 95% confidence regions around each cluster centroid."
 
 knitr::include_graphics(.p("results/15_pca_clustering/pca_M3_c1_int_biplot_clusters_AB.png"))
 ```
