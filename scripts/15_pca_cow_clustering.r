@@ -324,7 +324,7 @@ best_res <- results[[best_idx]]
 
 cat("\nDrawing biplots for best method:", best, "\n")
 
-sunset_palette <- c("#F8A07E", "#EB6770", "#A059A0", "#3D4D8A")
+sunset_palette <- c("#EE8866", "#AAAA00", "#EBAF02", "#77AADD")
 
 # Compute a single global axis limit and scaling factor across ALL retained RCs
 # so that every biplot panel shares the same coordinate space.

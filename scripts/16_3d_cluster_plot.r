@@ -49,8 +49,7 @@ print(table(cow_clusters$cluster))
 ###################################################################################################
 ################################## Sunset palette #################################################
 ###################################################################################################
-sunset_palette <- c("#F8A07E", "#EB6770",
-                     "#A059A0", "#3D4D8A")
+sunset_palette <- c("#EE8866", "#AAAA00", "#EBAF02", "#77AADD")
 
 n_clust <- nlevels(cow_clusters$cluster)
 colours_used <- colorRampPalette(sunset_palette)(n_clust)
