@@ -26,3 +26,5 @@ paper/sections/.Rhistory
 /.quarto/
 index.log
 results/11_repeatability/m1_brm_median_water_rate.rds
+data/.Rapp.history
+data/.Rhistory
