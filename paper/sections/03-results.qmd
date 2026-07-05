@@ -361,7 +361,7 @@ cow_clu  <- function(cow) cow_clust$cluster[cow_clust$cow == cow]
 rank_to_cid <- clust_summary$cluster           # index 1 = largest cluster, etc.
 cid_subord  <- rank_to_cid[1]                  # largest = typical/subordinate
 cid_dom     <- rank_to_cid[2]                  # second largest = dominant
-cid_drink   <- rank_to_cid[3]                  # third = drinker dwellers
+cid_drink   <- rank_to_cid[3]                  # third = frequent drinker visitors
 cid_frag    <- rank_to_cid[4]                  # smallest = fragmented feeders
 ```
 
@@ -369,7 +369,7 @@ The 4 retained clusters (@fig-pca-biplots) correspond to distinct behavioral pro
 
 **Cow Cluster `r cid_subord` — "frequently replaced" (n = `r clust_summary$n[1]`, ~`r m3_pct(1)`% of the herd, the largest group).** Cows in this cluster sat near the herd average on RC1 (mean score = `r fmt(clust_summary$RC1[1])`) and below average on RC2 (`r fmt(clust_summary$RC2[1])`), but scored noticeably high on RC3 (`r fmt(clust_summary$RC3[1])`). These cows were replaced from feed bins (reactor events) more often than they replaced others (actor events), and had low drinking activity compared to herd average (@fig-pca-biplots A). Cows in this cluster were the unremarkable majority of the herd: they fed, drank, and took their meals within typical ranges, but routinely yielded the bin to more dominant pen mates.
 
-**Cow Cluster `r cid_drink` — "drinker dwellers" (n = `r clust_summary$n[3]`, ~`r m3_pct(3)`%).** Cows in this cluster were distinguished by a very high RC2 score (`r fmt(clust_summary$RC2[3])`), driven by both long daily drinking duration and more drinking visits per day, while showing lower than herd average RC1 (`r fmt(clust_summary$RC1[3])`) and higher than herd average RC3 (`r fmt(clust_summary$RC3[3])`) (@fig-pca-biplots B). These cows expressed substantially high drinking activity even after controlling for DIM and THI. They also had relatively low feeding activity, and got replaced more often than they replaced others.
+**Cow Cluster `r cid_drink` — "frequent drinker visitors" (n = `r clust_summary$n[3]`, ~`r m3_pct(3)`%).** Cows in this cluster were distinguished by a very high RC2 score (`r fmt(clust_summary$RC2[3])`), driven by both long daily drinking duration and more drinking visits per day, while showing lower than herd average RC1 (`r fmt(clust_summary$RC1[3])`) and higher than herd average RC3 (`r fmt(clust_summary$RC3[3])`) (@fig-pca-biplots B). These cows expressed substantially high drinking activity even after controlling for DIM and THI. They also had relatively low feeding activity, and got replaced more often than they replaced others.
 
 **Cow Cluster `r cid_frag` — "fragmented feeders" (n = `r clust_summary$n[4]`, ~`r m3_pct(4)`%, the smallest group).** This small group of extreme individuals scored very high on RC1 (`r fmt(clust_summary$RC1[4])`), driven by a combination of many feed visits per day, many non-nutritive visits, and highly fragmented meals (many short visits per meal, with repeated head-in/head-out events rather than sustained feeding). RC2 (`r fmt(clust_summary$RC2[4])`) was below average, and RC3 (`r fmt(clust_summary$RC3[4])`) score was very close to the herd average. These cows had relatively low drinking activity, and repeatedly switched among bins in search of preferred feed, even though there was feed remaining in the bins they visited.
 
