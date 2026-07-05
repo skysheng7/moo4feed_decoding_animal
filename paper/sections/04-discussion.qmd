@@ -78,7 +78,7 @@ clean_label <- function(v) {
 
 # 4. Discussion
 
-This study illustrates how the use of existing data streams from electronic feeders and drinkers can be used to describe far richer behavioral information than is typically extracted. By developing the `moo4feed` R package, we introduced a standardized and reproducible pipeline for processing raw electronic feeder and drinker data and extracting behavioral variables that go beyond basic daily intake and visit counts. Using 16 variables spanning feeding, drinking, meal patterns, non-nutritive behavior, and social competition, we quantified repeatability and predictability for each variable, identified behaviors most informative for individual profiling, and used those behaviors to characterize four distinct cow types within the herd.
+This study illustrates how the use of existing data streams from electronic feeders and drinkers can be used to aid digital phenotyping of individuals, and describe far richer behavioral information than is typically extracted. By developing the `moo4feed` R package, we introduced a standardized and reproducible pipeline for processing raw electronic feeder and drinker data and extracting behavioral variables that go beyond basic daily intake and visit counts. Using 16 variables spanning feeding, drinking, meal patterns, non-nutritive behavior, and social competition, we quantified repeatability and predictability for each variable, identified behaviors most informative for individual profiling, and used those behaviors to characterize four distinct cow types within the herd.
 
 ## 4.1 Repeatability and Predictability in Context
 
