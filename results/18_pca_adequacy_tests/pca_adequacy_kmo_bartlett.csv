@@ -1,0 +1,2 @@
+"method","n_cows","n_variables","kmo_overall_msa","kmo_interpretation","bartlett_chisq","bartlett_df","bartlett_p_value"
+"M3_c1_int",107,8,0.5248,"acceptable",1079.445,28,2.16795529615685e-209
