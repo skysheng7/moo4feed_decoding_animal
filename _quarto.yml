@@ -14,7 +14,7 @@ execute:
 
 # Project-wide defaults
 bibliography: paper/references.bib
-csl: https://www.zotero.org/styles/computers-and-electronics-in-agriculture
+csl: https://www.zotero.org/styles/journal-of-dairy-science
 link-citations: true
 
 # Author information (shared across documents)
