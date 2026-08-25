@@ -362,7 +362,7 @@ rep_scatter_c <- ggplot(rep_summary_c,
   ggrepel::geom_label_repel(
     aes(x = R_cow_mean, y = CVi_mean, label = label, fill = cluster_label),
     colour             = "black",
-    size               = 6,
+    size               = 8,
     alpha              = 0.5,
     label.padding      = unit(0.15, "lines"),
     box.padding        = unit(0.5, "lines"),
@@ -387,14 +387,14 @@ rep_scatter_c <- ggplot(rep_summary_c,
     y     = "Coefficient of variation (CVi) \n relative magnitude of individual variation",
     shape = "Likelihood family"
   ) +
-  theme_classic(base_size = 25) +
+  theme_classic(base_size = 30) +
   theme(
     legend.position  = "bottom",
     legend.box       = "vertical",
-    legend.text      = element_text(size = 20),
-    legend.title     = element_text(size = 23),
-    axis.title       = element_text(size = 24),
-    axis.text        = element_text(size = 20)
+    legend.text      = element_text(size = 25),
+    legend.title     = element_text(size = 28),
+    axis.title       = element_text(size = 29),
+    axis.text        = element_text(size = 25)
   ) +
   guides(fill = "none")
 
@@ -430,7 +430,7 @@ cvp_cvi_c <- ggplot(combined_c,
   ggrepel::geom_label_repel(
     aes(x = CVP_mean, y = CVi_mean, label = label, fill = cluster_label),
     colour             = "black",
-    size               = 6,
+    size               = 8,
     alpha              = 0.5,
     label.padding      = unit(0.15, "lines"),
     box.padding        = unit(0.5, "lines"),
@@ -455,14 +455,14 @@ cvp_cvi_c <- ggplot(combined_c,
     y     = "Coefficient of variation (CVi) \n relative magnitude of among-individual variation",
     shape = "Likelihood family"
   ) +
-  theme_classic(base_size = 25) +
+  theme_classic(base_size = 30) +
   theme(
     legend.position  = "bottom",
     legend.box       = "vertical",
-    legend.text      = element_text(size = 20),
-    legend.title     = element_text(size = 23),
-    axis.title       = element_text(size = 24),
-    axis.text        = element_text(size = 20)
+    legend.text      = element_text(size = 25),
+    legend.title     = element_text(size = 28),
+    axis.title       = element_text(size = 29),
+    axis.text        = element_text(size = 25)
   ) +
   guides(fill = "none")
 
@@ -487,10 +487,10 @@ cvp_cvi_B <- cvp_cvi_c +
   ) +
   labs(tag = "B")
 
-grid_plot <- rep_scatter_A + cvp_cvi_B +
-  plot_layout(ncol = 2)
+grid_plot <- rep_scatter_A / cvp_cvi_B +
+  plot_layout(ncol = 1)
 
 ggsave(file.path(output_dir, "ellipse_scatter_grid_AB.png"),
-       grid_plot, width = 22, height = 10)
+       grid_plot, width = 14, height = 24)
 
 cat("\nDone. Outputs saved to:", output_dir, "\n")

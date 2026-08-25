@@ -371,7 +371,7 @@ draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y,
       aes(x = xend, y = yend, label = variable),
       colour          = "sienna",
       fontface        = "bold",
-      size            = 6,
+      size            = 8,
       box.padding     = unit(0.5, "lines"),
       point.padding   = unit(0.3, "lines"),
       force           = 50,
@@ -392,14 +392,14 @@ draw_biplot <- function(pca_obj, km_obj, optimal_k, method_name, idx_x, idx_y,
       colour = "Cluster",
       fill   = "Cluster"
     ) +
-    theme_classic(base_size = 25) +
+    theme_classic(base_size = 30) +
     theme(
       legend.position  = "bottom",
       legend.box       = "horizontal",
-      legend.text      = element_text(size = 20),
-      legend.title     = element_text(size = 23),
-      axis.title       = element_text(size = 24),
-      axis.text        = element_text(size = 20)
+      legend.text      = element_text(size = 25),
+      legend.title     = element_text(size = 28),
+      axis.title       = element_text(size = 29),
+      axis.text        = element_text(size = 25)
     )
   p
 }
@@ -437,11 +437,11 @@ biplot_B <- p_rc1_rc3 +
   ) +
   labs(tag = "B")
 
-biplot_AB <- biplot_A + biplot_B +
-  plot_layout(ncol = 2, guides = "collect") &
+biplot_AB <- biplot_A / biplot_B +
+  plot_layout(ncol = 1, guides = "collect") &
   theme(legend.position = "bottom")
 
 ggsave(file.path(output_dir, paste0("pca_", best, "_biplot_clusters_AB.png")),
-       biplot_AB, width = 20, height = 9)
+       biplot_AB, width = 12, height = 22)
 
 cat("\nDone. Outputs saved to:", output_dir, "\n")
