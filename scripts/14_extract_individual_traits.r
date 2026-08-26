@@ -289,7 +289,7 @@ cluster_plot <- ggplot(behaviour_clusters,
   ggrepel::geom_label_repel(
     aes(label = label, fill = cluster_label),
     colour             = "black",
-    size               = 6,
+    size               = 10,
     alpha              = 0.5,
     label.padding      = unit(0.2, "lines"),
     box.padding        = unit(0.8, "lines"),
@@ -316,8 +316,8 @@ cluster_plot <- ggplot(behaviour_clusters,
   theme(
     legend.position  = "bottom",
     legend.box       = "horizontal",
-    axis.title       = element_text(size = 24),
-    axis.text        = element_text(size = 20)
+    axis.title       = element_text(size = 26),
+    axis.text        = element_text(size = 22)
   ) +
   guides(fill = "none")
 
@@ -362,7 +362,7 @@ rep_scatter_c <- ggplot(rep_summary_c,
   ggrepel::geom_label_repel(
     aes(x = R_cow_mean, y = CVi_mean, label = label, fill = cluster_label),
     colour             = "black",
-    size               = 8,
+    size               = 10,
     alpha              = 0.5,
     label.padding      = unit(0.15, "lines"),
     box.padding        = unit(0.5, "lines"),
@@ -387,14 +387,14 @@ rep_scatter_c <- ggplot(rep_summary_c,
     y     = "Coefficient of variation (CVi) \n relative magnitude of individual variation",
     shape = "Likelihood family"
   ) +
-  theme_classic(base_size = 30) +
+  theme_classic(base_size = 32) +
   theme(
     legend.position  = "bottom",
     legend.box       = "vertical",
-    legend.text      = element_text(size = 25),
-    legend.title     = element_text(size = 28),
-    axis.title       = element_text(size = 29),
-    axis.text        = element_text(size = 25)
+    legend.text      = element_text(size = 27),
+    legend.title     = element_text(size = 30),
+    axis.title       = element_text(size = 31),
+    axis.text        = element_text(size = 27)
   ) +
   guides(fill = "none")
 
@@ -430,7 +430,7 @@ cvp_cvi_c <- ggplot(combined_c,
   ggrepel::geom_label_repel(
     aes(x = CVP_mean, y = CVi_mean, label = label, fill = cluster_label),
     colour             = "black",
-    size               = 8,
+    size               = 10,
     alpha              = 0.5,
     label.padding      = unit(0.15, "lines"),
     box.padding        = unit(0.5, "lines"),
@@ -455,14 +455,14 @@ cvp_cvi_c <- ggplot(combined_c,
     y     = "Coefficient of variation (CVi) \n relative magnitude of among-individual variation",
     shape = "Likelihood family"
   ) +
-  theme_classic(base_size = 30) +
+  theme_classic(base_size = 32) +
   theme(
     legend.position  = "bottom",
     legend.box       = "vertical",
-    legend.text      = element_text(size = 25),
-    legend.title     = element_text(size = 28),
-    axis.title       = element_text(size = 29),
-    axis.text        = element_text(size = 25)
+    legend.text      = element_text(size = 27),
+    legend.title     = element_text(size = 30),
+    axis.title       = element_text(size = 31),
+    axis.text        = element_text(size = 27)
   ) +
   guides(fill = "none")
 
